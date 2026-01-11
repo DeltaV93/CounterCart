@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import { trackDonation, AnalyticsEvents } from "@/lib/analytics";
 import {
   Card,
   CardContent,
@@ -137,16 +138,39 @@ export default function DonationsPage() {
   const totalPending = pendingDonations.reduce((sum, d) => sum + d.amount, 0);
   const totalCompleted = completedDonations.reduce((sum, d) => sum + d.amount, 0);
 
-  const handleDonate = (charitySlug: string, amount: number, donationId: string) => {
-    // Generate Every.org donate URL
-    const params = new URLSearchParams({
-      amount: amount.toFixed(2),
-      frequency: "ONCE",
-      success_url: `${window.location.origin}/donations?completed=${donationId}`,
-    });
+  const handleDonate = async (charitySlug: string, amount: number, donationId: string) => {
+    // Track donation started
+    trackDonation(AnalyticsEvents.DONATION_STARTED, amount);
 
-    const donateUrl = `https://www.every.org/${charitySlug}#donate?${params.toString()}`;
-    window.open(donateUrl, "_blank");
+    // Get tracked donation URL from API
+    try {
+      const response = await fetch("/api/donations/url", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ donationId }),
+      });
+
+      if (response.ok) {
+        const { url } = await response.json();
+        window.open(url, "_blank");
+      } else {
+        // Fallback to direct URL if API fails
+        const params = new URLSearchParams({
+          amount: amount.toFixed(2),
+          frequency: "ONCE",
+          success_url: `${window.location.origin}/donations?completed=${donationId}`,
+        });
+        window.open(`https://www.every.org/${charitySlug}#donate?${params.toString()}`, "_blank");
+      }
+    } catch {
+      // Fallback to direct URL
+      const params = new URLSearchParams({
+        amount: amount.toFixed(2),
+        frequency: "ONCE",
+        success_url: `${window.location.origin}/donations?completed=${donationId}`,
+      });
+      window.open(`https://www.every.org/${charitySlug}#donate?${params.toString()}`, "_blank");
+    }
   };
 
   const handleDonateAll = () => {

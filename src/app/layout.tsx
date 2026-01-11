@@ -1,15 +1,25 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Suspense } from "react";
+import { Bebas_Neue, IBM_Plex_Mono, Caveat } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
+import { FathomProvider } from "@/components/analytics/FathomProvider";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const bebasNeue = Bebas_Neue({
+  weight: "400",
+  variable: "--font-headline",
   subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const ibmPlexMono = IBM_Plex_Mono({
+  weight: ["400", "500", "600"],
+  variable: "--font-mono",
+  subsets: ["latin"],
+});
+
+const caveat = Caveat({
+  weight: "600",
+  variable: "--font-handwritten",
   subsets: ["latin"],
 });
 
@@ -27,9 +37,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${bebasNeue.variable} ${ibmPlexMono.variable} ${caveat.variable} antialiased`}
       >
-        {children}
+        <Suspense fallback={null}>
+          <FathomProvider>{children}</FathomProvider>
+        </Suspense>
         <Toaster />
       </body>
     </html>

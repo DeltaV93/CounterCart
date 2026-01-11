@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { plaidService } from "@/services/plaid.service";
 import { verifyPlaidWebhook } from "@/lib/plaid-webhook";
+import { logger } from "@/lib/logger";
 import {
   checkRateLimit,
   getClientIdentifier,
@@ -39,7 +40,7 @@ export async function POST(request: Request) {
     const verification = await verifyPlaidWebhook(rawBody, plaidVerificationHeader);
 
     if (!verification.valid) {
-      console.error("Plaid webhook verification failed:", verification.error);
+      logger.error("Plaid webhook verification failed", { error: verification.error });
       return NextResponse.json(
         { error: "Webhook verification failed" },
         { status: 401 }
@@ -72,7 +73,7 @@ export async function POST(request: Request) {
           break;
 
         default:
-          console.log(`Unhandled webhook type: ${payload.webhook_type}`);
+          logger.debug("Unhandled webhook type", { webhookType: payload.webhook_type });
       }
 
       // Mark webhook as completed
@@ -98,7 +99,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ received: true });
   } catch (error) {
-    console.error("Error processing Plaid webhook:", error);
+    logger.error("Error processing Plaid webhook", undefined, error);
     return NextResponse.json(
       { error: "Webhook processing failed" },
       { status: 500 }
@@ -115,7 +116,7 @@ async function handleTransactionsWebhook(payload: PlaidWebhookPayload) {
   });
 
   if (!plaidItem) {
-    console.error(`PlaidItem not found for item_id: ${item_id}`);
+    logger.error("PlaidItem not found for item_id", { itemId: item_id });
     return;
   }
 
@@ -134,7 +135,7 @@ async function handleTransactionsWebhook(payload: PlaidWebhookPayload) {
       break;
 
     default:
-      console.log(`Unhandled transactions webhook code: ${webhook_code}`);
+      logger.debug("Unhandled transactions webhook code", { webhookCode: webhook_code });
   }
 }
 
@@ -147,7 +148,7 @@ async function handleItemWebhook(payload: PlaidWebhookPayload) {
   });
 
   if (!plaidItem) {
-    console.error(`PlaidItem not found for item_id: ${item_id}`);
+    logger.error("PlaidItem not found for item_id", { itemId: item_id });
     return;
   }
 
@@ -184,6 +185,6 @@ async function handleItemWebhook(payload: PlaidWebhookPayload) {
       break;
 
     default:
-      console.log(`Unhandled item webhook code: ${webhook_code}`);
+      logger.debug("Unhandled item webhook code", { webhookCode: webhook_code });
   }
 }

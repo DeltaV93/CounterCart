@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { plaidClient, PLAID_PRODUCTS, PLAID_COUNTRY_CODES } from "@/lib/plaid";
 import { requireUser } from "@/lib/auth";
+import { logger } from "@/lib/logger";
 import {
   checkRateLimit,
   getClientIdentifier,
@@ -35,7 +36,7 @@ export async function POST(request: Request) {
       expiration: response.data.expiration,
     });
   } catch (error) {
-    console.error("Error creating link token:", error);
+    logger.error("Error creating link token", undefined, error);
     if (error instanceof Error && error.message === "Unauthorized") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }

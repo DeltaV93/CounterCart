@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { requireUser } from "@/lib/auth";
+import { logger } from "@/lib/logger";
 
 export async function GET() {
   try {
@@ -23,7 +24,7 @@ export async function GET() {
       }))
     );
   } catch (error) {
-    console.error("Error fetching donations:", error);
+    logger.error("Error fetching donations", undefined, error);
     if (error instanceof Error && error.message === "Unauthorized") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }

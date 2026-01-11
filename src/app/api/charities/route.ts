@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
 import { getNonprofitsBySlug, type EveryOrgNonprofit } from "@/lib/everyorg";
+import { logger } from "@/lib/logger";
 
 export interface CharityWithDetails {
   id: string;
@@ -144,7 +145,7 @@ export async function GET(request: NextRequest) {
       isPremium: user?.subscriptionTier === "premium",
     });
   } catch (error) {
-    console.error("Error fetching charities:", error);
+    logger.error("Error fetching charities", undefined, error);
     return NextResponse.json(
       { error: "Failed to fetch charities" },
       { status: 500 }
@@ -217,7 +218,7 @@ export async function POST(request: NextRequest) {
       userCharity,
     });
   } catch (error) {
-    console.error("Error setting charity preference:", error);
+    logger.error("Error setting charity preference", undefined, error);
     return NextResponse.json(
       { error: "Failed to set charity preference" },
       { status: 500 }
@@ -252,7 +253,7 @@ export async function DELETE(request: NextRequest) {
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("Error removing charity preference:", error);
+    logger.error("Error removing charity preference", undefined, error);
     return NextResponse.json(
       { error: "Failed to remove charity preference" },
       { status: 500 }

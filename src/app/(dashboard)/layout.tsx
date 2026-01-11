@@ -11,7 +11,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
-  Heart,
   LayoutDashboard,
   CreditCard,
   Gift,
@@ -48,21 +47,23 @@ export default async function DashboardLayout({
     : "U";
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 dark:bg-slate-950/95 dark:supports-[backdrop-filter]:bg-slate-950/60">
+      <header className="sticky top-0 z-50 w-full bg-primary border-b-[3px] border-accent">
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
           <div className="flex items-center gap-6">
             <Link href="/dashboard" className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary">
-                <Heart className="h-4 w-4 text-white" />
+              <div className="w-8 h-8 bg-accent flex items-center justify-center text-primary">
+                ↺
               </div>
-              <span className="font-semibold">CounterCart</span>
+              <span className="headline text-primary-foreground text-lg tracking-wider">
+                COUNTERCART
+              </span>
             </Link>
             <nav className="hidden md:flex items-center gap-1">
               {navItems.map((item) => (
                 <Link key={item.href} href={item.href}>
-                  <Button variant="ghost" size="sm" className="gap-2">
+                  <Button variant="ghost" size="sm" className="gap-2 text-primary-foreground hover:text-accent hover:bg-transparent">
                     <item.icon className="h-4 w-4" />
                     {item.label}
                   </Button>
@@ -73,13 +74,15 @@ export default async function DashboardLayout({
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                <Avatar className="h-8 w-8">
-                  <AvatarFallback>{initials}</AvatarFallback>
+              <Button variant="ghost" className="relative h-9 w-9 border-2 border-accent hover:bg-accent hover:text-accent-foreground">
+                <Avatar className="h-7 w-7">
+                  <AvatarFallback className="bg-accent text-accent-foreground headline text-sm">
+                    {initials}
+                  </AvatarFallback>
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56" align="end">
+            <DropdownMenuContent className="w-56 border-2 border-primary" align="end">
               <div className="flex items-center justify-start gap-2 p-2">
                 <div className="flex flex-col space-y-1 leading-none">
                   <p className="font-medium">{user.user_metadata?.name || "User"}</p>

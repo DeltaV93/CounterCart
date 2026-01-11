@@ -7,6 +7,7 @@ import {
   type JWK,
 } from "jose";
 import { plaidClient } from "./plaid";
+import { logger } from "./logger";
 
 type VerificationKey = Awaited<ReturnType<typeof importJWK>>;
 
@@ -85,7 +86,7 @@ export async function verifyPlaidWebhook(
     if (error instanceof errors.JWSSignatureVerificationFailed) {
       return { valid: false, error: "Invalid JWT signature" };
     }
-    console.error("Webhook verification error:", error);
+    logger.error("Webhook verification error", undefined, error);
     return {
       valid: false,
       error: error instanceof Error ? error.message : "Unknown verification error"

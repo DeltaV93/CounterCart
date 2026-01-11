@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { track, AnalyticsEvents } from "@/lib/analytics";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -87,6 +88,7 @@ export default function CausesPage() {
       });
 
       if (response.ok) {
+        track(AnalyticsEvents.ONBOARDING_CAUSES_SELECTED);
         router.push("/onboarding/charities");
       }
     } catch (error) {

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import prisma from "@/lib/prisma";
 import { requireUser } from "@/lib/auth";
+import { logger } from "@/lib/logger";
 
 const updateSettingsSchema = z.object({
   donationMultiplier: z.number().min(0.5).max(10).optional(),
@@ -26,7 +27,7 @@ export async function GET() {
       onboardingComplete: user.onboardingComplete,
     });
   } catch (error) {
-    console.error("Error fetching user settings:", error);
+    logger.error("Error fetching user settings", undefined, error);
     if (error instanceof Error && error.message === "Unauthorized") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -76,7 +77,7 @@ export async function PATCH(request: Request) {
       },
     });
   } catch (error) {
-    console.error("Error updating user settings:", error);
+    logger.error("Error updating user settings", undefined, error);
     if (error instanceof Error && error.message === "Unauthorized") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }

@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { logger } from "@/lib/logger";
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
@@ -29,7 +30,7 @@ export async function GET(request: Request) {
           },
         });
       } catch (e) {
-        console.error("Error creating user:", e);
+        logger.error("Error creating user in auth callback", { email: user.email }, e);
       }
 
       // Check if user has completed onboarding

@@ -1,5 +1,6 @@
 import prisma from "@/lib/prisma";
 import { normalizeMerchantName } from "@/lib/plaid";
+import { logger } from "@/lib/logger";
 import { Prisma } from "@prisma/client";
 
 type BusinessMappingWithCause = Prisma.BusinessMappingGetPayload<{
@@ -11,18 +12,57 @@ export interface MatchResult {
   confidence: number;
 }
 
+// Cache for business mappings
+interface MappingsCache {
+  mappings: BusinessMappingWithCause[];
+  expiresAt: number;
+}
+
+const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+let mappingsCache: MappingsCache | null = null;
+
 export class MatchingService {
+  /**
+   * Get cached business mappings or fetch from database
+   */
+  private async getMappings(): Promise<BusinessMappingWithCause[]> {
+    const now = Date.now();
+
+    // Return cached mappings if valid
+    if (mappingsCache && mappingsCache.expiresAt > now) {
+      return mappingsCache.mappings;
+    }
+
+    // Fetch from database
+    const mappings = await prisma.businessMapping.findMany({
+      where: { isActive: true },
+      include: { cause: true },
+    });
+
+    // Update cache
+    mappingsCache = {
+      mappings,
+      expiresAt: now + CACHE_TTL_MS,
+    };
+
+    return mappings;
+  }
+
+  /**
+   * Invalidate the mappings cache (call after updating mappings)
+   */
+  invalidateCache(): void {
+    mappingsCache = null;
+  }
+
   /**
    * Find a business mapping for a given merchant name
    */
   async findMapping(merchantName: string): Promise<MatchResult | null> {
     const normalizedName = normalizeMerchantName(merchantName);
 
-    // Get all active mappings
-    const mappings = await prisma.businessMapping.findMany({
-      where: { isActive: true },
-      include: { cause: true },
-    });
+    // Get cached mappings
+    const mappings = await this.getMappings();
 
     // Find matching mapping
     for (const mapping of mappings) {
@@ -167,7 +207,7 @@ export class MatchingService {
     const charity = await this.getDefaultCharity(match.mapping.causeId);
 
     if (!charity) {
-      console.error(`No default charity for cause: ${match.mapping.causeId}`);
+      logger.error("No default charity for cause", { causeId: match.mapping.causeId });
       return { matched: false };
     }
 

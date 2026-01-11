@@ -1,6 +1,8 @@
 // Every.org API Client
 // Documentation: https://docs.every.org/docs/endpoints/nonprofit-search
 
+import { logger } from "./logger";
+
 const EVERYORG_BASE_URL = "https://partners.every.org/v0.2";
 
 export interface EveryOrgNonprofit {
@@ -56,7 +58,7 @@ const CACHE_TTL_MS = 1000 * 60 * 60; // 1 hour
 function getApiKey(): string {
   const apiKey = process.env.EVERYORG_API_KEY || process.env.NEXT_PUBLIC_EVERYORG_API_KEY;
   if (!apiKey) {
-    console.warn("Every.org API key not configured - using public endpoints without auth");
+    logger.warn("Every.org API key not configured - using public endpoints without auth");
     return "";
   }
   return apiKey;
@@ -89,7 +91,7 @@ export async function getNonprofitDetails(identifier: string): Promise<EveryOrgN
 
     if (!response.ok) {
       if (response.status === 404) {
-        console.warn(`Nonprofit not found: ${identifier}`);
+        logger.warn("Nonprofit not found", { identifier });
         return null;
       }
       throw new Error(`Every.org API error: ${response.status} ${response.statusText}`);
@@ -115,7 +117,7 @@ export async function getNonprofitDetails(identifier: string): Promise<EveryOrgN
 
     return nonprofit;
   } catch (error) {
-    console.error(`Error fetching nonprofit ${identifier}:`, error);
+    logger.error("Error fetching nonprofit", { identifier }, error);
     return null;
   }
 }
@@ -190,22 +192,33 @@ export async function searchNonprofits(
       locationAddress: null,
     }));
   } catch (error) {
-    console.error(`Error searching nonprofits for "${searchTerm}":`, error);
+    logger.error("Error searching nonprofits", { searchTerm }, error);
     return [];
   }
+}
+
+export interface DonationUrlOptions {
+  amount?: number;
+  frequency?: "ONCE" | "MONTHLY";
+  successUrl?: string;
+  /** Metadata to pass through webhook (donationId, userId, batchId) */
+  metadata?: {
+    donationId?: string;
+    userId?: string;
+    batchId?: string;
+  };
 }
 
 /**
  * Generate the donation URL for a nonprofit
  * Opens Every.org's donation modal with pre-filled amount
+ *
+ * Note: Requires webhook_token from Every.org for webhook callback.
+ * Contact support@every.org to set up partner webhook.
  */
 export function getDonationUrl(
   charitySlug: string,
-  options?: {
-    amount?: number;
-    frequency?: "ONCE" | "MONTHLY";
-    successUrl?: string;
-  }
+  options?: DonationUrlOptions
 ): string {
   const params = new URLSearchParams();
 
@@ -217,6 +230,18 @@ export function getDonationUrl(
   }
   if (options?.successUrl) {
     params.set("success_url", options.successUrl);
+  }
+
+  // Add webhook token if configured
+  const webhookToken = process.env.EVERYORG_WEBHOOK_TOKEN;
+  if (webhookToken) {
+    params.set("webhook_token", webhookToken);
+  }
+
+  // Add partner metadata for webhook tracking
+  if (options?.metadata) {
+    const metadataBase64 = Buffer.from(JSON.stringify(options.metadata)).toString("base64");
+    params.set("partner_metadata", metadataBase64);
   }
 
   const queryString = params.toString();

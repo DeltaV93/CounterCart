@@ -2,6 +2,7 @@ import { plaidClient, normalizeMerchantName } from "@/lib/plaid";
 import prisma from "@/lib/prisma";
 import { matchingService } from "./matching.service";
 import { decrypt } from "@/lib/encryption";
+import { logger } from "@/lib/logger";
 import { RemovedTransaction, Transaction as PlaidTransaction } from "plaid";
 
 export class PlaidService {
@@ -116,7 +117,7 @@ export class PlaidService {
     });
 
     if (!bankAccount) {
-      console.error(`Bank account not found for Plaid account: ${txn.account_id}`);
+      logger.error("Bank account not found for Plaid account", { plaidAccountId: txn.account_id, plaidItemId });
       return null;
     }
 
@@ -203,7 +204,7 @@ export class PlaidService {
         const stats = await this.syncTransactions(item.id);
         results.push({ itemId: item.id, success: true, stats });
       } catch (error) {
-        console.error(`Error syncing Plaid item ${item.id}:`, error);
+        logger.error("Error syncing Plaid item", { itemId: item.id }, error);
         results.push({ itemId: item.id, success: false, error });
       }
     }

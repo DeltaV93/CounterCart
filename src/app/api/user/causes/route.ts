@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import prisma from "@/lib/prisma";
 import { requireUser } from "@/lib/auth";
+import { logger } from "@/lib/logger";
 
 const saveCausesSchema = z.object({
   causeIds: z.array(z.string()).min(1),
@@ -18,7 +19,7 @@ export async function GET() {
 
     return NextResponse.json(userCauses);
   } catch (error) {
-    console.error("Error fetching user causes:", error);
+    logger.error("Error fetching user causes", undefined, error);
     if (error instanceof Error && error.message === "Unauthorized") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -51,7 +52,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("Error saving user causes:", error);
+    logger.error("Error saving user causes", undefined, error);
     if (error instanceof Error && error.message === "Unauthorized") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }

@@ -4,6 +4,7 @@ import { plaidClient } from "@/lib/plaid";
 import prisma from "@/lib/prisma";
 import { requireUser } from "@/lib/auth";
 import { encrypt } from "@/lib/encryption";
+import { logger } from "@/lib/logger";
 import {
   checkRateLimit,
   getClientIdentifier,
@@ -80,7 +81,7 @@ export async function POST(request: Request) {
       accounts: plaidItem.bankAccounts.length,
     });
   } catch (error) {
-    console.error("Error exchanging token:", error);
+    logger.error("Error exchanging token", undefined, error);
     if (error instanceof Error && error.message === "Unauthorized") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }

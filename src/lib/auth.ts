@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import prisma from "@/lib/prisma";
+import { logger } from "@/lib/logger";
 
 export async function getCurrentUser() {
   const supabase = await createClient();
@@ -28,7 +29,7 @@ export async function getCurrentUser() {
       });
     } catch (error) {
       // Handle race condition where user was created between check and insert
-      console.error("Error creating user:", error);
+      logger.error("Error creating user", { email: user.email }, error);
       dbUser = await prisma.user.findUnique({
         where: { email: user.email },
       });
