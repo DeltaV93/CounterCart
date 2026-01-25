@@ -8,14 +8,22 @@ CounterCart is a "round-up for charity" web app that matches purchases at specif
 
 ## Commands
 
+### Next.js Frontend
 ```bash
-npm run dev          # Start development server (Next.js)
+npm run dev          # Start development server (port 3007)
 npm run build        # Generate Prisma client + build Next.js
 npm run lint         # Run ESLint
 npm run db:push      # Push schema changes to database (no migration)
 npm run db:migrate   # Create and run migrations
 npm run db:seed      # Seed database with causes, charities, and mappings
 npm run db:studio    # Open Prisma Studio GUI
+```
+
+### FastAPI Backend (background jobs)
+```bash
+cd backend
+pip install -r requirements.txt   # Install dependencies
+uvicorn app.main:app --reload     # Start development server (port 8000)
 ```
 
 ## Architecture

@@ -9,6 +9,9 @@ import {
   RATE_LIMITS,
 } from "@/lib/rate-limit";
 
+const BACKEND_URL = process.env.BACKEND_SERVICE_URL;
+const INTERNAL_TOKEN = process.env.INTERNAL_API_TOKEN;
+
 // Every.org webhook payload structure
 interface EveryOrgWebhookPayload {
   chargeId: string;
@@ -134,27 +137,37 @@ export async function POST(request: Request) {
       },
     });
 
-    try {
-      await handleDonationCompleted(payload);
+    // Trigger background job via FastAPI service
+    if (BACKEND_URL && INTERNAL_TOKEN) {
+      fetch(`${BACKEND_URL}/jobs/complete-donation`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Internal-Token": INTERNAL_TOKEN,
+        },
+        body: JSON.stringify({
+          donation_id: payload.partnerMetadata?.donationId,
+          batch_id: payload.partnerMetadata?.batchId,
+          user_id: payload.partnerMetadata?.userId,
+          every_org_id: payload.chargeId,
+        }),
+      }).catch((err) => {
+        logger.error("Failed to trigger backend job", { error: String(err) });
+      });
 
+      // Mark webhook as processing (will be completed by background job)
       await prisma.webhookEvent.update({
         where: { id: webhookEvent.id },
-        data: {
-          status: "COMPLETED",
-          processedAt: new Date(),
-        },
+        data: { status: "PROCESSING" },
       });
-    } catch (error) {
-      await prisma.webhookEvent.update({
-        where: { id: webhookEvent.id },
-        data: {
-          status: "FAILED",
-          error: error instanceof Error ? error.message : "Unknown error",
-          retryCount: { increment: 1 },
-        },
-      });
-      throw error;
+    } else {
+      logger.warn("Backend service not configured, donation will not be processed");
     }
+
+    logger.info("Every.org webhook queued for processing", {
+      eventId: webhookEvent.id,
+      chargeId: payload.chargeId,
+    });
 
     return NextResponse.json({ received: true });
   } catch (error) {
@@ -164,88 +177,4 @@ export async function POST(request: Request) {
       { status: 500 }
     );
   }
-}
-
-async function handleDonationCompleted(payload: EveryOrgWebhookPayload) {
-  // Try to find the donation by partnerMetadata first
-  let donation = null;
-
-  if (payload.partnerMetadata?.donationId) {
-    donation = await prisma.donation.findUnique({
-      where: { id: payload.partnerMetadata.donationId },
-    });
-  }
-
-  // Fallback: find by charity slug and pending status for the user
-  if (!donation && payload.partnerMetadata?.userId) {
-    donation = await prisma.donation.findFirst({
-      where: {
-        userId: payload.partnerMetadata.userId,
-        charitySlug: payload.toNonprofit.slug,
-        status: "PENDING",
-        amount: parseFloat(payload.amount),
-      },
-      orderBy: { createdAt: "desc" },
-    });
-  }
-
-  // Fallback: find by everyOrgId if already set
-  if (!donation) {
-    donation = await prisma.donation.findUnique({
-      where: { everyOrgId: payload.chargeId },
-    });
-  }
-
-  if (!donation) {
-    // This might be a donation made directly on Every.org, not through our app
-    logger.info("No matching donation found for Every.org charge", {
-      chargeId: payload.chargeId,
-      charitySlug: payload.toNonprofit.slug,
-    });
-    return;
-  }
-
-  // Update donation status
-  await prisma.donation.update({
-    where: { id: donation.id },
-    data: {
-      status: "COMPLETED",
-      everyOrgId: payload.chargeId,
-      receiptUrl: `https://www.every.org/receipt/${payload.chargeId}`,
-      completedAt: new Date(payload.donationDate),
-    },
-  });
-
-  // Update related transaction status if exists
-  if (donation.transactionId) {
-    await prisma.transaction.update({
-      where: { id: donation.transactionId },
-      data: { status: "DONATED" },
-    });
-  }
-
-  // Update batch status if all donations in batch are completed
-  if (donation.batchId) {
-    const pendingInBatch = await prisma.donation.count({
-      where: {
-        batchId: donation.batchId,
-        status: { in: ["PENDING", "PROCESSING"] },
-      },
-    });
-
-    if (pendingInBatch === 0) {
-      await prisma.donationBatch.update({
-        where: { id: donation.batchId },
-        data: {
-          status: "COMPLETED",
-          processedAt: new Date(),
-        },
-      });
-    }
-  }
-
-  logger.info("Donation marked as completed", {
-    donationId: donation.id,
-    everyOrgChargeId: payload.chargeId,
-  });
 }
