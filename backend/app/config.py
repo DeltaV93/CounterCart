@@ -33,13 +33,18 @@ class Settings(BaseSettings):
 
     @property
     def async_database_url(self) -> str:
-        """Convert postgres:// to postgresql+asyncpg://"""
+        """Convert postgres:// to postgresql+asyncpg:// and add SSL params"""
         url = self.DATABASE_URL
         if url.startswith("postgres://"):
             url = url.replace("postgres://", "postgresql+asyncpg://", 1)
         elif url.startswith("postgresql://"):
             url = url.replace("postgresql://", "postgresql+asyncpg://", 1)
         return url
+
+    @property
+    def is_railway(self) -> bool:
+        """Check if running on Railway (internal network)"""
+        return ".railway.internal" in self.DATABASE_URL
 
     class Config:
         env_file = ".env"
