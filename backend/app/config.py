@@ -4,21 +4,21 @@ from functools import lru_cache
 
 class Settings(BaseSettings):
     # Database
-    DATABASE_URL: str
+    DATABASE_URL: str = ""
 
     # Encryption
-    ENCRYPTION_SECRET: str
+    ENCRYPTION_SECRET: str = ""
 
     # Plaid
-    PLAID_CLIENT_ID: str
-    PLAID_SECRET: str
+    PLAID_CLIENT_ID: str = ""
+    PLAID_SECRET: str = ""
     PLAID_ENV: str = "sandbox"
 
     # Every.org
     EVERYORG_WEBHOOK_TOKEN: str = ""
 
     # Internal API
-    INTERNAL_API_TOKEN: str
+    INTERNAL_API_TOKEN: str = ""
 
     # App
     APP_URL: str = "http://localhost:3000"
@@ -26,6 +26,9 @@ class Settings(BaseSettings):
     # Logging
     LOG_LEVEL: str = "info"
     ENVIRONMENT: str = "development"
+
+    # Railway injects PORT
+    PORT: int = 8000
 
     @property
     def DEBUG(self) -> bool:
