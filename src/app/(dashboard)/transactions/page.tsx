@@ -15,7 +15,8 @@ import {
   TransactionFilters,
   type TransactionFilters as Filters,
 } from "@/components/TransactionFilters";
-import { CreditCard, ArrowUpRight, ChevronLeft, ChevronRight } from "lucide-react";
+import { CreditCard, ArrowUpRight, ChevronLeft, ChevronRight, Building2 } from "lucide-react";
+import { EmptyState } from "@/components/EmptyState";
 
 interface Transaction {
   id: string;
@@ -150,15 +151,24 @@ export default function TransactionsPage() {
               ))}
             </div>
           ) : transactions.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-12 text-center">
-              <CreditCard className="h-12 w-12 text-muted-foreground mb-4" />
-              <h3 className="font-medium">No transactions found</h3>
-              <p className="text-sm text-muted-foreground mt-1">
-                {filters.search || filters.status !== "all" || filters.startDate || filters.endDate
-                  ? "Try adjusting your filters"
-                  : "Transactions will appear here once we start syncing your bank data"}
-              </p>
-            </div>
+            filters.search || filters.status !== "all" || filters.startDate || filters.endDate ? (
+              <EmptyState
+                icon={CreditCard}
+                title="No transactions found"
+                description="Try adjusting your filters to find what you're looking for."
+              />
+            ) : (
+              <EmptyState
+                icon={CreditCard}
+                title="No transactions yet"
+                description="Transactions will appear here once we start syncing your bank data."
+                action={{
+                  label: "Connect Bank",
+                  href: "/onboarding/connect",
+                  icon: Building2,
+                }}
+              />
+            )
           ) : (
             <div className="space-y-4">
               {transactions.map((transaction) => (

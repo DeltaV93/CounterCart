@@ -13,7 +13,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Gift, ExternalLink, CheckCircle, X, Loader2 } from "lucide-react";
+import { Gift, ExternalLink, CheckCircle, X, Loader2, Heart } from "lucide-react";
+import { EmptyState } from "@/components/EmptyState";
 import {
   Dialog,
   DialogContent,
@@ -418,13 +419,11 @@ export default function DonationsPage() {
         </CardHeader>
         <CardContent>
           {completedDonations.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-12 text-center">
-              <CheckCircle className="h-12 w-12 text-muted-foreground mb-4" />
-              <h3 className="font-medium">No donations yet</h3>
-              <p className="text-sm text-muted-foreground mt-1">
-                Completed donations will appear here
-              </p>
-            </div>
+            <EmptyState
+              icon={Heart}
+              title="No donations yet"
+              description="Completed donations will appear here once you make your first donation."
+            />
           ) : (
             <div className="space-y-4">
               {completedDonations.map((donation) => (

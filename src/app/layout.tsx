@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import { Bebas_Neue, IBM_Plex_Mono, Caveat } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import { FathomProvider } from "@/components/analytics/FathomProvider";
+import { ThemeProvider } from "@/components/ThemeProvider";
 import "@/lib/env"; // Validate environment variables on startup
 import "./globals.css";
 
@@ -36,14 +37,21 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
         className={`${bebasNeue.variable} ${ibmPlexMono.variable} ${caveat.variable} antialiased`}
       >
-        <Suspense fallback={null}>
-          <FathomProvider>{children}</FathomProvider>
-        </Suspense>
-        <Toaster />
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <Suspense fallback={null}>
+            <FathomProvider>{children}</FathomProvider>
+          </Suspense>
+          <Toaster />
+        </ThemeProvider>
       </body>
     </html>
   );

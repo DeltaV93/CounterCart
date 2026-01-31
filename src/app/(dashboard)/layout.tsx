@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { MobileNav } from "@/components/MobileNav";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import {
   LayoutDashboard,
   CreditCard,
@@ -76,9 +77,11 @@ export default async function DashboardLayout({
             </nav>
           </div>
 
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="relative h-9 w-9 border-2 border-accent hover:bg-accent hover:text-accent-foreground">
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="relative h-9 w-9 border-2 border-accent hover:bg-accent hover:text-accent-foreground">
                 <Avatar className="h-7 w-7">
                   <AvatarFallback className="bg-accent text-accent-foreground headline text-sm">
                     {initials}
@@ -117,6 +120,7 @@ export default async function DashboardLayout({
               </form>
             </DropdownMenuContent>
           </DropdownMenu>
+          </div>
         </div>
       </header>
 
