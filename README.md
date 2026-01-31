@@ -1,36 +1,137 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# CounterCart
+
+**Offset Your Purchases with Purpose**
+
+CounterCart is a "round-up for charity" web app that automatically matches purchases at specific businesses to counter-donations to related charitable causes. When you shop at businesses with questionable practices, the app suggests donations to opposing charities.
+
+## Features
+
+- **Bank Integration** - Connect your bank via Plaid to automatically track purchases
+- **Smart Matching** - Transactions are matched against a database of business-to-cause mappings
+- **Round-Up Donations** - Automatically calculate round-up amounts with customizable multipliers
+- **Choose Your Causes** - Select causes you care about (LGBTQ+ Rights, Climate Action, etc.)
+- **Pick Your Charities** - Choose which nonprofits receive your donations via Every.org
+- **Tax Summaries** - Export donation history for tax purposes (Premium)
+- **Dark Mode** - Full dark mode support
+
+## Tech Stack
+
+- **Framework**: Next.js 16 with App Router (React 19)
+- **Database**: PostgreSQL with Prisma ORM
+- **Auth**: Supabase Auth
+- **Banking**: Plaid API
+- **Donations**: Every.org API
+- **Payments**: Stripe (subscriptions)
+- **Email**: Resend
+- **Styling**: Tailwind CSS + shadcn/ui
+- **Analytics**: Fathom Analytics
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+
+- Node.js 20+
+- PostgreSQL database
+- Accounts with: Supabase, Plaid, Stripe, Every.org, Resend
+
+### Installation
 
 ```bash
+# Clone the repository
+git clone https://github.com/DeltaV93/CounterCart.git
+cd CounterCart
+
+# Install dependencies
+npm install
+
+# Copy environment variables
+cp .env.example .env
+
+# Set up your environment variables (see below)
+
+# Push database schema
+npm run db:push
+
+# Seed the database with causes and mappings
+npm run db:seed
+
+# Start development server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Environment Variables
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+See `.env.example` for all required variables. Key ones include:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```env
+# Database
+DATABASE_URL=postgresql://...
 
-## Learn More
+# Supabase Auth
+NEXT_PUBLIC_SUPABASE_URL=https://xxx.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=xxx
 
-To learn more about Next.js, take a look at the following resources:
+# Plaid
+PLAID_CLIENT_ID=xxx
+PLAID_SECRET=xxx
+PLAID_ENV=sandbox
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+# Stripe
+STRIPE_SECRET_KEY=xxx
+STRIPE_WEBHOOK_SECRET=xxx
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+# Every.org
+EVERYORG_API_KEY=xxx
 
-## Deploy on Vercel
+# Security
+ENCRYPTION_SECRET=xxx  # openssl rand -base64 32
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Scripts
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+npm run dev          # Start development server (port 3007)
+npm run build        # Build for production
+npm run lint         # Run ESLint
+npm run db:push      # Push schema changes to database
+npm run db:migrate   # Run migrations
+npm run db:seed      # Seed database
+npm run db:studio    # Open Prisma Studio
+```
+
+## Deployment
+
+The app is configured for Railway deployment. See `CLAUDE.md` for detailed deployment instructions.
+
+```bash
+# Deploy to Railway
+railway up
+```
+
+### Webhook URLs
+
+After deployment, configure these webhook URLs:
+- **Plaid**: `https://your-app.railway.app/api/webhooks/plaid`
+- **Stripe**: `https://your-app.railway.app/api/webhooks/stripe`
+- **Every.org**: `https://your-app.railway.app/api/webhooks/everyorg`
+
+## Project Structure
+
+```
+src/
+├── app/                    # Next.js App Router pages
+│   ├── (auth)/            # Login/signup pages
+│   ├── (dashboard)/       # Main app pages
+│   ├── (legal)/           # Privacy, terms, FAQ
+│   ├── api/               # API routes
+│   └── onboarding/        # Onboarding flow
+├── components/            # React components
+│   └── ui/               # shadcn/ui components
+├── lib/                   # Utilities and services
+├── config/               # App configuration
+└── services/             # Business logic services
+```
+
+## License
+
+MIT
