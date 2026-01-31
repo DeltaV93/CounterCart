@@ -4,6 +4,7 @@ import { useState, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { track, AnalyticsEvents } from "@/lib/analytics";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -44,6 +45,7 @@ function LoginForm() {
       setError(error.message);
       setIsLoading(false);
     } else {
+      track(AnalyticsEvents.LOGIN);
       setIsSuccess(true);
       setIsLoading(false);
     }

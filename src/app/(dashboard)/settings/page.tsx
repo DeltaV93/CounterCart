@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
+import { track, AnalyticsEvents } from "@/lib/analytics";
 import {
   Card,
   CardContent,
@@ -23,13 +25,13 @@ import {
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
-  Settings,
   DollarSign,
   Loader2,
   Save,
   Sparkles,
   Building2,
   CreditCard,
+  ExternalLink,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -42,17 +44,35 @@ interface UserSettings {
   monthlyLimit: number | null;
   autoDonateEnabled: boolean;
   onboardingComplete: boolean;
+  stripeCustomerId: string | null;
 }
 
 export default function SettingsPage() {
+  const searchParams = useSearchParams();
   const [settings, setSettings] = useState<UserSettings | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [isUpgrading, setIsUpgrading] = useState(false);
+  const [isManaging, setIsManaging] = useState(false);
 
   const [name, setName] = useState("");
   const [multiplier, setMultiplier] = useState("1");
   const [monthlyLimit, setMonthlyLimit] = useState("");
   const [autoDonate, setAutoDonate] = useState(false);
+
+  // Handle upgrade result from URL params
+  useEffect(() => {
+    const upgrade = searchParams.get("upgrade");
+    if (upgrade === "success") {
+      toast.success("Welcome to Premium! Your subscription is now active.");
+      track(AnalyticsEvents.SUBSCRIPTION_UPGRADED);
+      // Clean up URL
+      window.history.replaceState({}, "", "/settings");
+    } else if (upgrade === "cancelled") {
+      toast.info("Upgrade cancelled. You can upgrade anytime from settings.");
+      window.history.replaceState({}, "", "/settings");
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     const fetchSettings = async () => {
@@ -92,6 +112,7 @@ export default function SettingsPage() {
 
       if (response.ok) {
         toast.success("Settings saved successfully");
+        track(AnalyticsEvents.SETTINGS_UPDATED);
       } else {
         toast.error("Failed to save settings");
       }
@@ -100,6 +121,53 @@ export default function SettingsPage() {
       toast.error("Failed to save settings");
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleUpgrade = async () => {
+    setIsUpgrading(true);
+    try {
+      const response = await fetch("/api/stripe/create-checkout-session", {
+        method: "POST",
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || "Failed to start upgrade");
+      }
+
+      const { url } = await response.json();
+
+      // Track subscription started
+      track(AnalyticsEvents.SUBSCRIPTION_STARTED);
+
+      // Redirect to Stripe Checkout
+      window.location.href = url;
+    } catch (error) {
+      console.error("Error starting upgrade:", error);
+      toast.error(error instanceof Error ? error.message : "Failed to start upgrade");
+      setIsUpgrading(false);
+    }
+  };
+
+  const handleManageSubscription = async () => {
+    setIsManaging(true);
+    try {
+      const response = await fetch("/api/stripe/customer-portal", {
+        method: "POST",
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || "Failed to open billing portal");
+      }
+
+      const { url } = await response.json();
+      window.location.href = url;
+    } catch (error) {
+      console.error("Error opening billing portal:", error);
+      toast.error(error instanceof Error ? error.message : "Failed to open billing portal");
+      setIsManaging(false);
     }
   };
 
@@ -165,16 +233,45 @@ export default function SettingsPage() {
                 Upgrade to Premium to unlock auto-weekly donations, higher limits,
                 and more.
               </p>
-              <Button>
-                <Sparkles className="mr-2 h-4 w-4" />
-                Upgrade to Premium - $4.99/mo
+              <Button onClick={handleUpgrade} disabled={isUpgrading}>
+                {isUpgrading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Redirecting...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="mr-2 h-4 w-4" />
+                    Upgrade to Premium - $4.99/mo
+                  </>
+                )}
               </Button>
             </div>
           ) : (
-            <p className="text-sm text-muted-foreground">
-              You&apos;re on the Premium plan. Enjoy unlimited causes, auto-donations, and
-              more!
-            </p>
+            <div className="space-y-4">
+              <p className="text-sm text-muted-foreground">
+                You&apos;re on the Premium plan. Enjoy unlimited causes, auto-donations, and
+                more!
+              </p>
+              <Button
+                variant="outline"
+                onClick={handleManageSubscription}
+                disabled={isManaging}
+              >
+                {isManaging ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Opening...
+                  </>
+                ) : (
+                  <>
+                    <CreditCard className="mr-2 h-4 w-4" />
+                    Manage Subscription
+                    <ExternalLink className="ml-2 h-3 w-3" />
+                  </>
+                )}
+              </Button>
+            </div>
           )}
         </CardContent>
       </Card>

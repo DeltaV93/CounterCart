@@ -79,7 +79,7 @@ export async function GET(request: NextRequest) {
     });
 
     // Get user's charity preferences if logged in
-    let userCharityPrefs: Map<string, string> = new Map();
+    const userCharityPrefs: Map<string, string> = new Map();
     if (user) {
       const prefs = await prisma.userCharity.findMany({
         where: { userId: user.id },

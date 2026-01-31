@@ -3,6 +3,7 @@ import Stripe from "stripe";
 import { constructWebhookEvent } from "@/lib/stripe";
 import prisma from "@/lib/prisma";
 import { logger } from "@/lib/logger";
+import { sendPaymentFailedEmail } from "@/lib/email";
 import {
   checkRateLimit,
   getClientIdentifier,
@@ -210,6 +211,9 @@ async function handlePaymentFailed(invoice: Stripe.Invoice) {
       subscriptionStatus: "past_due",
     },
   });
+
+  // Send payment failed email notification
+  await sendPaymentFailedEmail(user.email, user.name || undefined);
 
   logger.warn("User payment failed", { userId: user.id });
 }

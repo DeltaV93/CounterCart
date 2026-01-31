@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import { track, AnalyticsEvents } from "@/lib/analytics";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -22,6 +23,11 @@ export default function SignupPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Track signup started on page load
+  useEffect(() => {
+    track(AnalyticsEvents.SIGNUP_STARTED);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,6 +50,7 @@ export default function SignupPage() {
       setError(error.message);
       setIsLoading(false);
     } else {
+      track(AnalyticsEvents.SIGNUP_COMPLETED);
       setIsSuccess(true);
       setIsLoading(false);
     }

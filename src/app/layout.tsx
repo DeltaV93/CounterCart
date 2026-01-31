@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import { Bebas_Neue, IBM_Plex_Mono, Caveat } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import { FathomProvider } from "@/components/analytics/FathomProvider";
+import "@/lib/env"; // Validate environment variables on startup
 import "./globals.css";
 
 const bebasNeue = Bebas_Neue({

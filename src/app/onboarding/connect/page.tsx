@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,50 +11,21 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Building2, Loader2, ArrowRight, CheckCircle, Lock } from "lucide-react";
+import { PlaidLinkButton } from "@/components/PlaidLinkButton";
+import { Building2, ArrowRight, CheckCircle, Lock } from "lucide-react";
 
 export default function ConnectBankPage() {
   const router = useRouter();
-  const [isConnecting, setIsConnecting] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
   const [bankName, setBankName] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [accountCount, setAccountCount] = useState<number>(0);
 
-  const handleConnectBank = useCallback(async () => {
-    setIsConnecting(true);
-    setError(null);
+  const handlePlaidSuccess = (institutionName: string, accounts: number) => {
+    setBankName(institutionName);
+    setAccountCount(accounts);
+    setIsConnected(true);
+  };
 
-    try {
-      // Get link token from our API
-      const response = await fetch("/api/plaid/create-link-token", {
-        method: "POST",
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to create link token");
-      }
-
-      const { link_token } = await response.json();
-
-      // Dynamically import Plaid Link
-      const { usePlaidLink } = await import("react-plaid-link");
-
-      // This is a placeholder - we'll need to use a component-based approach
-      // For now, show instructions
-      window.open(
-        `https://cdn.plaid.com/link/v2/stable/link.html?token=${link_token}`,
-        "plaid",
-        "width=600,height=600"
-      );
-    } catch (err) {
-      console.error("Error connecting bank:", err);
-      setError("Failed to connect bank. Please try again.");
-    } finally {
-      setIsConnecting(false);
-    }
-  }, []);
-
-  // For MVP, we'll use a simplified flow
   const handleSkip = () => {
     router.push("/onboarding/preferences");
   };
@@ -84,7 +55,7 @@ export default function ConnectBankPage() {
                 Connected to {bankName}
               </p>
               <p className="text-sm text-green-700 dark:text-green-300">
-                We&apos;ll start tracking your transactions
+                {accountCount} account{accountCount !== 1 ? "s" : ""} linked. We&apos;ll start tracking your transactions.
               </p>
             </div>
           </div>
@@ -112,12 +83,6 @@ export default function ConnectBankPage() {
                 </div>
               </div>
             </div>
-
-            {error && (
-              <div className="text-sm text-red-500 bg-red-50 dark:bg-red-950 p-3 rounded-md">
-                {error}
-              </div>
-            )}
           </>
         )}
       </CardContent>
@@ -129,24 +94,7 @@ export default function ConnectBankPage() {
           </Button>
         ) : (
           <>
-            <Button
-              className="w-full"
-              size="lg"
-              onClick={handleConnectBank}
-              disabled={isConnecting}
-            >
-              {isConnecting ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Connecting...
-                </>
-              ) : (
-                <>
-                  <Building2 className="mr-2 h-4 w-4" />
-                  Connect bank account
-                </>
-              )}
-            </Button>
+            <PlaidLinkButton onSuccess={handlePlaidSuccess} />
             <Button
               variant="ghost"
               className="w-full"

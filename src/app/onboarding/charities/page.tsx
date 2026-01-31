@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { track, AnalyticsEvents } from "@/lib/analytics";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -72,6 +73,8 @@ export default function CharitiesPage() {
 
   const handleContinue = async () => {
     setIsSaving(true);
+    // Track charities selection completed
+    track(AnalyticsEvents.ONBOARDING_CHARITIES_SELECTED);
     // For now, just proceed - charity selections are saved individually for premium users
     router.push("/onboarding/connect");
   };
