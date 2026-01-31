@@ -19,6 +19,7 @@ import {
   LogOut,
   User,
   Building2,
+  FileText,
 } from "lucide-react";
 
 const navItems = [
@@ -26,6 +27,7 @@ const navItems = [
   { href: "/transactions", label: "Transactions", icon: CreditCard },
   { href: "/donations", label: "Donations", icon: Gift },
   { href: "/charities", label: "Charities", icon: Building2 },
+  { href: "/tax-summary", label: "Tax Summary", icon: FileText },
   { href: "/settings", label: "Settings", icon: Settings },
 ];
 

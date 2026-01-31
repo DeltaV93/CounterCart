@@ -38,7 +38,6 @@ import {
   Loader2,
   Save,
   Sparkles,
-  Building2,
   CreditCard,
   ExternalLink,
   AlertTriangle,
@@ -46,6 +45,7 @@ import {
   Download,
 } from "lucide-react";
 import { toast } from "sonner";
+import { BankAccountList } from "@/components/BankAccountList";
 
 interface UserSettings {
   id: string;
@@ -393,22 +393,7 @@ export default function SettingsPage() {
           <CardDescription>Manage your bank connections</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center justify-between p-4 rounded-lg border">
-            <div className="flex items-center gap-4">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted">
-                <Building2 className="h-5 w-5 text-muted-foreground" />
-              </div>
-              <div>
-                <p className="font-medium">Bank Account</p>
-                <p className="text-sm text-muted-foreground">
-                  Connect via Plaid to track transactions
-                </p>
-              </div>
-            </div>
-            <Button variant="outline" asChild>
-              <a href="/onboarding/connect">Manage</a>
-            </Button>
-          </div>
+          <BankAccountList />
         </CardContent>
       </Card>
 
