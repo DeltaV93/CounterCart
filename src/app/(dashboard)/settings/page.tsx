@@ -25,6 +25,15 @@ import {
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
   DollarSign,
   Loader2,
   Save,
@@ -32,6 +41,9 @@ import {
   Building2,
   CreditCard,
   ExternalLink,
+  AlertTriangle,
+  Trash2,
+  Download,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -54,6 +66,9 @@ export default function SettingsPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [isUpgrading, setIsUpgrading] = useState(false);
   const [isManaging, setIsManaging] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
 
   const [name, setName] = useState("");
   const [multiplier, setMultiplier] = useState("1");
@@ -413,6 +428,166 @@ export default function SettingsPage() {
           )}
         </Button>
       </div>
+
+      {/* Data & Privacy */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Data & Privacy</CardTitle>
+          <CardDescription>
+            Export or delete your data
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center justify-between p-4 rounded-lg border">
+            <div className="flex items-center gap-4">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted">
+                <Download className="h-5 w-5 text-muted-foreground" />
+              </div>
+              <div>
+                <p className="font-medium">Export My Data</p>
+                <p className="text-sm text-muted-foreground">
+                  Download all your data as JSON
+                </p>
+              </div>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={isExporting}
+              onClick={async () => {
+                setIsExporting(true);
+                try {
+                  const response = await fetch("/api/user/export");
+                  if (response.ok) {
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement("a");
+                    a.href = url;
+                    a.download = `countercart-export-${new Date().toISOString().split("T")[0]}.json`;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                    toast.success("Data exported successfully");
+                  } else {
+                    toast.error("Failed to export data");
+                  }
+                } catch {
+                  toast.error("Failed to export data");
+                } finally {
+                  setIsExporting(false);
+                }
+              }}
+            >
+              {isExporting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Exporting...
+                </>
+              ) : (
+                <>
+                  <Download className="mr-2 h-4 w-4" />
+                  Export
+                </>
+              )}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Danger Zone */}
+      <Card className="border-destructive/50">
+        <CardHeader>
+          <CardTitle className="text-destructive">Danger Zone</CardTitle>
+          <CardDescription>
+            Irreversible actions that affect your account
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-between p-4 rounded-lg border border-destructive/20 bg-destructive/5">
+            <div className="flex items-center gap-4">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-destructive/10">
+                <AlertTriangle className="h-5 w-5 text-destructive" />
+              </div>
+              <div>
+                <p className="font-medium">Delete Account</p>
+                <p className="text-sm text-muted-foreground">
+                  Permanently delete your account and all data
+                </p>
+              </div>
+            </div>
+            <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+              <DialogTrigger asChild>
+                <Button variant="destructive" size="sm">
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Delete Account
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Delete Account</DialogTitle>
+                  <DialogDescription>
+                    Are you sure you want to delete your account? This action cannot be undone.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="py-4">
+                  <p className="text-sm text-muted-foreground">
+                    This will permanently delete:
+                  </p>
+                  <ul className="mt-2 text-sm text-muted-foreground list-disc list-inside space-y-1">
+                    <li>Your profile and preferences</li>
+                    <li>All connected bank accounts</li>
+                    <li>Transaction and donation history</li>
+                    <li>Any active subscriptions</li>
+                  </ul>
+                </div>
+                <DialogFooter>
+                  <Button
+                    variant="outline"
+                    onClick={() => setDeleteDialogOpen(false)}
+                    disabled={isDeleting}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    onClick={async () => {
+                      setIsDeleting(true);
+                      try {
+                        const response = await fetch("/api/user/delete", {
+                          method: "DELETE",
+                        });
+
+                        if (response.ok) {
+                          // Redirect to home page after deletion
+                          window.location.href = "/";
+                        } else {
+                          const data = await response.json();
+                          toast.error(data.error || "Failed to delete account");
+                          setIsDeleting(false);
+                        }
+                      } catch {
+                        toast.error("Failed to delete account");
+                        setIsDeleting(false);
+                      }
+                    }}
+                    disabled={isDeleting}
+                  >
+                    {isDeleting ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Deleting...
+                      </>
+                    ) : (
+                      "Yes, delete my account"
+                    )}
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

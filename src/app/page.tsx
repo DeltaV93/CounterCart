@@ -581,11 +581,14 @@ export default function HomePage() {
             >
               Pricing
             </Link>
-            <Link href="#" className="text-sm hover:text-accent transition-colors">
+            <Link href="/faq" className="text-sm hover:text-accent transition-colors">
               FAQ
             </Link>
-            <Link href="#" className="text-sm hover:text-accent transition-colors">
+            <Link href="/privacy" className="text-sm hover:text-accent transition-colors">
               Privacy
+            </Link>
+            <Link href="/terms" className="text-sm hover:text-accent transition-colors">
+              Terms
             </Link>
           </div>
         </div>

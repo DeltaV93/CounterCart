@@ -10,6 +10,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { MobileNav } from "@/components/MobileNav";
 import {
   LayoutDashboard,
   CreditCard,
@@ -51,12 +52,13 @@ export default async function DashboardLayout({
       {/* Header */}
       <header className="sticky top-0 z-50 w-full bg-primary border-b-[3px] border-accent">
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-4">
+            <MobileNav />
             <Link href="/dashboard" className="flex items-center gap-2">
               <div className="w-8 h-8 bg-accent flex items-center justify-center text-primary">
                 ↺
               </div>
-              <span className="headline text-primary-foreground text-lg tracking-wider">
+              <span className="headline text-primary-foreground text-lg tracking-wider hidden sm:inline">
                 COUNTERCART
               </span>
             </Link>
