@@ -1,11 +1,41 @@
 import { Resend } from "resend";
 import { logger } from "@/lib/logger";
+import prisma from "@/lib/prisma";
 
 const resend = process.env.RESEND_API_KEY
   ? new Resend(process.env.RESEND_API_KEY)
   : null;
 
 const FROM_EMAIL = "CounterCart <noreply@countercart.app>";
+
+type NotificationPreference =
+  | "notifyDonationComplete"
+  | "notifyWeeklySummary"
+  | "notifyNewMatch"
+  | "notifyPaymentFailed"
+  | "notifyBankDisconnected";
+
+/**
+ * Check if user has enabled a specific notification type
+ */
+async function shouldSendNotification(
+  userId: string,
+  preference: NotificationPreference
+): Promise<boolean> {
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { [preference]: true },
+    });
+
+    if (!user) return true; // Default to sending if user not found
+
+    return user[preference] ?? true; // Default to true if preference not set
+  } catch (error) {
+    logger.error("Error checking notification preference", { userId, preference }, error);
+    return true; // Default to sending on error
+  }
+}
 
 interface SendEmailOptions {
   to: string;
@@ -42,7 +72,9 @@ export async function sendEmail({ to, subject, html, text }: SendEmailOptions): 
   }
 }
 
-export async function sendWelcomeEmail(email: string, name?: string): Promise<boolean> {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export async function sendWelcomeEmail(email: string, name?: string, _userId?: string): Promise<boolean> {
+  // Welcome emails are always sent (no preference check)
   const firstName = name?.split(" ")[0] || "there";
 
   return sendEmail({
@@ -114,8 +146,18 @@ export async function sendDonationConfirmation(
   email: string,
   name: string | undefined,
   charityName: string,
-  amount: number
+  amount: number,
+  userId?: string
 ): Promise<boolean> {
+  // Check user preference
+  if (userId) {
+    const shouldSend = await shouldSendNotification(userId, "notifyDonationComplete");
+    if (!shouldSend) {
+      logger.info("Skipping donation confirmation - user preference disabled", { userId, email });
+      return true; // Return true to indicate "success" (intentionally not sent)
+    }
+  }
+
   const firstName = name?.split(" ")[0] || "there";
 
   return sendEmail({
@@ -169,8 +211,18 @@ View your donation history: ${process.env.NEXT_PUBLIC_APP_URL}/donations
 
 export async function sendPaymentFailedEmail(
   email: string,
-  name: string | undefined
+  name: string | undefined,
+  userId?: string
 ): Promise<boolean> {
+  // Check user preference
+  if (userId) {
+    const shouldSend = await shouldSendNotification(userId, "notifyPaymentFailed");
+    if (!shouldSend) {
+      logger.info("Skipping payment failed email - user preference disabled", { userId, email });
+      return true;
+    }
+  }
+
   const firstName = name?.split(" ")[0] || "there";
 
   return sendEmail({
@@ -235,8 +287,18 @@ Questions? Just reply to this email!
 export async function sendBankReconnectEmail(
   email: string,
   name: string | undefined,
-  institutionName: string
+  institutionName: string,
+  userId?: string
 ): Promise<boolean> {
+  // Check user preference
+  if (userId) {
+    const shouldSend = await shouldSendNotification(userId, "notifyBankDisconnected");
+    if (!shouldSend) {
+      logger.info("Skipping bank reconnect email - user preference disabled", { userId, email });
+      return true;
+    }
+  }
+
   const firstName = name?.split(" ")[0] || "there";
 
   return sendEmail({
@@ -296,5 +358,89 @@ Reconnect your account: ${process.env.NEXT_PUBLIC_APP_URL}/settings
 Questions? Just reply to this email!
 
 - The CounterCart Team`,
+  });
+}
+
+export async function sendWeeklySummaryEmail(
+  email: string,
+  name: string | undefined,
+  userId: string,
+  summary: {
+    totalDonated: number;
+    donationCount: number;
+    topCharity?: string;
+    matchedTransactions: number;
+  }
+): Promise<boolean> {
+  // Check user preference
+  const shouldSend = await shouldSendNotification(userId, "notifyWeeklySummary");
+  if (!shouldSend) {
+    logger.info("Skipping weekly summary - user preference disabled", { userId, email });
+    return true;
+  }
+
+  const firstName = name?.split(" ")[0] || "there";
+
+  return sendEmail({
+    to: email,
+    subject: `Your weekly CounterCart summary: $${summary.totalDonated.toFixed(2)} donated`,
+    html: `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+  <div style="text-align: center; margin-bottom: 30px;">
+    <h1 style="color: #e11d48; margin: 0;">CounterCart</h1>
+  </div>
+
+  <h2 style="color: #1f2937;">Hey ${firstName}, here's your week in impact!</h2>
+
+  <div style="background-color: #f0fdf4; border-radius: 8px; padding: 20px; margin: 20px 0; text-align: center;">
+    <p style="margin: 0; font-size: 16px; color: #166534;">This week you donated</p>
+    <p style="margin: 10px 0; font-size: 42px; font-weight: bold; color: #15803d;">$${summary.totalDonated.toFixed(2)}</p>
+    <p style="margin: 0; font-size: 14px; color: #166534;">${summary.donationCount} donation${summary.donationCount !== 1 ? "s" : ""} to causes you care about</p>
+  </div>
+
+  <div style="background-color: #f3f4f6; border-radius: 8px; padding: 16px; margin: 20px 0;">
+    <p style="margin: 0 0 10px 0; font-weight: 600;">This week's stats:</p>
+    <ul style="margin: 0; padding-left: 20px; color: #4b5563;">
+      <li>${summary.matchedTransactions} transaction${summary.matchedTransactions !== 1 ? "s" : ""} matched</li>
+      ${summary.topCharity ? `<li>Top charity: ${summary.topCharity}</li>` : ""}
+    </ul>
+  </div>
+
+  <p>Keep up the great work! Every donation makes a difference.</p>
+
+  <div style="text-align: center; margin: 30px 0;">
+    <a href="${process.env.NEXT_PUBLIC_APP_URL}/dashboard" style="background-color: #e11d48; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">View Dashboard</a>
+  </div>
+
+  <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 30px 0;">
+
+  <p style="color: #9ca3af; font-size: 12px; text-align: center;">
+    CounterCart - Offset your purchases with purpose<br>
+    <a href="${process.env.NEXT_PUBLIC_APP_URL}/settings" style="color: #9ca3af;">Manage email preferences</a>
+  </p>
+</body>
+</html>
+    `,
+    text: `Hey ${firstName}, here's your week in impact!
+
+This week you donated $${summary.totalDonated.toFixed(2)} across ${summary.donationCount} donation${summary.donationCount !== 1 ? "s" : ""}.
+
+This week's stats:
+- ${summary.matchedTransactions} transaction${summary.matchedTransactions !== 1 ? "s" : ""} matched
+${summary.topCharity ? `- Top charity: ${summary.topCharity}` : ""}
+
+Keep up the great work! Every donation makes a difference.
+
+View your dashboard: ${process.env.NEXT_PUBLIC_APP_URL}/dashboard
+
+- The CounterCart Team
+
+Manage email preferences: ${process.env.NEXT_PUBLIC_APP_URL}/settings`,
   });
 }
