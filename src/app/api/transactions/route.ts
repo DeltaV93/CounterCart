@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { requireUser } from "@/lib/auth";
 import { logger } from "@/lib/logger";
-import { TransactionStatus } from "@prisma/client";
+import { TransactionStatus, Prisma } from "@prisma/client";
 
 export async function GET(request: Request) {
   try {
@@ -20,7 +20,7 @@ export async function GET(request: Request) {
     const offset = parseInt(searchParams.get("offset") || "0");
 
     // Build where clause
-    const where: Parameters<typeof prisma.transaction.findMany>[0]["where"] = {
+    const where: Prisma.TransactionWhereInput = {
       userId: user.id,
     };
 
@@ -49,7 +49,7 @@ export async function GET(request: Request) {
     }
 
     // Build orderBy
-    const orderBy: Parameters<typeof prisma.transaction.findMany>[0]["orderBy"] = {};
+    const orderBy: Prisma.TransactionOrderByWithRelationInput = {};
     if (sortBy === "amount") {
       orderBy.amount = sortOrder as "asc" | "desc";
     } else if (sortBy === "merchant") {

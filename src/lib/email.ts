@@ -25,7 +25,13 @@ async function shouldSendNotification(
   try {
     const user = await prisma.user.findUnique({
       where: { id: userId },
-      select: { [preference]: true },
+      select: {
+        notifyDonationComplete: true,
+        notifyWeeklySummary: true,
+        notifyNewMatch: true,
+        notifyPaymentFailed: true,
+        notifyBankDisconnected: true,
+      },
     });
 
     if (!user) return true; // Default to sending if user not found
