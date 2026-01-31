@@ -21,6 +21,7 @@ import {
   Building2,
   Sparkles,
 } from "lucide-react";
+import { DashboardCharts } from "@/components/DashboardCharts";
 
 async function DashboardStats() {
   const user = await requireUser();
@@ -305,6 +306,9 @@ export default async function DashboardPage() {
       <Suspense fallback={<StatsLoading />}>
         <DashboardStats />
       </Suspense>
+
+      {/* Charts */}
+      <DashboardCharts />
 
       <div className="grid gap-4 md:grid-cols-2">
         <Suspense

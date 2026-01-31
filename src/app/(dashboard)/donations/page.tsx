@@ -13,7 +13,16 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Gift, ExternalLink, CheckCircle } from "lucide-react";
+import { Gift, ExternalLink, CheckCircle, X, Loader2 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { toast } from "sonner";
 
 interface Donation {
   id: string;
@@ -114,6 +123,9 @@ function CharityLogo({
 export default function DonationsPage() {
   const [donations, setDonations] = useState<Donation[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [cancellingId, setCancellingId] = useState<string | null>(null);
+  const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
+  const [donationToCancel, setDonationToCancel] = useState<Donation | null>(null);
 
   useEffect(() => {
     const fetchDonations = async () => {
@@ -188,6 +200,31 @@ export default function DonationsPage() {
     const firstCharity = Object.entries(byCharity)[0];
     if (firstCharity) {
       handleDonate(firstCharity[0], firstCharity[1].total, firstCharity[1].ids.join(","));
+    }
+  };
+
+  const handleCancelDonation = async () => {
+    if (!donationToCancel) return;
+
+    setCancellingId(donationToCancel.id);
+    try {
+      const response = await fetch(`/api/donations/${donationToCancel.id}/cancel`, {
+        method: "POST",
+      });
+
+      if (response.ok) {
+        setDonations((prev) => prev.filter((d) => d.id !== donationToCancel.id));
+        toast.success("Donation cancelled successfully");
+      } else {
+        const data = await response.json();
+        toast.error(data.error || "Failed to cancel donation");
+      }
+    } catch {
+      toast.error("Failed to cancel donation");
+    } finally {
+      setCancellingId(null);
+      setCancelDialogOpen(false);
+      setDonationToCancel(null);
     }
   };
 
@@ -310,6 +347,21 @@ export default function DonationsPage() {
                       Donate
                       <ExternalLink className="ml-2 h-3 w-3" />
                     </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => {
+                        setDonationToCancel(donation);
+                        setCancelDialogOpen(true);
+                      }}
+                      disabled={cancellingId === donation.id}
+                    >
+                      {cancellingId === donation.id ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <X className="h-4 w-4 text-muted-foreground" />
+                      )}
+                    </Button>
                   </div>
                 </div>
               ))}
@@ -317,6 +369,46 @@ export default function DonationsPage() {
           </CardContent>
         </Card>
       )}
+
+      {/* Cancel Confirmation Dialog */}
+      <Dialog open={cancelDialogOpen} onOpenChange={(open) => {
+        setCancelDialogOpen(open);
+        if (!open) setDonationToCancel(null);
+      }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Cancel Donation</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to cancel this donation to{" "}
+              <span className="font-medium">{donationToCancel?.charityName}</span> for{" "}
+              <span className="font-medium">${donationToCancel?.amount.toFixed(2)}</span>?
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setCancelDialogOpen(false)}
+              disabled={cancellingId !== null}
+            >
+              Keep Donation
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleCancelDonation}
+              disabled={cancellingId !== null}
+            >
+              {cancellingId !== null ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Cancelling...
+                </>
+              ) : (
+                "Cancel Donation"
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Completed Donations */}
       <Card>

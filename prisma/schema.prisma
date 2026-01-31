@@ -24,6 +24,13 @@ model User {
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
 
+  // Notification preferences
+  notifyDonationComplete   Boolean @default(true)
+  notifyWeeklySummary      Boolean @default(true)
+  notifyNewMatch           Boolean @default(false)
+  notifyPaymentFailed      Boolean @default(true)
+  notifyBankDisconnected   Boolean @default(true)
+
   plaidItems      PlaidItem[]
   userCauses      UserCause[]
   userCharities   UserCharity[]

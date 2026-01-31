@@ -10,6 +10,12 @@ const updateSettingsSchema = z.object({
   autoDonateEnabled: z.boolean().optional(),
   onboardingComplete: z.boolean().optional(),
   name: z.string().min(1).optional(),
+  // Notification preferences
+  notifyDonationComplete: z.boolean().optional(),
+  notifyWeeklySummary: z.boolean().optional(),
+  notifyNewMatch: z.boolean().optional(),
+  notifyPaymentFailed: z.boolean().optional(),
+  notifyBankDisconnected: z.boolean().optional(),
 });
 
 export async function GET() {
@@ -25,6 +31,12 @@ export async function GET() {
       monthlyLimit: user.monthlyLimit,
       autoDonateEnabled: user.autoDonateEnabled,
       onboardingComplete: user.onboardingComplete,
+      // Notification preferences
+      notifyDonationComplete: user.notifyDonationComplete,
+      notifyWeeklySummary: user.notifyWeeklySummary,
+      notifyNewMatch: user.notifyNewMatch,
+      notifyPaymentFailed: user.notifyPaymentFailed,
+      notifyBankDisconnected: user.notifyBankDisconnected,
     });
   } catch (error) {
     logger.error("Error fetching user settings", undefined, error);
@@ -60,6 +72,22 @@ export async function PATCH(request: Request) {
           onboardingComplete: data.onboardingComplete,
         }),
         ...(data.name !== undefined && { name: data.name }),
+        // Notification preferences
+        ...(data.notifyDonationComplete !== undefined && {
+          notifyDonationComplete: data.notifyDonationComplete,
+        }),
+        ...(data.notifyWeeklySummary !== undefined && {
+          notifyWeeklySummary: data.notifyWeeklySummary,
+        }),
+        ...(data.notifyNewMatch !== undefined && {
+          notifyNewMatch: data.notifyNewMatch,
+        }),
+        ...(data.notifyPaymentFailed !== undefined && {
+          notifyPaymentFailed: data.notifyPaymentFailed,
+        }),
+        ...(data.notifyBankDisconnected !== undefined && {
+          notifyBankDisconnected: data.notifyBankDisconnected,
+        }),
       },
     });
 
@@ -74,6 +102,11 @@ export async function PATCH(request: Request) {
         monthlyLimit: updatedUser.monthlyLimit,
         autoDonateEnabled: updatedUser.autoDonateEnabled,
         onboardingComplete: updatedUser.onboardingComplete,
+        notifyDonationComplete: updatedUser.notifyDonationComplete,
+        notifyWeeklySummary: updatedUser.notifyWeeklySummary,
+        notifyNewMatch: updatedUser.notifyNewMatch,
+        notifyPaymentFailed: updatedUser.notifyPaymentFailed,
+        notifyBankDisconnected: updatedUser.notifyBankDisconnected,
       },
     });
   } catch (error) {

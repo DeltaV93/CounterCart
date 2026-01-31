@@ -46,6 +46,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { BankAccountList } from "@/components/BankAccountList";
+import { NotificationPreferences } from "@/components/NotificationPreferences";
 
 interface UserSettings {
   id: string;
@@ -57,6 +58,12 @@ interface UserSettings {
   autoDonateEnabled: boolean;
   onboardingComplete: boolean;
   stripeCustomerId: string | null;
+  // Notification preferences
+  notifyDonationComplete: boolean;
+  notifyWeeklySummary: boolean;
+  notifyNewMatch: boolean;
+  notifyPaymentFailed: boolean;
+  notifyBankDisconnected: boolean;
 }
 
 export default function SettingsPage() {
@@ -74,6 +81,13 @@ export default function SettingsPage() {
   const [multiplier, setMultiplier] = useState("1");
   const [monthlyLimit, setMonthlyLimit] = useState("");
   const [autoDonate, setAutoDonate] = useState(false);
+  const [notifications, setNotifications] = useState({
+    notifyDonationComplete: true,
+    notifyWeeklySummary: true,
+    notifyNewMatch: false,
+    notifyPaymentFailed: true,
+    notifyBankDisconnected: true,
+  });
 
   // Handle upgrade result from URL params
   useEffect(() => {
@@ -100,6 +114,13 @@ export default function SettingsPage() {
           setMultiplier(data.donationMultiplier?.toString() || "1");
           setMonthlyLimit(data.monthlyLimit?.toString() || "25");
           setAutoDonate(data.autoDonateEnabled || false);
+          setNotifications({
+            notifyDonationComplete: data.notifyDonationComplete ?? true,
+            notifyWeeklySummary: data.notifyWeeklySummary ?? true,
+            notifyNewMatch: data.notifyNewMatch ?? false,
+            notifyPaymentFailed: data.notifyPaymentFailed ?? true,
+            notifyBankDisconnected: data.notifyBankDisconnected ?? true,
+          });
         }
       } catch (error) {
         console.error("Error fetching settings:", error);
@@ -122,6 +143,7 @@ export default function SettingsPage() {
           donationMultiplier: parseFloat(multiplier),
           monthlyLimit: parseFloat(monthlyLimit),
           autoDonateEnabled: autoDonate,
+          ...notifications,
         }),
       });
 
@@ -394,6 +416,24 @@ export default function SettingsPage() {
         </CardHeader>
         <CardContent>
           <BankAccountList />
+        </CardContent>
+      </Card>
+
+      {/* Notification Preferences */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Email Notifications</CardTitle>
+          <CardDescription>
+            Choose which emails you&apos;d like to receive
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <NotificationPreferences
+            preferences={notifications}
+            onChange={(key, value) =>
+              setNotifications((prev) => ({ ...prev, [key]: value }))
+            }
+          />
         </CardContent>
       </Card>
 
