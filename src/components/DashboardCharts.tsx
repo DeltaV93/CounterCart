@@ -124,7 +124,7 @@ export function DashboardCharts() {
                   tickFormatter={(value) => `$${value}`}
                 />
                 <Tooltip
-                  formatter={(value: number) => [`$${value.toFixed(2)}`, "Donated"]}
+                  formatter={(value) => [`$${Number(value).toFixed(2)}`, "Donated"]}
                   contentStyle={{
                     backgroundColor: "hsl(var(--popover))",
                     border: "1px solid hsl(var(--border))",
@@ -173,7 +173,7 @@ export function DashboardCharts() {
                   paddingAngle={5}
                   dataKey="value"
                   label={({ name, percent }) =>
-                    `${name} (${(percent * 100).toFixed(0)}%)`
+                    `${name} (${((percent ?? 0) * 100).toFixed(0)}%)`
                   }
                   labelLine={false}
                 >
@@ -185,7 +185,7 @@ export function DashboardCharts() {
                   ))}
                 </Pie>
                 <Tooltip
-                  formatter={(value: number) => [`$${value.toFixed(2)}`, "Donated"]}
+                  formatter={(value) => [`$${Number(value).toFixed(2)}`, "Donated"]}
                   contentStyle={{
                     backgroundColor: "hsl(var(--popover))",
                     border: "1px solid hsl(var(--border))",
