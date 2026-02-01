@@ -8,6 +8,9 @@ export async function GET(request: Request) {
   const code = searchParams.get("code");
   const redirect = searchParams.get("redirect") || "/dashboard";
 
+  // Use NEXT_PUBLIC_APP_URL in production to avoid proxy issues
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || origin;
+
   if (code) {
     const supabase = await createClient();
     const { data, error } = await supabase.auth.exchangeCodeForSession(code);
@@ -41,10 +44,10 @@ export async function GET(request: Request) {
 
       // Redirect to onboarding if not complete, otherwise to the intended destination
       const finalRedirect = dbUser?.onboardingComplete ? redirect : "/onboarding/causes";
-      return NextResponse.redirect(`${origin}${finalRedirect}`);
+      return NextResponse.redirect(`${baseUrl}${finalRedirect}`);
     }
   }
 
   // Return the user to an error page with instructions
-  return NextResponse.redirect(`${origin}/login?error=auth_callback_error`);
+  return NextResponse.redirect(`${baseUrl}/login?error=auth_callback_error`);
 }
