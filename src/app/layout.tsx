@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import { Bebas_Neue, IBM_Plex_Mono, Caveat } from "next/font/google";
+import { Bebas_Neue, IBM_Plex_Mono, Libre_Baskerville } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import { FathomProvider } from "@/components/analytics/FathomProvider";
 import { ThemeProvider } from "@/components/ThemeProvider";
@@ -9,19 +9,20 @@ import "./globals.css";
 
 const bebasNeue = Bebas_Neue({
   weight: "400",
-  variable: "--font-headline",
+  variable: "--font-display",
   subsets: ["latin"],
 });
 
 const ibmPlexMono = IBM_Plex_Mono({
-  weight: ["400", "500", "600"],
+  weight: ["400", "500", "600", "700"],
   variable: "--font-mono",
   subsets: ["latin"],
 });
 
-const caveat = Caveat({
-  weight: "600",
-  variable: "--font-handwritten",
+const libreBaskerville = Libre_Baskerville({
+  weight: ["400", "700"],
+  style: ["normal", "italic"],
+  variable: "--font-editorial",
   subsets: ["latin"],
 });
 
@@ -91,7 +92,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${bebasNeue.variable} ${ibmPlexMono.variable} ${caveat.variable} antialiased`}
+        className={`${bebasNeue.variable} ${ibmPlexMono.variable} ${libreBaskerville.variable} antialiased`}
       >
         <ThemeProvider
           attribute="class"

@@ -80,7 +80,7 @@ export default function HomePage() {
               Pricing
             </Link>
             <Link href="/signup">
-              <Button variant="accent" size="sm" className="headline tracking-widest">
+              <Button size="sm">
                 GET STARTED
               </Button>
             </Link>

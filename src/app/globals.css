@@ -8,18 +8,19 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-mono);
   --font-mono: var(--font-mono);
-  --font-headline: var(--font-headline);
-  --font-handwritten: var(--font-handwritten);
+  --font-display: var(--font-display);
+  --font-editorial: var(--font-editorial);
 
-  /* Brand colors */
+  /* Core palette */
+  --color-bone: var(--bone);
+  --color-bone-dark: var(--bone-dark);
   --color-ink: var(--ink);
-  --color-cream: var(--cream);
-  --color-cream-dark: var(--cream-dark);
-  --color-mustard: var(--mustard);
-  --color-sienna: var(--sienna);
-  --color-warm-gray: var(--warm-gray);
-  --color-light-gray: var(--light-gray);
-  --color-muted-gray: var(--muted-gray);
+  --color-ash: var(--ash);
+  --color-ash-light: var(--ash-light);
+  --color-blue: var(--blue);
+  --color-blue-dark: var(--blue-dark);
+  --color-yellow: var(--yellow);
+  --color-yellow-dark: var(--yellow-dark);
 
   /* Semantic colors */
   --color-sidebar-ring: var(--sidebar-ring);
@@ -51,6 +52,8 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+  --color-highlight: var(--highlight);
+  --color-highlight-foreground: var(--highlight-foreground);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -58,95 +61,96 @@
 }
 
 :root {
-  /* Brand palette */
-  --ink: #1C1917;
-  --cream: #F5F0E6;
-  --cream-dark: #EBE5D9;
-  --mustard: #D4A017;
-  --sienna: #A0522D;
-  --warm-gray: #4A4543;
-  --light-gray: #635E5C;
-  --muted-gray: #78736F;
+  /* Core palette - Editorial */
+  --bone: #F4F1EA;
+  --bone-dark: #E8E4DB;
+  --ink: #0F0F0F;
+  --ash: #6F6F6F;
+  --ash-light: #9A9A9A;
+  --blue: #AFC6D8;
+  --blue-dark: #8FAFC6;
+  --yellow: #F2E86D;
+  --yellow-dark: #E0D654;
 
-  /* Reduced radius for brutalist look */
-  --radius: 0.25rem;
+  /* No border radius - editorial/brutalist */
+  --radius: 0;
 
-  /* Semantic mappings - using direct hex values for Tailwind v4 compatibility */
-  --background: #F5F0E6;
-  --foreground: #1C1917;
-  --card: #F5F0E6;
-  --card-foreground: #1C1917;
-  --popover: #F5F0E6;
-  --popover-foreground: #1C1917;
-  --primary: #1C1917;
-  --primary-foreground: #F5F0E6;
-  --secondary: #EBE5D9;
-  --secondary-foreground: #1C1917;
-  --muted: #EBE5D9;
-  --muted-foreground: #4A4543;
-  --accent: #D4A017;
-  --accent-foreground: #1C1917;
-  --destructive: #DC2626;
-  --border: #1C1917;
-  --input: #1C1917;
-  --ring: #D4A017;
+  /* Semantic mappings */
+  --background: #F4F1EA;
+  --foreground: #0F0F0F;
+  --card: #F4F1EA;
+  --card-foreground: #0F0F0F;
+  --popover: #F4F1EA;
+  --popover-foreground: #0F0F0F;
+  --primary: #0F0F0F;
+  --primary-foreground: #F4F1EA;
+  --secondary: #E8E4DB;
+  --secondary-foreground: #0F0F0F;
+  --muted: #E8E4DB;
+  --muted-foreground: #6F6F6F;
+  --accent: #AFC6D8;
+  --accent-foreground: #0F0F0F;
+  --highlight: #F2E86D;
+  --highlight-foreground: #0F0F0F;
+  --destructive: #C41E3A;
+  --border: #0F0F0F;
+  --input: #0F0F0F;
+  --ring: #AFC6D8;
 
   /* Charts */
-  --chart-1: #D4A017;
-  --chart-2: #A0522D;
-  --chart-3: #4A4543;
-  --chart-4: #7C9885;
-  --chart-5: #5B8BA0;
+  --chart-1: #AFC6D8;
+  --chart-2: #F2E86D;
+  --chart-3: #6F6F6F;
+  --chart-4: #8FAFC6;
+  --chart-5: #E0D654;
 
   /* Sidebar */
-  --sidebar: #1C1917;
-  --sidebar-foreground: #F5F0E6;
-  --sidebar-primary: #D4A017;
-  --sidebar-primary-foreground: #1C1917;
-  --sidebar-accent: #4A4543;
-  --sidebar-accent-foreground: #F5F0E6;
-  --sidebar-border: #4A4543;
-  --sidebar-ring: #D4A017;
+  --sidebar: #0F0F0F;
+  --sidebar-foreground: #F4F1EA;
+  --sidebar-primary: #AFC6D8;
+  --sidebar-primary-foreground: #0F0F0F;
+  --sidebar-accent: #6F6F6F;
+  --sidebar-accent-foreground: #F4F1EA;
+  --sidebar-border: #6F6F6F;
+  --sidebar-ring: #AFC6D8;
 }
 
 .dark {
-  --ink: #F5F0E6;
-  --cream: #1C1917;
-  --cream-dark: #262220;
-  --mustard: #D4A017;
-  --sienna: #C06A3D;
-  --warm-gray: #B5B0AC;
-  --light-gray: #9A9592;
-  --muted-gray: #8A8582;
+  --bone: #0F0F0F;
+  --bone-dark: #1A1A1A;
+  --ink: #F4F1EA;
+  --ash: #9A9A9A;
+  --ash-light: #6F6F6F;
 
-  /* Semantic mappings - using direct hex values for Tailwind v4 compatibility */
-  --background: #1C1917;
-  --foreground: #F5F0E6;
-  --card: #262220;
-  --card-foreground: #F5F0E6;
-  --popover: #262220;
-  --popover-foreground: #F5F0E6;
-  --primary: #F5F0E6;
-  --primary-foreground: #1C1917;
-  --secondary: #333028;
-  --secondary-foreground: #F5F0E6;
-  --muted: #333028;
-  --muted-foreground: #8A8582;
-  --accent: #D4A017;
-  --accent-foreground: #1C1917;
+  --background: #0F0F0F;
+  --foreground: #F4F1EA;
+  --card: #1A1A1A;
+  --card-foreground: #F4F1EA;
+  --popover: #1A1A1A;
+  --popover-foreground: #F4F1EA;
+  --primary: #F4F1EA;
+  --primary-foreground: #0F0F0F;
+  --secondary: #1A1A1A;
+  --secondary-foreground: #F4F1EA;
+  --muted: #1A1A1A;
+  --muted-foreground: #9A9A9A;
+  --accent: #AFC6D8;
+  --accent-foreground: #0F0F0F;
+  --highlight: #F2E86D;
+  --highlight-foreground: #0F0F0F;
   --destructive: #EF4444;
-  --border: #B5B0AC;
-  --input: #B5B0AC;
-  --ring: #D4A017;
+  --border: #F4F1EA;
+  --input: #F4F1EA;
+  --ring: #AFC6D8;
 
-  --sidebar: #262220;
-  --sidebar-foreground: #F5F0E6;
-  --sidebar-primary: #D4A017;
-  --sidebar-primary-foreground: #1C1917;
-  --sidebar-accent: #333028;
-  --sidebar-accent-foreground: #F5F0E6;
-  --sidebar-border: #B5B0AC;
-  --sidebar-ring: #D4A017;
+  --sidebar: #1A1A1A;
+  --sidebar-foreground: #F4F1EA;
+  --sidebar-primary: #AFC6D8;
+  --sidebar-primary-foreground: #0F0F0F;
+  --sidebar-accent: #2A2A2A;
+  --sidebar-accent-foreground: #F4F1EA;
+  --sidebar-border: #9A9A9A;
+  --sidebar-ring: #AFC6D8;
 }
 
 @layer base {
@@ -156,71 +160,172 @@
 
   body {
     @apply bg-background text-foreground;
-    font-family: var(--font-mono), ui-monospace, monospace;
-    line-height: 1.6;
+    font-family: var(--font-mono), 'IBM Plex Mono', ui-monospace, monospace;
+    line-height: 1.5;
   }
 
   /* Paper texture overlay */
   body::before {
     content: '';
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    inset: 0;
     pointer-events: none;
-    opacity: 0.3;
-    z-index: 1000;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    opacity: 0.25;
+    z-index: 9999;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   }
 }
 
-/* Typography utilities */
-.headline {
-  font-family: var(--font-headline), 'Bebas Neue', sans-serif;
+/* ============================================
+   TYPOGRAPHY
+   ============================================ */
+
+/* Display - Bebas Neue */
+.text-display {
+  font-family: var(--font-display), 'Bebas Neue', sans-serif;
   text-transform: uppercase;
   letter-spacing: 0.02em;
-  line-height: 0.9;
+  line-height: 1;
 }
 
-.mono {
+.text-display-xl {
+  font-size: clamp(3rem, 10vw, 6rem);
+}
+
+.text-display-lg {
+  font-size: clamp(2.25rem, 7vw, 3.75rem);
+}
+
+.text-display-md {
+  font-size: clamp(1.875rem, 5vw, 3rem);
+}
+
+.text-display-sm {
+  font-size: clamp(1.5rem, 4vw, 2.25rem);
+}
+
+/* Editorial - Libre Baskerville */
+.text-editorial {
+  font-family: var(--font-editorial), 'Libre Baskerville', serif;
+  line-height: 1.8;
+}
+
+.text-editorial-lg {
+  font-size: 1.25rem;
+}
+
+.text-editorial-md {
+  font-size: 1.125rem;
+}
+
+.text-editorial-sm {
+  font-size: 1rem;
+}
+
+/* Mono - IBM Plex Mono */
+.text-mono {
   font-family: var(--font-mono), 'IBM Plex Mono', ui-monospace, monospace;
+  line-height: 1.5;
 }
 
-.handwritten {
-  font-family: var(--font-handwritten), 'Caveat', cursive;
+.text-mono-lg {
+  font-size: 1.125rem;
 }
 
-/* Brutalist box shadow utility */
+.text-mono-md {
+  font-size: 1rem;
+}
+
+.text-mono-sm {
+  font-size: 0.875rem;
+}
+
+.text-mono-xs {
+  font-size: 0.75rem;
+}
+
+/* Labels */
+.text-label {
+  font-family: var(--font-mono), 'IBM Plex Mono', ui-monospace, monospace;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--muted-foreground);
+}
+
+/* Legacy headline class (backwards compat) */
+.headline {
+  font-family: var(--font-display), 'Bebas Neue', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  line-height: 1;
+}
+
+/* Highlight text */
+.highlight {
+  background: var(--yellow);
+  padding: 0 0.15em;
+  color: var(--ink);
+}
+
+.highlight--blue {
+  background: var(--blue);
+}
+
+/* ============================================
+   SHADOWS - Offset only, no blur
+   ============================================ */
+
 .shadow-brutal {
-  box-shadow: 6px 6px 0 var(--ink);
+  box-shadow: 4px 4px 0 var(--ink);
 }
 
 .shadow-brutal-sm {
+  box-shadow: 2px 2px 0 var(--ink);
+}
+
+.shadow-brutal-md {
   box-shadow: 4px 4px 0 var(--ink);
 }
 
 .shadow-brutal-lg {
+  box-shadow: 6px 6px 0 var(--ink);
+}
+
+.shadow-brutal-xl {
   box-shadow: 8px 8px 0 var(--ink);
 }
 
-.dark .shadow-brutal {
-  box-shadow: 6px 6px 0 var(--cream-dark);
+.dark .shadow-brutal,
+.dark .shadow-brutal-md {
+  box-shadow: 4px 4px 0 var(--bone-dark);
 }
 
 .dark .shadow-brutal-sm {
-  box-shadow: 4px 4px 0 var(--cream-dark);
+  box-shadow: 2px 2px 0 var(--bone-dark);
 }
 
 .dark .shadow-brutal-lg {
-  box-shadow: 8px 8px 0 var(--cream-dark);
+  box-shadow: 6px 6px 0 var(--bone-dark);
 }
 
-/* Animations */
+.dark .shadow-brutal-xl {
+  box-shadow: 8px 8px 0 var(--bone-dark);
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
 @keyframes slideUp {
   from {
     opacity: 0;
-    transform: translateY(30px);
+    transform: translateY(20px);
   }
   to {
     opacity: 1;
@@ -228,31 +333,184 @@
   }
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes rotate {
-  to { transform: translate(-50%, -50%) rotate(360deg); }
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes marquee {
   to { transform: translateX(-50%); }
 }
 
-.animate-slide-up {
-  animation: slideUp 0.8s ease forwards;
-}
-
 .animate-fade-in {
-  animation: fadeIn 0.8s ease forwards;
+  animation: fadeIn 0.3s ease forwards;
 }
 
-.animate-rotate {
-  animation: rotate 20s linear infinite;
+.animate-slide-up {
+  animation: slideUp 0.5s ease forwards;
+}
+
+.animate-slide-down {
+  animation: slideDown 0.5s ease forwards;
 }
 
 .animate-marquee {
   animation: marquee 35s linear infinite;
+}
+
+.animate-delay-1 { animation-delay: 100ms; }
+.animate-delay-2 { animation-delay: 200ms; }
+.animate-delay-3 { animation-delay: 300ms; }
+.animate-delay-4 { animation-delay: 400ms; }
+.animate-delay-5 { animation-delay: 500ms; }
+
+/* ============================================
+   SECTION HEADER PATTERN
+   ============================================ */
+
+.section-header {
+  margin-bottom: 3rem;
+}
+
+.section-header__label {
+  font-family: var(--font-mono), 'IBM Plex Mono', ui-monospace, monospace;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--muted-foreground);
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.section-header__label::before {
+  content: '';
+  width: 40px;
+  height: 1px;
+  background: var(--ash);
+}
+
+.section-header__title {
+  font-family: var(--font-display), 'Bebas Neue', sans-serif;
+  font-size: clamp(1.875rem, 5vw, 3rem);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  margin-bottom: 1rem;
+}
+
+.section-header__desc {
+  font-family: var(--font-editorial), 'Libre Baskerville', serif;
+  font-size: 1.125rem;
+  color: var(--muted-foreground);
+  max-width: 600px;
+  line-height: 1.8;
+}
+
+/* ============================================
+   QUOTE PATTERN
+   ============================================ */
+
+.quote {
+  font-family: var(--font-editorial), 'Libre Baskerville', serif;
+  font-size: 1.5rem;
+  font-style: italic;
+  line-height: 1.625;
+  padding-left: 2rem;
+  border-left: 4px solid var(--blue);
+}
+
+.quote__author {
+  font-family: var(--font-mono), 'IBM Plex Mono', ui-monospace, monospace;
+  font-size: 0.875rem;
+  font-style: normal;
+  color: var(--muted-foreground);
+  margin-top: 1rem;
+}
+
+/* ============================================
+   STEP PATTERN
+   ============================================ */
+
+.step {
+  padding: 2rem;
+  border: 1px solid var(--ash);
+}
+
+.step__number {
+  font-family: var(--font-display), 'Bebas Neue', sans-serif;
+  font-size: 3rem;
+  color: var(--blue);
+  line-height: 1;
+  margin-bottom: 1rem;
+}
+
+.step__title {
+  font-family: var(--font-display), 'Bebas Neue', sans-serif;
+  font-size: 1.5rem;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.75rem;
+}
+
+.step__desc {
+  font-family: var(--font-mono), 'IBM Plex Mono', ui-monospace, monospace;
+  font-size: 0.875rem;
+  color: var(--muted-foreground);
+}
+
+/* ============================================
+   FEATURE PATTERN
+   ============================================ */
+
+.feature {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.feature__marker {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  background: var(--yellow);
+  margin-top: 0.25rem;
+}
+
+.feature__title {
+  font-family: var(--font-display), 'Bebas Neue', sans-serif;
+  font-size: 1.25rem;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.5rem;
+}
+
+.feature__desc {
+  font-family: var(--font-mono), 'IBM Plex Mono', ui-monospace, monospace;
+  font-size: 0.875rem;
+  color: var(--muted-foreground);
+}
+
+/* ============================================
+   DIVIDERS
+   ============================================ */
+
+.divider {
+  height: 2px;
+  background: var(--ink);
+  border: none;
+}
+
+.divider--subtle {
+  background: var(--ash);
+  height: 1px;
+}
+
+.divider--accent {
+  background: var(--blue);
+  height: 3px;
 }
