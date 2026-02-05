@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { verifyPlaidWebhook } from "@/lib/plaid-webhook";
+import { plaidService } from "@/services/plaid.service";
+import { sendBankReconnectEmail } from "@/lib/email";
 import { logger } from "@/lib/logger";
 import {
   checkRateLimit,
@@ -23,6 +25,97 @@ interface PlaidWebhookPayload {
   };
   new_transactions?: number;
   removed_transactions?: string[];
+}
+
+/**
+ * Process Plaid webhook inline when no backend service is configured
+ */
+async function processPlaidWebhookInline(
+  payload: PlaidWebhookPayload,
+  webhookEventId: string
+) {
+  try {
+    const { webhook_type, webhook_code, item_id } = payload;
+
+    // Find the PlaidItem by Plaid's item_id
+    const plaidItem = await prisma.plaidItem.findUnique({
+      where: { itemId: item_id },
+      include: { user: true },
+    });
+
+    if (!plaidItem) {
+      logger.error("PlaidItem not found for webhook", { itemId: item_id });
+      await prisma.webhookEvent.update({
+        where: { id: webhookEventId },
+        data: { status: "FAILED", error: "PlaidItem not found" },
+      });
+      return;
+    }
+
+    if (webhook_type === "TRANSACTIONS") {
+      switch (webhook_code) {
+        case "SYNC_UPDATES_AVAILABLE":
+        case "INITIAL_UPDATE":
+        case "HISTORICAL_UPDATE":
+        case "DEFAULT_UPDATE": {
+          const stats = await plaidService.syncTransactions(plaidItem.id);
+          logger.info("Plaid transactions synced inline", {
+            plaidItemId: plaidItem.id,
+            stats,
+          });
+          break;
+        }
+        default:
+          logger.debug("Unhandled transaction webhook code", { webhook_code });
+      }
+    } else if (webhook_type === "ITEM") {
+      switch (webhook_code) {
+        case "ERROR":
+        case "LOGIN_REQUIRED": {
+          await prisma.plaidItem.update({
+            where: { id: plaidItem.id },
+            data: {
+              status: "LOGIN_REQUIRED",
+              errorCode: payload.error?.error_code || webhook_code,
+            },
+          });
+          // Notify user
+          await sendBankReconnectEmail(
+            plaidItem.user.email,
+            plaidItem.user.name || undefined,
+            plaidItem.institutionName,
+            plaidItem.user.id
+          );
+          logger.info("PlaidItem marked as login required", {
+            plaidItemId: plaidItem.id,
+          });
+          break;
+        }
+        case "PENDING_EXPIRATION":
+          logger.warn("Plaid item pending expiration", {
+            plaidItemId: plaidItem.id,
+          });
+          break;
+        default:
+          logger.debug("Unhandled item webhook code", { webhook_code });
+      }
+    }
+
+    await prisma.webhookEvent.update({
+      where: { id: webhookEventId },
+      data: { status: "COMPLETED", processedAt: new Date() },
+    });
+  } catch (error) {
+    logger.error("Error processing Plaid webhook inline", { webhookEventId }, error);
+    await prisma.webhookEvent.update({
+      where: { id: webhookEventId },
+      data: {
+        status: "FAILED",
+        error: error instanceof Error ? error.message : "Unknown error",
+        retryCount: { increment: 1 },
+      },
+    });
+  }
 }
 
 export async function POST(request: Request) {
@@ -63,7 +156,7 @@ export async function POST(request: Request) {
       },
     });
 
-    // Trigger background job via FastAPI service
+    // Trigger background job via FastAPI service if configured, otherwise process inline
     if (BACKEND_URL && INTERNAL_TOKEN) {
       fetch(`${BACKEND_URL}/jobs/handle-plaid-webhook`, {
         method: "POST",
@@ -73,13 +166,20 @@ export async function POST(request: Request) {
         },
         body: JSON.stringify({ webhook_event_id: webhookEvent.id }),
       }).catch((err) => {
-        logger.error("Failed to trigger backend job", { error: String(err) });
+        logger.error("Failed to trigger backend job, falling back to inline processing", { error: String(err) });
+        // Fall back to inline processing if backend is unreachable
+        processPlaidWebhookInline(payload, webhookEvent.id).catch((inlineErr) => {
+          logger.error("Inline processing also failed", { error: String(inlineErr) });
+        });
       });
     } else {
-      logger.warn("Backend service not configured, webhook will not be processed");
+      // No backend service - process inline (non-blocking)
+      processPlaidWebhookInline(payload, webhookEvent.id).catch((err) => {
+        logger.error("Inline webhook processing failed", { error: String(err) });
+      });
     }
 
-    logger.info("Plaid webhook queued for processing", {
+    logger.info("Plaid webhook received", {
       eventId: webhookEvent.id,
       webhookType: payload.webhook_type,
       webhookCode: payload.webhook_code,

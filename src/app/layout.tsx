@@ -11,12 +11,14 @@ const bebasNeue = Bebas_Neue({
   weight: "400",
   variable: "--font-display",
   subsets: ["latin"],
+  fallback: ["Impact", "Haettenschweiler", "sans-serif"],
 });
 
 const ibmPlexMono = IBM_Plex_Mono({
   weight: ["400", "500", "600", "700"],
   variable: "--font-mono",
   subsets: ["latin"],
+  fallback: ["Consolas", "Monaco", "Courier New", "monospace"],
 });
 
 const libreBaskerville = Libre_Baskerville({
@@ -24,6 +26,7 @@ const libreBaskerville = Libre_Baskerville({
   style: ["normal", "italic"],
   variable: "--font-editorial",
   subsets: ["latin"],
+  fallback: ["Georgia", "Times New Roman", "serif"],
 });
 
 const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://countercart.app";

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createHmac, timingSafeEqual } from "crypto";
 import prisma from "@/lib/prisma";
 import { logger } from "@/lib/logger";
+import { sendDonationConfirmation } from "@/lib/email";
 import {
   checkRateLimit,
   getClientIdentifier,
@@ -87,6 +88,90 @@ function verifyWebhookSignature(
   }
 }
 
+/**
+ * Complete a donation inline when no backend service is configured
+ */
+async function completeDonationInline(
+  payload: EveryOrgWebhookPayload,
+  webhookEventId: string
+) {
+  try {
+    const donationId = payload.partnerMetadata?.donationId;
+
+    if (!donationId) {
+      logger.warn("No donationId in Every.org webhook metadata", {
+        chargeId: payload.chargeId,
+      });
+      await prisma.webhookEvent.update({
+        where: { id: webhookEventId },
+        data: { status: "COMPLETED", processedAt: new Date() },
+      });
+      return;
+    }
+
+    const donation = await prisma.donation.findUnique({
+      where: { id: donationId },
+      include: { user: true, transaction: true },
+    });
+
+    if (!donation) {
+      logger.error("Donation not found for Every.org webhook", { donationId });
+      await prisma.webhookEvent.update({
+        where: { id: webhookEventId },
+        data: { status: "FAILED", error: "Donation not found" },
+      });
+      return;
+    }
+
+    // Update donation as completed
+    await prisma.donation.update({
+      where: { id: donationId },
+      data: {
+        status: "COMPLETED",
+        everyOrgId: payload.chargeId,
+        completedAt: new Date(),
+      },
+    });
+
+    // Update transaction status if linked
+    if (donation.transactionId) {
+      await prisma.transaction.update({
+        where: { id: donation.transactionId },
+        data: { status: "DONATED" },
+      });
+    }
+
+    // Send confirmation email
+    await sendDonationConfirmation(
+      donation.user.email,
+      donation.user.name || undefined,
+      donation.charityName,
+      donation.amount.toNumber(),
+      donation.userId
+    );
+
+    await prisma.webhookEvent.update({
+      where: { id: webhookEventId },
+      data: { status: "COMPLETED", processedAt: new Date() },
+    });
+
+    logger.info("Donation completed inline", {
+      donationId,
+      chargeId: payload.chargeId,
+    });
+  } catch (error) {
+    logger.error("Error completing donation inline", { webhookEventId }, error);
+    await prisma.webhookEvent.update({
+      where: { id: webhookEventId },
+      data: {
+        status: "FAILED",
+        error: error instanceof Error ? error.message : "Unknown error",
+        retryCount: { increment: 1 },
+      },
+    });
+  }
+}
+
 export async function POST(request: Request) {
   // Rate limit check
   const clientId = getClientIdentifier(request);
@@ -137,7 +222,7 @@ export async function POST(request: Request) {
       },
     });
 
-    // Trigger background job via FastAPI service
+    // Trigger background job via FastAPI service if configured, otherwise process inline
     if (BACKEND_URL && INTERNAL_TOKEN) {
       fetch(`${BACKEND_URL}/jobs/complete-donation`, {
         method: "POST",
@@ -152,7 +237,10 @@ export async function POST(request: Request) {
           every_org_id: payload.chargeId,
         }),
       }).catch((err) => {
-        logger.error("Failed to trigger backend job", { error: String(err) });
+        logger.error("Failed to trigger backend job, falling back to inline", { error: String(err) });
+        completeDonationInline(payload, webhookEvent.id).catch((inlineErr) => {
+          logger.error("Inline donation completion also failed", { error: String(inlineErr) });
+        });
       });
 
       // Mark webhook as processing (will be completed by background job)
@@ -161,7 +249,10 @@ export async function POST(request: Request) {
         data: { status: "PROCESSING" },
       });
     } else {
-      logger.warn("Backend service not configured, donation will not be processed");
+      // No backend service - process inline
+      completeDonationInline(payload, webhookEvent.id).catch((err) => {
+        logger.error("Inline donation completion failed", { error: String(err) });
+      });
     }
 
     logger.info("Every.org webhook queued for processing", {

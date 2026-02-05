@@ -44,7 +44,7 @@ interface CharitiesResponse {
 export default function CharitiesPage() {
   const [data, setData] = useState<CharitiesResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [isUpdating, setIsUpdating] = useState(false);
+  const [, setIsUpdating] = useState(false);
   const [activeTab, setActiveTab] = useState<string>("all");
 
   const fetchCharities = useCallback(async () => {
@@ -134,7 +134,6 @@ export default function CharitiesPage() {
   }
 
   const allCauses = data?.charities || [];
-  const causeSlugs = allCauses.map((c) => c.cause.slug);
 
   return (
     <div className="space-y-8">

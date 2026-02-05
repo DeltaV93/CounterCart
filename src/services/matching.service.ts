@@ -1,7 +1,7 @@
 import prisma from "@/lib/prisma";
 import { normalizeMerchantName } from "@/lib/plaid";
 import { logger } from "@/lib/logger";
-import { Prisma } from "@prisma/client";
+import { Prisma, User } from "@prisma/client";
 
 type BusinessMappingWithCause = Prisma.BusinessMappingGetPayload<{
   include: { cause: true };
@@ -115,6 +115,36 @@ export class MatchingService {
   }
 
   /**
+   * Check if the monthly total needs to be reset (new month) and return current total.
+   * Uses check-at-read-time pattern to avoid needing a cron job.
+   */
+  async getOrResetMonthlyTotal(user: User): Promise<number> {
+    const now = new Date();
+    const resetAt = user.monthlyResetAt;
+
+    // Check if we're in a different month than the last reset
+    const sameMonth =
+      resetAt.getUTCFullYear() === now.getUTCFullYear() &&
+      resetAt.getUTCMonth() === now.getUTCMonth();
+
+    if (sameMonth) {
+      return user.currentMonthTotal.toNumber();
+    }
+
+    // New month - reset the counter
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        currentMonthTotal: 0,
+        monthlyResetAt: now,
+      },
+    });
+
+    logger.info("Monthly donation total reset", { userId: user.id });
+    return 0;
+  }
+
+  /**
    * Get the default charity for a cause
    */
   async getDefaultCharity(causeId: string) {
@@ -182,6 +212,9 @@ export class MatchingService {
       return { matched: false };
     }
 
+    // Reset monthly total if we're in a new month
+    const currentMonthTotal = await this.getOrResetMonthlyTotal(user);
+
     // Calculate donation amount
     const donationAmount = this.calculateDonationAmount(
       transaction.amount.toNumber(),
@@ -190,7 +223,7 @@ export class MatchingService {
 
     // Check monthly limit
     if (user.monthlyLimit) {
-      const newTotal = user.currentMonthTotal.toNumber() + donationAmount;
+      const newTotal = currentMonthTotal + donationAmount;
       if (newTotal > user.monthlyLimit.toNumber()) {
         await prisma.transaction.update({
           where: { id: transactionId },

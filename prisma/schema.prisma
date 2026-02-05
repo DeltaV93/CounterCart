@@ -19,6 +19,7 @@ model User {
   donationMultiplier  Decimal   @default(1.0) @db.Decimal(3, 2)
   monthlyLimit        Decimal?  @db.Decimal(10, 2)
   currentMonthTotal   Decimal   @default(0) @db.Decimal(10, 2)
+  monthlyResetAt      DateTime  @default(now())
   autoDonateEnabled   Boolean   @default(false)
   onboardingComplete  Boolean   @default(false)
   createdAt           DateTime  @default(now())

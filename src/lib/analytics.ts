@@ -1,11 +1,12 @@
 import { trackEvent } from "fathom-client";
-import { createHash } from "crypto";
 
 /**
  * Hash user ID for privacy - only used for cohort analysis
- * Uses first 16 chars of SHA-256 hash
+ * Uses first 16 chars of SHA-256 hash.
+ * Server-side only - uses dynamic import to avoid bundling Node.js crypto in client.
  */
-export function hashUserId(userId: string): string {
+export async function hashUserId(userId: string): Promise<string> {
+  const { createHash } = await import("crypto");
   return createHash("sha256").update(userId).digest("hex").substring(0, 16);
 }
 

@@ -213,7 +213,7 @@ async function handlePaymentFailed(invoice: Stripe.Invoice) {
   });
 
   // Send payment failed email notification
-  await sendPaymentFailedEmail(user.email, user.name || undefined);
+  await sendPaymentFailedEmail(user.email, user.name || undefined, user.id);
 
   logger.warn("User payment failed", { userId: user.id });
 }

@@ -12,7 +12,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+// Badge import available if needed in the future
 import { Separator } from "@/components/ui/separator";
 import {
   Heart,

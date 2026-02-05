@@ -1,0 +1,9 @@
+-- AlterTable: Add notification preferences to User
+ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "notifyDonationComplete" BOOLEAN NOT NULL DEFAULT true;
+ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "notifyWeeklySummary" BOOLEAN NOT NULL DEFAULT true;
+ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "notifyNewMatch" BOOLEAN NOT NULL DEFAULT false;
+ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "notifyPaymentFailed" BOOLEAN NOT NULL DEFAULT true;
+ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "notifyBankDisconnected" BOOLEAN NOT NULL DEFAULT true;
+
+-- AlterTable: Add monthly reset tracking to User
+ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "monthlyResetAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP;

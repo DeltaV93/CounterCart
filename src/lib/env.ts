@@ -41,6 +41,13 @@ const serverEnvSchema = z.object({
   RESEND_API_KEY: z.string().optional(),
   INTERNAL_API_TOKEN: z.string().min(32).optional(),
 
+  // Backend service (optional - webhooks process inline if not configured)
+  BACKEND_SERVICE_URL: z.string().url().optional(),
+
+  // Error monitoring (Sentry)
+  SENTRY_DSN: z.string().optional(),
+  NEXT_PUBLIC_SENTRY_DSN: z.string().optional(),
+
   // Analytics
   NEXT_PUBLIC_FATHOM_SITE_ID: z.string().optional(),
 });
