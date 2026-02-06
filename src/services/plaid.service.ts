@@ -3,7 +3,7 @@ import prisma from "@/lib/prisma";
 import { matchingService } from "./matching.service";
 import { decrypt } from "@/lib/encryption";
 import { logger } from "@/lib/logger";
-import { RemovedTransaction, Transaction as PlaidTransaction } from "plaid";
+import { RemovedTransaction, Transaction as PlaidTransaction, AccountBase } from "plaid";
 
 export class PlaidService {
   /**
@@ -210,6 +210,79 @@ export class PlaidService {
     }
 
     return results;
+  }
+
+  /**
+   * Get Auth data for a Plaid item (bank account numbers for ACH)
+   */
+  async getAuthData(plaidItemId: string): Promise<{
+    accounts: Array<{
+      accountId: string;
+      name: string;
+      mask: string | null;
+      routingNumber: string;
+      accountNumber: string;
+    }>;
+  }> {
+    const plaidItem = await prisma.plaidItem.findUnique({
+      where: { id: plaidItemId },
+    });
+
+    if (!plaidItem) {
+      throw new Error(`PlaidItem not found: ${plaidItemId}`);
+    }
+
+    const accessToken = decrypt(plaidItem.accessToken);
+
+    const response = await plaidClient.authGet({
+      access_token: accessToken,
+    });
+
+    const accounts = response.data.accounts
+      .filter((account: AccountBase) =>
+        account.type === "depository" &&
+        (account.subtype === "checking" || account.subtype === "savings")
+      )
+      .map((account: AccountBase) => {
+        const numbers = response.data.numbers.ach.find(
+          (n) => n.account_id === account.account_id
+        );
+        return {
+          accountId: account.account_id,
+          name: account.name,
+          mask: account.mask,
+          routingNumber: numbers?.routing || "",
+          accountNumber: numbers?.account || "",
+        };
+      })
+      .filter((a) => a.routingNumber && a.accountNumber);
+
+    return { accounts };
+  }
+
+  /**
+   * Create a Stripe bank account token via Plaid processor integration
+   */
+  async createStripeBankAccountToken(
+    plaidItemId: string,
+    accountId: string
+  ): Promise<string> {
+    const plaidItem = await prisma.plaidItem.findUnique({
+      where: { id: plaidItemId },
+    });
+
+    if (!plaidItem) {
+      throw new Error(`PlaidItem not found: ${plaidItemId}`);
+    }
+
+    const accessToken = decrypt(plaidItem.accessToken);
+
+    const response = await plaidClient.processorStripeBankAccountTokenCreate({
+      access_token: accessToken,
+      account_id: accountId,
+    });
+
+    return response.data.stripe_bank_account_token;
   }
 }
 

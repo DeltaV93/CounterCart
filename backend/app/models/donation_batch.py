@@ -25,6 +25,11 @@ class DonationBatch(Base):
     createdAt = Column(DateTime, nullable=False)
     updatedAt = Column(DateTime, nullable=False)
 
+    # Stripe ACH payment tracking
+    stripePaymentIntentId = Column(String, nullable=True)
+    stripePaymentStatus = Column(String, nullable=True)
+    achDebitedAt = Column(DateTime, nullable=True)
+
     user = relationship("User", back_populates="donation_batches")
     donations = relationship("Donation", back_populates="batch")
 

@@ -17,6 +17,13 @@ class Settings(BaseSettings):
     # Every.org
     EVERYORG_WEBHOOK_TOKEN: str = ""
 
+    # Change API
+    CHANGE_API_KEY: str = ""
+    CHANGE_WEBHOOK_SECRET: str = ""
+
+    # Stripe
+    STRIPE_SECRET_KEY: str = ""
+
     # Internal API
     INTERNAL_API_TOKEN: str = ""
 

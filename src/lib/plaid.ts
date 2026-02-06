@@ -12,7 +12,7 @@ const configuration = new Configuration({
 
 export const plaidClient = new PlaidApi(configuration);
 
-export const PLAID_PRODUCTS = [Products.Transactions];
+export const PLAID_PRODUCTS = [Products.Transactions, Products.Auth];
 export const PLAID_COUNTRY_CODES = [CountryCode.Us];
 
 export function normalizeMerchantName(name: string): string {

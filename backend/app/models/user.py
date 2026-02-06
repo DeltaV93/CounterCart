@@ -20,6 +20,9 @@ class User(Base):
     createdAt = Column(DateTime, nullable=False)
     updatedAt = Column(DateTime, nullable=False)
 
+    # Change API integration
+    changeCustomerId = Column(String, unique=True, nullable=True)
+
     plaid_items = relationship("PlaidItem", back_populates="user")
     user_causes = relationship("UserCause", back_populates="user")
     transactions = relationship("Transaction", back_populates="user")

@@ -114,6 +114,15 @@ async function handleStripeEvent(event: Stripe.Event) {
       await handlePaymentFailed(event.data.object as Stripe.Invoice);
       break;
 
+    // ACH payment events for auto-donations
+    case "payment_intent.succeeded":
+      await handlePaymentIntentSucceeded(event.data.object as Stripe.PaymentIntent);
+      break;
+
+    case "payment_intent.payment_failed":
+      await handlePaymentIntentFailed(event.data.object as Stripe.PaymentIntent);
+      break;
+
     default:
       logger.debug("Unhandled Stripe event type", { eventType: event.type });
   }
@@ -216,4 +225,92 @@ async function handlePaymentFailed(invoice: Stripe.Invoice) {
   await sendPaymentFailedEmail(user.email, user.name || undefined);
 
   logger.warn("User payment failed", { userId: user.id });
+}
+
+async function handlePaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent) {
+  const batchId = paymentIntent.metadata?.batch_id;
+
+  if (!batchId) {
+    // Not an auto-donation payment, ignore
+    return;
+  }
+
+  // Check if batch exists
+  const batchExists = await prisma.donationBatch.findUnique({
+    where: { id: batchId },
+    select: { id: true },
+  });
+
+  if (!batchExists) {
+    logger.warn("No batch found for payment intent", {
+      paymentIntentId: paymentIntent.id,
+      batchId,
+    });
+    return;
+  }
+
+  // Update batch with successful payment
+  await prisma.donationBatch.update({
+    where: { id: batchId },
+    data: {
+      stripePaymentStatus: "succeeded",
+      achDebitedAt: new Date(),
+    },
+  });
+
+  logger.info("Batch updated for ACH success", { batchId });
+
+  logger.info("ACH payment succeeded for batch", {
+    batchId,
+    paymentIntentId: paymentIntent.id,
+    amount: paymentIntent.amount,
+  });
+
+  // Note: Donation distribution to charities via Change API
+  // is handled by the backend job triggered separately
+}
+
+async function handlePaymentIntentFailed(paymentIntent: Stripe.PaymentIntent) {
+  const batchId = paymentIntent.metadata?.batch_id;
+  const userId = paymentIntent.metadata?.user_id;
+
+  if (!batchId) {
+    // Not an auto-donation payment, ignore
+    return;
+  }
+
+  // Update the batch status
+  const batch = await prisma.donationBatch.update({
+    where: { id: batchId },
+    data: {
+      status: "FAILED",
+      stripePaymentStatus: "failed",
+    },
+  });
+
+  // Mark all donations in the batch as failed
+  await prisma.donation.updateMany({
+    where: { batchId },
+    data: {
+      status: "FAILED",
+      errorMessage: paymentIntent.last_payment_error?.message || "ACH payment failed",
+    },
+  });
+
+  // Send notification to user
+  if (userId) {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (user?.notifyPaymentFailed) {
+      await sendPaymentFailedEmail(user.email, user.name || undefined);
+    }
+  }
+
+  logger.error("ACH payment failed for batch", {
+    batchId,
+    paymentIntentId: paymentIntent.id,
+    error: paymentIntent.last_payment_error?.message,
+  });
 }

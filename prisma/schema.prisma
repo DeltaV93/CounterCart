@@ -31,6 +31,9 @@ model User {
   notifyPaymentFailed      Boolean @default(true)
   notifyBankDisconnected   Boolean @default(true)
 
+  // Change API integration
+  changeCustomerId    String?   @unique  // Change API customer ID
+
   plaidItems      PlaidItem[]
   userCauses      UserCause[]
   userCharities   UserCharity[]
@@ -80,6 +83,11 @@ model BankAccount {
   mask           String?  // Last 4 digits
   isActive       Boolean  @default(true)
   createdAt      DateTime @default(now())
+
+  // ACH payment fields (for auto-donations via Stripe)
+  stripePaymentMethodId String?   // Stripe PaymentMethod ID for ACH debit
+  achEnabled            Boolean   @default(false)
+  achAuthorizedAt       DateTime? // When user signed ACH mandate
 
   plaidItem    PlaidItem     @relation(fields: [plaidItemId], references: [id], onDelete: Cascade)
   transactions Transaction[]
@@ -170,6 +178,9 @@ model Charity {
   isActive     Boolean  @default(true)
   createdAt    DateTime @default(now())
 
+  // Change API integration
+  changeNonprofitId String?  // Change API nonprofit ID for auto-donations
+
   cause         Cause         @relation(fields: [causeId], references: [id])
   donations     Donation[]
   userCharities UserCharity[]
@@ -224,12 +235,18 @@ model DonationBatch {
   createdAt   DateTime          @default(now())
   updatedAt   DateTime          @updatedAt
 
+  // Stripe ACH payment tracking
+  stripePaymentIntentId String?   // Stripe PaymentIntent for ACH debit
+  stripePaymentStatus   String?   // "requires_confirmation" | "processing" | "succeeded" | "failed"
+  achDebitedAt          DateTime? // When ACH was successfully debited
+
   user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   donations Donation[]
 
   @@unique([userId, weekOf])
   @@index([userId, status])
   @@index([weekOf])
+  @@index([stripePaymentIntentId])
 }
 
 enum DonationBatchStatus {
@@ -250,7 +267,8 @@ model Donation {
   charityName    String
   amount         Decimal        @db.Decimal(10, 2)
   status         DonationStatus @default(PENDING)
-  everyOrgId     String?        @unique
+  everyOrgId     String?        @unique  // Every.org donation ID (for manual donations)
+  changeId       String?        @unique  // Change API donation ID (for auto-donations)
   receiptUrl     String?
   errorMessage   String?
   createdAt      DateTime       @default(now())
@@ -265,6 +283,7 @@ model Donation {
   @@index([status])
   @@index([batchId])
   @@index([everyOrgId])
+  @@index([changeId])
 }
 
 enum DonationStatus {

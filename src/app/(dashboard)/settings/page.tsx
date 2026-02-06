@@ -43,7 +43,10 @@ import {
   AlertTriangle,
   Trash2,
   Download,
+  Zap,
+  CheckCircle2,
 } from "lucide-react";
+import Link from "next/link";
 import { toast } from "sonner";
 import { BankAccountList } from "@/components/BankAccountList";
 import { NotificationPreferences } from "@/components/NotificationPreferences";
@@ -76,6 +79,16 @@ export default function SettingsPage() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
+  const [achStatus, setAchStatus] = useState<{
+    enabled: boolean;
+    bankAccount: {
+      id: string;
+      name: string;
+      mask: string | null;
+      institutionName: string;
+      achAuthorizedAt: string | null;
+    } | null;
+  } | null>(null);
 
   const [name, setName] = useState("");
   const [multiplier, setMultiplier] = useState("1");
@@ -106,9 +119,13 @@ export default function SettingsPage() {
   useEffect(() => {
     const fetchSettings = async () => {
       try {
-        const response = await fetch("/api/user/settings");
-        if (response.ok) {
-          const data = await response.json();
+        const [settingsRes, achRes] = await Promise.all([
+          fetch("/api/user/settings"),
+          fetch("/api/donations/setup-ach"),
+        ]);
+
+        if (settingsRes.ok) {
+          const data = await settingsRes.json();
           setSettings(data);
           setName(data.name || "");
           setMultiplier(data.donationMultiplier?.toString() || "1");
@@ -121,6 +138,11 @@ export default function SettingsPage() {
             notifyPaymentFailed: data.notifyPaymentFailed ?? true,
             notifyBankDisconnected: data.notifyBankDisconnected ?? true,
           });
+        }
+
+        if (achRes.ok) {
+          const achData = await achRes.json();
+          setAchStatus(achData);
         }
       } catch (error) {
         console.error("Error fetching settings:", error);
@@ -404,6 +426,98 @@ export default function SettingsPage() {
               <Sparkles className="inline h-3 w-3 mr-1" />
               Auto-donate is a Premium feature
             </p>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Auto-Donations (ACH) */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <Zap className="h-5 w-5" />
+                Automatic Donations
+              </CardTitle>
+              <CardDescription>
+                Set up ACH direct debit for hands-free weekly donations
+              </CardDescription>
+            </div>
+            {achStatus?.enabled && (
+              <Badge variant="default" className="bg-green-600">
+                <CheckCircle2 className="mr-1 h-3 w-3" />
+                Active
+              </Badge>
+            )}
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {achStatus?.enabled ? (
+            <>
+              <div className="bg-muted/50 rounded-lg p-4 space-y-2">
+                <p className="font-medium">Connected Account</p>
+                <p className="text-sm text-muted-foreground">
+                  {achStatus.bankAccount?.institutionName} ****
+                  {achStatus.bankAccount?.mask}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Authorized on{" "}
+                  {achStatus.bankAccount?.achAuthorizedAt
+                    ? new Date(
+                        achStatus.bankAccount.achAuthorizedAt
+                      ).toLocaleDateString()
+                    : "N/A"}
+                </p>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Your donations are processed automatically every Sunday. We&apos;ll
+                debit your bank account and distribute to your selected charities.
+              </p>
+              <div className="flex gap-3">
+                <Link href="/onboarding/ach-authorization?returnTo=/settings">
+                  <Button variant="outline">
+                    Manage ACH Settings
+                  </Button>
+                </Link>
+              </div>
+            </>
+          ) : (
+            <>
+              <p className="text-sm text-muted-foreground">
+                Enable automatic donations to have your weekly donation batch
+                processed without manual approval. We&apos;ll securely debit your
+                bank account each Sunday and distribute funds to your selected
+                charities.
+              </p>
+              <div className="bg-muted/50 rounded-lg p-4 space-y-2">
+                <p className="font-medium text-sm">How it works:</p>
+                <ul className="text-sm text-muted-foreground space-y-1">
+                  <li>1. Transactions are matched throughout the week</li>
+                  <li>2. Every Sunday, your donations are batched</li>
+                  <li>3. We debit your bank via ACH (2-3 business days)</li>
+                  <li>4. Funds are automatically sent to charities</li>
+                </ul>
+              </div>
+              {settings?.subscriptionTier === "premium" ? (
+                <Link href="/onboarding/ach-authorization?returnTo=/settings">
+                  <Button>
+                    <Zap className="mr-2 h-4 w-4" />
+                    Set Up Automatic Donations
+                  </Button>
+                </Link>
+              ) : (
+                <div className="space-y-2">
+                  <Button disabled>
+                    <Zap className="mr-2 h-4 w-4" />
+                    Set Up Automatic Donations
+                  </Button>
+                  <p className="text-xs text-muted-foreground">
+                    <Sparkles className="inline h-3 w-3 mr-1" />
+                    Automatic donations require a Premium subscription
+                  </p>
+                </div>
+              )}
+            </>
           )}
         </CardContent>
       </Card>
