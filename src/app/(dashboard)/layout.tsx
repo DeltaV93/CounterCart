@@ -16,11 +16,13 @@ import {
   LayoutDashboard,
   CreditCard,
   Gift,
+  GiftIcon,
   Settings,
   LogOut,
   User,
   Building2,
   FileText,
+  Users,
 } from "lucide-react";
 
 const navItems = [
@@ -28,6 +30,7 @@ const navItems = [
   { href: "/transactions", label: "Transactions", icon: CreditCard },
   { href: "/donations", label: "Donations", icon: Gift },
   { href: "/charities", label: "Charities", icon: Building2 },
+  { href: "/clubs", label: "Clubs", icon: Users },
   { href: "/tax-summary", label: "Tax Summary", icon: FileText },
   { href: "/settings", label: "Settings", icon: Settings },
 ];
@@ -53,22 +56,22 @@ export default async function DashboardLayout({
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="sticky top-0 z-50 w-full bg-primary border-b-[3px] border-accent">
+      <header className="sticky top-0 z-50 w-full bg-[var(--counter-cream)] border-b-2 border-primary">
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
           <div className="flex items-center gap-4">
             <MobileNav />
             <Link href="/dashboard" className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-accent flex items-center justify-center text-primary">
-                ↺
+              <div className="w-8 h-8 bg-accent border-2 border-primary flex items-center justify-center font-mono font-bold text-primary">
+                ↻
               </div>
-              <span className="headline text-primary-foreground text-lg tracking-wider hidden sm:inline">
+              <span className="headline text-foreground text-lg tracking-wider hidden sm:inline">
                 COUNTERCART
               </span>
             </Link>
             <nav className="hidden md:flex items-center gap-1">
               {navItems.map((item) => (
                 <Link key={item.href} href={item.href}>
-                  <Button variant="ghost" size="sm" className="gap-2 text-primary-foreground hover:text-accent hover:bg-transparent">
+                  <Button variant="ghost" size="sm" className="gap-2 text-[var(--counter-smoke)] hover:text-foreground hover:bg-transparent">
                     <item.icon className="h-4 w-4" />
                     {item.label}
                   </Button>
@@ -81,7 +84,7 @@ export default async function DashboardLayout({
             <ThemeToggle />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="relative h-9 w-9 border-2 border-accent hover:bg-accent hover:text-accent-foreground">
+                <Button variant="ghost" className="relative h-9 w-9 border-2 border-primary hover:bg-accent hover:text-accent-foreground">
                 <Avatar className="h-7 w-7">
                   <AvatarFallback className="bg-accent text-accent-foreground headline text-sm">
                     {initials}
@@ -107,6 +110,12 @@ export default async function DashboardLayout({
                 <Link href="/settings" className="cursor-pointer">
                   <Settings className="mr-2 h-4 w-4" />
                   Settings
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link href="/gifts" className="cursor-pointer">
+                  <GiftIcon className="mr-2 h-4 w-4" />
+                  Gift Subscriptions
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />

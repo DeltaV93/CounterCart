@@ -38,7 +38,7 @@ export default async function Image() {
             style={{
               width: 80,
               height: 80,
-              backgroundColor: "#facc15",
+              backgroundColor: "#E2C230",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -46,7 +46,7 @@ export default async function Image() {
               marginRight: 20,
             }}
           >
-            ↺
+            ↻
           </div>
           <span
             style={{
@@ -87,7 +87,7 @@ export default async function Image() {
               backgroundColor: "#27272a",
               padding: "16px 24px",
               borderRadius: 8,
-              color: "#facc15",
+              color: "#E2C230",
               fontSize: 20,
             }}
           >
@@ -100,7 +100,7 @@ export default async function Image() {
               backgroundColor: "#27272a",
               padding: "16px 24px",
               borderRadius: 8,
-              color: "#facc15",
+              color: "#E2C230",
               fontSize: 20,
             }}
           >
@@ -113,7 +113,7 @@ export default async function Image() {
               backgroundColor: "#27272a",
               padding: "16px 24px",
               borderRadius: 8,
-              color: "#facc15",
+              color: "#E2C230",
               fontSize: 20,
             }}
           >

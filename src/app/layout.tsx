@@ -1,21 +1,28 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import { Bebas_Neue, IBM_Plex_Mono, Libre_Baskerville } from "next/font/google";
+import { Anton, Courier_Prime, Special_Elite, Libre_Baskerville } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import { FathomProvider } from "@/components/analytics/FathomProvider";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import "@/lib/env"; // Validate environment variables on startup
 import "./globals.css";
 
-const bebasNeue = Bebas_Neue({
+const anton = Anton({
   weight: "400",
   variable: "--font-display",
   subsets: ["latin"],
 });
 
-const ibmPlexMono = IBM_Plex_Mono({
-  weight: ["400", "500", "600", "700"],
+const courierPrime = Courier_Prime({
+  weight: ["400", "700"],
+  style: ["normal", "italic"],
   variable: "--font-mono",
+  subsets: ["latin"],
+});
+
+const specialElite = Special_Elite({
+  weight: "400",
+  variable: "--font-accent",
   subsets: ["latin"],
 });
 
@@ -92,7 +99,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${bebasNeue.variable} ${ibmPlexMono.variable} ${libreBaskerville.variable} antialiased`}
+        className={`${anton.variable} ${courierPrime.variable} ${specialElite.variable} ${libreBaskerville.variable} antialiased`}
       >
         <ThemeProvider
           attribute="class"

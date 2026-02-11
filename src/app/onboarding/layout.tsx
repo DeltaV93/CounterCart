@@ -26,13 +26,13 @@ export default function OnboardingLayout({
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="bg-primary border-b-[3px] border-accent py-4 px-4">
+      <header className="bg-[var(--counter-cream)] border-b-2 border-primary py-4 px-4">
         <div className="container mx-auto max-w-2xl">
           <Link href="/" className="flex items-center gap-2 w-fit">
-            <div className="w-8 h-8 bg-accent flex items-center justify-center text-primary">
-              ↺
+            <div className="w-8 h-8 bg-accent border-2 border-primary flex items-center justify-center font-mono font-bold text-primary">
+              ↻
             </div>
-            <span className="headline text-primary-foreground text-xl tracking-wider">
+            <span className="headline text-foreground text-xl tracking-wider">
               COUNTERCART
             </span>
           </Link>

@@ -19,6 +19,7 @@ import {
   Building2,
   Menu,
   FileText,
+  Users,
 } from "lucide-react";
 
 const navItems = [
@@ -26,6 +27,7 @@ const navItems = [
   { href: "/transactions", label: "Transactions", icon: CreditCard },
   { href: "/donations", label: "Donations", icon: Gift },
   { href: "/charities", label: "Charities", icon: Building2 },
+  { href: "/clubs", label: "Clubs", icon: Users },
   { href: "/tax-summary", label: "Tax Summary", icon: FileText },
   { href: "/settings", label: "Settings", icon: Settings },
 ];
@@ -40,7 +42,7 @@ export function MobileNav() {
         <Button
           variant="ghost"
           size="sm"
-          className="md:hidden text-primary-foreground hover:text-accent hover:bg-transparent"
+          className="md:hidden text-[var(--counter-smoke)] hover:text-foreground hover:bg-transparent"
         >
           <Menu className="h-5 w-5" />
           <span className="sr-only">Toggle menu</span>
@@ -49,8 +51,8 @@ export function MobileNav() {
       <SheetContent side="left" className="w-72 p-0">
         <SheetHeader className="border-b p-4">
           <SheetTitle className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-accent flex items-center justify-center text-primary">
-              ↺
+            <div className="w-8 h-8 bg-accent border-2 border-primary flex items-center justify-center font-mono font-bold text-primary">
+              ↻
             </div>
             <span className="headline text-lg tracking-wider">COUNTERCART</span>
           </SheetTitle>
@@ -63,9 +65,9 @@ export function MobileNav() {
                 key={item.href}
                 href={item.href}
                 onClick={() => setOpen(false)}
-                className={`flex items-center gap-3 px-3 py-3 rounded-md text-sm font-medium transition-colors ${
+                className={`flex items-center gap-3 px-3 py-3 text-sm font-medium transition-colors ${
                   isActive
-                    ? "bg-primary text-primary-foreground"
+                    ? "border-l-4 border-l-accent bg-muted text-foreground"
                     : "text-muted-foreground hover:bg-muted hover:text-foreground"
                 }`}
               >

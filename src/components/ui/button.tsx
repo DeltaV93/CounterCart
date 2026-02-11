@@ -5,12 +5,12 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-3 whitespace-nowrap font-display text-base uppercase tracking-widest transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2 border-2 cursor-pointer",
+  "inline-flex items-center justify-center gap-3 whitespace-nowrap font-mono text-sm font-bold uppercase tracking-wider transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2 border-2 cursor-pointer",
   {
     variants: {
       variant: {
         default:
-          "bg-accent text-accent-foreground border-primary shadow-brutal-md hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-brutal-sm active:translate-x-1 active:translate-y-1 active:shadow-none",
+          "bg-accent text-accent-foreground border-primary shadow-brutal-md hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-brutal-lg active:translate-x-0 active:translate-y-0 active:shadow-brutal-sm",
         destructive:
           "bg-destructive text-white border-destructive hover:bg-destructive/90",
         outline:
@@ -18,13 +18,13 @@ const buttonVariants = cva(
         secondary:
           "bg-transparent text-primary border-primary hover:bg-primary hover:text-primary-foreground",
         ghost:
-          "border-transparent border-b-primary bg-transparent px-0 hover:text-accent hover:border-b-accent",
+          "border-transparent border-b-primary bg-transparent px-0 hover:text-[var(--counter-yellow-dark)] hover:border-b-[var(--counter-yellow-dark)]",
         link:
           "border-transparent text-primary underline-offset-4 hover:underline px-0",
         inverse:
           "bg-background text-foreground border-background hover:bg-accent hover:border-accent",
         highlight:
-          "bg-highlight text-highlight-foreground border-primary shadow-brutal-md hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-brutal-sm",
+          "bg-highlight text-highlight-foreground border-primary shadow-brutal-md hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-brutal-lg",
       },
       size: {
         default: "h-10 px-8 py-4",

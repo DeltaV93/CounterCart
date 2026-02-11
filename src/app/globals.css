@@ -10,17 +10,28 @@
   --font-mono: var(--font-mono);
   --font-display: var(--font-display);
   --font-editorial: var(--font-editorial);
+  --font-accent: var(--font-accent);
 
-  /* Core palette */
-  --color-bone: var(--bone);
-  --color-bone-dark: var(--bone-dark);
-  --color-ink: var(--ink);
-  --color-ash: var(--ash);
-  --color-ash-light: var(--ash-light);
-  --color-blue: var(--blue);
-  --color-blue-dark: var(--blue-dark);
-  --color-yellow: var(--yellow);
-  --color-yellow-dark: var(--yellow-dark);
+  /* Core palette — The Counter */
+  --color-paper: var(--counter-paper);
+  --color-ink: var(--counter-ink);
+  --color-yellow: var(--counter-yellow);
+  --color-yellow-dark: var(--counter-yellow-dark);
+  --color-yellow-light: var(--counter-yellow-light);
+  --color-blue: var(--counter-blue);
+  --color-blue-dark: var(--counter-blue-dark);
+  --color-blue-light: var(--counter-blue-light);
+  --color-charcoal: var(--counter-charcoal);
+  --color-graphite: var(--counter-graphite);
+  --color-smoke: var(--counter-smoke);
+  --color-ash: var(--counter-ash);
+  --color-parchment: var(--counter-parchment);
+  --color-cream: var(--counter-cream);
+  --color-counter-white: var(--counter-white);
+
+  /* Backward-compat aliases */
+  --color-bone: var(--counter-paper);
+  --color-bone-dark: var(--counter-parchment);
 
   /* Semantic colors */
   --color-sidebar-ring: var(--sidebar-ring);
@@ -61,96 +72,125 @@
 }
 
 :root {
-  /* Core palette - Editorial */
-  --bone: #F4F1EA;
-  --bone-dark: #E8E4DB;
-  --ink: #0F0F0F;
-  --ash: #6F6F6F;
-  --ash-light: #9A9A9A;
-  --blue: #AFC6D8;
-  --blue-dark: #8FAFC6;
-  --yellow: #F2E86D;
-  --yellow-dark: #E0D654;
+  /* ============================
+     THE COUNTER — CORE PALETTE
+     ============================ */
+  --counter-yellow: #E2C230;
+  --counter-blue: #8BB8CC;
+  --counter-paper: #F0EBE0;
+  --counter-ink: #0A0A0A;
 
-  /* No border radius - editorial/brutalist */
+  /* Extended Neutrals */
+  --counter-black: #050505;
+  --counter-charcoal: #1E1E1E;
+  --counter-graphite: #333333;
+  --counter-smoke: #5A5A52;
+  --counter-ash: #8A857C;
+  --counter-parchment: #E4DDD0;
+  --counter-cream: #F0EBE0;
+  --counter-white: #FAF8F2;
+
+  /* Yellow Tints */
+  --counter-yellow-dark: #C4A520;
+  --counter-yellow-light: #F0D860;
+  --counter-yellow-wash: rgba(226, 194, 48, 0.10);
+
+  /* Blue Tints */
+  --counter-blue-dark: #6A98AE;
+  --counter-blue-light: #B0D4E2;
+  --counter-blue-wash: rgba(139, 184, 204, 0.12);
+
+  /* Functional */
+  --counter-success: #568203;
+  --counter-error: #B83A2A;
+  --counter-warning: #C49A3C;
+
+  /* No border radius — editorial/brutalist */
   --radius: 0;
 
+  /* Easing */
+  --ease-beat: cubic-bezier(0.23, 1, 0.32, 1);
+
   /* Semantic mappings */
-  --background: #F4F1EA;
-  --foreground: #0F0F0F;
-  --card: #F4F1EA;
-  --card-foreground: #0F0F0F;
-  --popover: #F4F1EA;
-  --popover-foreground: #0F0F0F;
-  --primary: #0F0F0F;
-  --primary-foreground: #F4F1EA;
-  --secondary: #E8E4DB;
-  --secondary-foreground: #0F0F0F;
-  --muted: #E8E4DB;
-  --muted-foreground: #6F6F6F;
-  --accent: #AFC6D8;
-  --accent-foreground: #0F0F0F;
-  --highlight: #F2E86D;
-  --highlight-foreground: #0F0F0F;
-  --destructive: #C41E3A;
-  --border: #0F0F0F;
-  --input: #0F0F0F;
-  --ring: #AFC6D8;
+  --background: #F0EBE0;
+  --foreground: #0A0A0A;
+  --card: #F0EBE0;
+  --card-foreground: #0A0A0A;
+  --popover: #F0EBE0;
+  --popover-foreground: #0A0A0A;
+  --primary: #0A0A0A;
+  --primary-foreground: #F0EBE0;
+  --secondary: #E4DDD0;
+  --secondary-foreground: #0A0A0A;
+  --muted: #E4DDD0;
+  --muted-foreground: #5A5A52;
+  --accent: #E2C230;
+  --accent-foreground: #0A0A0A;
+  --highlight: #8BB8CC;
+  --highlight-foreground: #0A0A0A;
+  --destructive: #B83A2A;
+  --border: #0A0A0A;
+  --input: #0A0A0A;
+  --ring: #E2C230;
 
   /* Charts */
-  --chart-1: #AFC6D8;
-  --chart-2: #F2E86D;
-  --chart-3: #6F6F6F;
-  --chart-4: #8FAFC6;
-  --chart-5: #E0D654;
+  --chart-1: #E2C230;
+  --chart-2: #8BB8CC;
+  --chart-3: #5A5A52;
+  --chart-4: #C4A520;
+  --chart-5: #6A98AE;
 
   /* Sidebar */
-  --sidebar: #0F0F0F;
-  --sidebar-foreground: #F4F1EA;
-  --sidebar-primary: #AFC6D8;
-  --sidebar-primary-foreground: #0F0F0F;
-  --sidebar-accent: #6F6F6F;
-  --sidebar-accent-foreground: #F4F1EA;
-  --sidebar-border: #6F6F6F;
-  --sidebar-ring: #AFC6D8;
+  --sidebar: #0A0A0A;
+  --sidebar-foreground: #F0EBE0;
+  --sidebar-primary: #E2C230;
+  --sidebar-primary-foreground: #0A0A0A;
+  --sidebar-accent: #1E1E1E;
+  --sidebar-accent-foreground: #F0EBE0;
+  --sidebar-border: #333333;
+  --sidebar-ring: #E2C230;
 }
 
 .dark {
-  --bone: #0F0F0F;
-  --bone-dark: #1A1A1A;
-  --ink: #F4F1EA;
-  --ash: #9A9A9A;
-  --ash-light: #6F6F6F;
+  --counter-paper: #0A0A0A;
+  --counter-ink: #F0EBE0;
+  --counter-parchment: #1E1E1E;
+  --counter-cream: #0A0A0A;
+  --counter-white: #1E1E1E;
+  --counter-charcoal: #E4DDD0;
+  --counter-graphite: #C4C0B8;
+  --counter-smoke: #8A857C;
+  --counter-ash: #5A5A52;
 
-  --background: #0F0F0F;
-  --foreground: #F4F1EA;
-  --card: #1A1A1A;
-  --card-foreground: #F4F1EA;
-  --popover: #1A1A1A;
-  --popover-foreground: #F4F1EA;
-  --primary: #F4F1EA;
-  --primary-foreground: #0F0F0F;
-  --secondary: #1A1A1A;
-  --secondary-foreground: #F4F1EA;
-  --muted: #1A1A1A;
-  --muted-foreground: #9A9A9A;
-  --accent: #AFC6D8;
-  --accent-foreground: #0F0F0F;
-  --highlight: #F2E86D;
-  --highlight-foreground: #0F0F0F;
-  --destructive: #EF4444;
-  --border: #F4F1EA;
-  --input: #F4F1EA;
-  --ring: #AFC6D8;
+  --background: #0A0A0A;
+  --foreground: #F0EBE0;
+  --card: #1E1E1E;
+  --card-foreground: #F0EBE0;
+  --popover: #1E1E1E;
+  --popover-foreground: #F0EBE0;
+  --primary: #F0EBE0;
+  --primary-foreground: #0A0A0A;
+  --secondary: #1E1E1E;
+  --secondary-foreground: #F0EBE0;
+  --muted: #1E1E1E;
+  --muted-foreground: #8A857C;
+  --accent: #E2C230;
+  --accent-foreground: #0A0A0A;
+  --highlight: #8BB8CC;
+  --highlight-foreground: #0A0A0A;
+  --destructive: #B83A2A;
+  --border: #F0EBE0;
+  --input: #F0EBE0;
+  --ring: #E2C230;
 
-  --sidebar: #1A1A1A;
-  --sidebar-foreground: #F4F1EA;
-  --sidebar-primary: #AFC6D8;
-  --sidebar-primary-foreground: #0F0F0F;
-  --sidebar-accent: #2A2A2A;
-  --sidebar-accent-foreground: #F4F1EA;
-  --sidebar-border: #9A9A9A;
-  --sidebar-ring: #AFC6D8;
+  --sidebar: #1E1E1E;
+  --sidebar-foreground: #F0EBE0;
+  --sidebar-primary: #E2C230;
+  --sidebar-primary-foreground: #0A0A0A;
+  --sidebar-accent: #333333;
+  --sidebar-accent-foreground: #F0EBE0;
+  --sidebar-border: #8A857C;
+  --sidebar-ring: #E2C230;
 }
 
 @layer base {
@@ -160,19 +200,24 @@
 
   body {
     @apply bg-background text-foreground;
-    font-family: var(--font-mono), 'IBM Plex Mono', ui-monospace, monospace;
-    line-height: 1.5;
+    font-family: var(--font-mono), 'Courier Prime', 'Courier New', monospace;
+    line-height: 1.7;
   }
 
-  /* Paper texture overlay */
+  /* Subtle paper grain */
   body::before {
     content: '';
     position: fixed;
     inset: 0;
     pointer-events: none;
-    opacity: 0.25;
+    opacity: 0.03;
     z-index: 9999;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  }
+
+  ::selection {
+    background: var(--counter-yellow);
+    color: var(--counter-ink);
   }
 }
 
@@ -180,9 +225,9 @@
    TYPOGRAPHY
    ============================================ */
 
-/* Display - Bebas Neue */
+/* Display — Anton */
 .text-display {
-  font-family: var(--font-display), 'Bebas Neue', sans-serif;
+  font-family: var(--font-display), 'Anton', 'Impact', sans-serif;
   text-transform: uppercase;
   letter-spacing: 0.02em;
   line-height: 1;
@@ -204,9 +249,9 @@
   font-size: clamp(1.5rem, 4vw, 2.25rem);
 }
 
-/* Editorial - Libre Baskerville */
+/* Editorial — Libre Baskerville */
 .text-editorial {
-  font-family: var(--font-editorial), 'Libre Baskerville', serif;
+  font-family: var(--font-editorial), 'Libre Baskerville', Georgia, serif;
   line-height: 1.8;
 }
 
@@ -222,10 +267,10 @@
   font-size: 1rem;
 }
 
-/* Mono - IBM Plex Mono */
+/* Mono / Body — Courier Prime */
 .text-mono {
-  font-family: var(--font-mono), 'IBM Plex Mono', ui-monospace, monospace;
-  line-height: 1.5;
+  font-family: var(--font-mono), 'Courier Prime', 'Courier New', monospace;
+  line-height: 1.7;
 }
 
 .text-mono-lg {
@@ -244,18 +289,24 @@
   font-size: 0.75rem;
 }
 
+/* Typewriter — Special Elite (atmospheric, use sparingly) */
+.text-typewriter {
+  font-family: var(--font-accent), 'Special Elite', 'Courier New', monospace;
+  line-height: 1.5;
+}
+
 /* Labels */
 .text-label {
-  font-family: var(--font-mono), 'IBM Plex Mono', ui-monospace, monospace;
+  font-family: var(--font-mono), 'Courier Prime', 'Courier New', monospace;
   font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.2em;
   color: var(--muted-foreground);
 }
 
-/* Legacy headline class (backwards compat) */
+/* Legacy headline class */
 .headline {
-  font-family: var(--font-display), 'Bebas Neue', sans-serif;
+  font-family: var(--font-display), 'Anton', 'Impact', sans-serif;
   text-transform: uppercase;
   letter-spacing: 0.02em;
   line-height: 1;
@@ -263,54 +314,54 @@
 
 /* Highlight text */
 .highlight {
-  background: var(--yellow);
+  background: var(--counter-yellow);
   padding: 0 0.15em;
-  color: var(--ink);
+  color: var(--counter-ink);
 }
 
 .highlight--blue {
-  background: var(--blue);
+  background: var(--counter-blue);
 }
 
 /* ============================================
-   SHADOWS - Offset only, no blur
+   SHADOWS — Offset only, no blur
    ============================================ */
 
 .shadow-brutal {
-  box-shadow: 4px 4px 0 var(--ink);
+  box-shadow: 3px 3px 0 var(--counter-ink);
 }
 
 .shadow-brutal-sm {
-  box-shadow: 2px 2px 0 var(--ink);
+  box-shadow: 3px 3px 0 var(--counter-ink);
 }
 
 .shadow-brutal-md {
-  box-shadow: 4px 4px 0 var(--ink);
+  box-shadow: 3px 3px 0 var(--counter-ink);
 }
 
 .shadow-brutal-lg {
-  box-shadow: 6px 6px 0 var(--ink);
+  box-shadow: 6px 6px 0 var(--counter-charcoal);
 }
 
 .shadow-brutal-xl {
-  box-shadow: 8px 8px 0 var(--ink);
+  box-shadow: 6px 6px 0 var(--counter-charcoal);
 }
 
 .dark .shadow-brutal,
 .dark .shadow-brutal-md {
-  box-shadow: 4px 4px 0 var(--bone-dark);
+  box-shadow: 3px 3px 0 var(--counter-parchment);
 }
 
 .dark .shadow-brutal-sm {
-  box-shadow: 2px 2px 0 var(--bone-dark);
+  box-shadow: 3px 3px 0 var(--counter-parchment);
 }
 
 .dark .shadow-brutal-lg {
-  box-shadow: 6px 6px 0 var(--bone-dark);
+  box-shadow: 6px 6px 0 var(--counter-parchment);
 }
 
 .dark .shadow-brutal-xl {
-  box-shadow: 8px 8px 0 var(--bone-dark);
+  box-shadow: 6px 6px 0 var(--counter-parchment);
 }
 
 /* ============================================
@@ -349,15 +400,15 @@
 }
 
 .animate-fade-in {
-  animation: fadeIn 0.3s ease forwards;
+  animation: fadeIn 0.3s var(--ease-beat) forwards;
 }
 
 .animate-slide-up {
-  animation: slideUp 0.5s ease forwards;
+  animation: slideUp 0.5s var(--ease-beat) forwards;
 }
 
 .animate-slide-down {
-  animation: slideDown 0.5s ease forwards;
+  animation: slideDown 0.5s var(--ease-beat) forwards;
 }
 
 .animate-marquee {
@@ -370,6 +421,20 @@
 .animate-delay-4 { animation-delay: 400ms; }
 .animate-delay-5 { animation-delay: 500ms; }
 
+/* Respect motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee {
+    animation: none;
+  }
+  .animate-fade-in,
+  .animate-slide-up,
+  .animate-slide-down {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}
+
 /* ============================================
    SECTION HEADER PATTERN
    ============================================ */
@@ -379,7 +444,7 @@
 }
 
 .section-header__label {
-  font-family: var(--font-mono), 'IBM Plex Mono', ui-monospace, monospace;
+  font-family: var(--font-mono), 'Courier Prime', 'Courier New', monospace;
   font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.2em;
@@ -394,11 +459,11 @@
   content: '';
   width: 40px;
   height: 1px;
-  background: var(--ash);
+  background: var(--counter-ash);
 }
 
 .section-header__title {
-  font-family: var(--font-display), 'Bebas Neue', sans-serif;
+  font-family: var(--font-display), 'Anton', 'Impact', sans-serif;
   font-size: clamp(1.875rem, 5vw, 3rem);
   text-transform: uppercase;
   letter-spacing: 0.02em;
@@ -407,7 +472,7 @@
 }
 
 .section-header__desc {
-  font-family: var(--font-editorial), 'Libre Baskerville', serif;
+  font-family: var(--font-editorial), 'Libre Baskerville', Georgia, serif;
   font-size: 1.125rem;
   color: var(--muted-foreground);
   max-width: 600px;
@@ -419,16 +484,16 @@
    ============================================ */
 
 .quote {
-  font-family: var(--font-editorial), 'Libre Baskerville', serif;
+  font-family: var(--font-editorial), 'Libre Baskerville', Georgia, serif;
   font-size: 1.5rem;
   font-style: italic;
   line-height: 1.625;
   padding-left: 2rem;
-  border-left: 4px solid var(--blue);
+  border-left: 4px solid var(--counter-blue);
 }
 
 .quote__author {
-  font-family: var(--font-mono), 'IBM Plex Mono', ui-monospace, monospace;
+  font-family: var(--font-mono), 'Courier Prime', 'Courier New', monospace;
   font-size: 0.875rem;
   font-style: normal;
   color: var(--muted-foreground);
@@ -441,26 +506,26 @@
 
 .step {
   padding: 2rem;
-  border: 1px solid var(--ash);
+  border: 1px solid var(--counter-ash);
 }
 
 .step__number {
-  font-family: var(--font-display), 'Bebas Neue', sans-serif;
+  font-family: var(--font-display), 'Anton', 'Impact', sans-serif;
   font-size: 3rem;
-  color: var(--blue);
+  color: var(--counter-blue);
   line-height: 1;
   margin-bottom: 1rem;
 }
 
 .step__title {
-  font-family: var(--font-display), 'Bebas Neue', sans-serif;
+  font-family: var(--font-display), 'Anton', 'Impact', sans-serif;
   font-size: 1.5rem;
   letter-spacing: 0.05em;
   margin-bottom: 0.75rem;
 }
 
 .step__desc {
-  font-family: var(--font-mono), 'IBM Plex Mono', ui-monospace, monospace;
+  font-family: var(--font-mono), 'Courier Prime', 'Courier New', monospace;
   font-size: 0.875rem;
   color: var(--muted-foreground);
 }
@@ -478,19 +543,19 @@
   flex-shrink: 0;
   width: 24px;
   height: 24px;
-  background: var(--yellow);
+  background: var(--counter-yellow);
   margin-top: 0.25rem;
 }
 
 .feature__title {
-  font-family: var(--font-display), 'Bebas Neue', sans-serif;
+  font-family: var(--font-display), 'Anton', 'Impact', sans-serif;
   font-size: 1.25rem;
   letter-spacing: 0.05em;
   margin-bottom: 0.5rem;
 }
 
 .feature__desc {
-  font-family: var(--font-mono), 'IBM Plex Mono', ui-monospace, monospace;
+  font-family: var(--font-mono), 'Courier Prime', 'Courier New', monospace;
   font-size: 0.875rem;
   color: var(--muted-foreground);
 }
@@ -501,16 +566,16 @@
 
 .divider {
   height: 2px;
-  background: var(--ink);
+  background: var(--counter-ink);
   border: none;
 }
 
 .divider--subtle {
-  background: var(--ash);
+  background: var(--counter-ash);
   height: 1px;
 }
 
 .divider--accent {
-  background: var(--blue);
+  background: var(--counter-blue);
   height: 3px;
 }

@@ -9,12 +9,13 @@ const cardVariants = cva(
     variants: {
       variant: {
         default: "bg-card text-card-foreground border-primary",
-        dark: "bg-primary text-primary-foreground border-muted-foreground",
-        accent: "bg-accent text-accent-foreground border-primary",
-        highlight: "bg-highlight text-highlight-foreground border-primary",
+        dark: "bg-primary text-primary-foreground border-[var(--counter-charcoal)]",
+        accent: "bg-card text-card-foreground border-primary border-l-[6px] border-l-accent",
+        "accent-blue": "bg-card text-card-foreground border-primary border-l-[6px] border-l-highlight",
+        highlight: "bg-card text-card-foreground border-primary border-l-[6px] border-l-highlight",
       },
       hover: {
-        true: "hover:-translate-x-1 hover:-translate-y-1 hover:shadow-brutal-md cursor-pointer",
+        true: "hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-brutal-lg cursor-pointer",
         false: "",
       },
     },

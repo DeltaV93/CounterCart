@@ -50,32 +50,32 @@ export default function HomePage() {
   return (
     <div className="min-h-screen">
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-primary border-b-[3px] border-accent">
+      <header className="fixed top-0 left-0 right-0 z-50 bg-[var(--counter-cream)] border-b-2 border-primary">
         <div className="container mx-auto flex h-16 items-center justify-between px-4 md:px-8">
           <Link href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-accent flex items-center justify-center text-primary">
-              ↺
+            <div className="w-8 h-8 bg-accent border-2 border-primary flex items-center justify-center font-mono font-bold text-primary">
+              ↻
             </div>
-            <span className="headline text-primary-foreground text-xl tracking-wider">
+            <span className="headline text-foreground text-xl tracking-wider">
               COUNTERCART
             </span>
           </Link>
           <nav className="flex items-center gap-4 md:gap-8">
             <Link
               href="#how-it-works"
-              className="hidden md:block text-primary-foreground text-sm hover:text-accent transition-colors"
+              className="hidden md:block text-[var(--counter-smoke)] text-sm hover:text-foreground transition-colors relative after:content-[''] after:absolute after:bottom-[-2px] after:left-0 after:w-0 after:h-[2px] after:bg-accent after:transition-all hover:after:w-full"
             >
               How It Works
             </Link>
             <Link
               href="#causes"
-              className="hidden md:block text-primary-foreground text-sm hover:text-accent transition-colors"
+              className="hidden md:block text-[var(--counter-smoke)] text-sm hover:text-foreground transition-colors relative after:content-[''] after:absolute after:bottom-[-2px] after:left-0 after:w-0 after:h-[2px] after:bg-accent after:transition-all hover:after:w-full"
             >
               Causes
             </Link>
             <Link
               href="#pricing"
-              className="hidden md:block text-primary-foreground text-sm hover:text-accent transition-colors"
+              className="hidden md:block text-[var(--counter-smoke)] text-sm hover:text-foreground transition-colors relative after:content-[''] after:absolute after:bottom-[-2px] after:left-0 after:w-0 after:h-[2px] after:bg-accent after:transition-all hover:after:w-full"
             >
               Pricing
             </Link>
@@ -88,106 +88,71 @@ export default function HomePage() {
         </div>
       </header>
 
-      {/* Hero */}
-      <section className="min-h-screen pt-32 pb-20 px-4 md:px-8 flex items-center">
-        <div className="container mx-auto grid lg:grid-cols-2 gap-12 items-center">
-          <div className="relative z-10">
-            <h1 className="headline text-5xl md:text-6xl lg:text-7xl mb-6">
-              <span className="block animate-slide-up" style={{ animationDelay: "0s" }}>
-                TURN SPENDING
-              </span>
-              <span
-                className="block animate-slide-up"
-                style={{ animationDelay: "0.15s" }}
-              >
-                HABITS INTO
-              </span>
-              <span
-                className="block text-accent animate-slide-up"
-                style={{ animationDelay: "0.3s" }}
-              >
-                GIVING HABITS.
-              </span>
-            </h1>
-            <p
-              className="text-muted-foreground text-lg mb-8 max-w-md animate-fade-in opacity-0"
-              style={{ animationDelay: "0.5s" }}
+      {/* Hero — ink background, ghost text, yellow CTA */}
+      <section className="min-h-screen pt-32 pb-20 px-4 md:px-8 flex items-center bg-primary text-primary-foreground relative overflow-hidden">
+        {/* Ghost text overlay */}
+        <div className="absolute top-[-3rem] right-[-2rem] headline text-[12rem] md:text-[18rem] text-[var(--counter-charcoal)] opacity-25 pointer-events-none leading-none select-none">
+          OFFSET
+        </div>
+        {/* Yellow bottom bar */}
+        <div className="absolute bottom-0 left-0 w-full h-1 bg-accent"></div>
+
+        <div className="container mx-auto relative z-10">
+          <span className="text-label text-[var(--counter-ash)] tracking-[0.4em] block mb-4 animate-fade-in opacity-0" style={{ animationDelay: "0s" }}>
+            Turn spending habits into
+          </span>
+          <h1 className="headline text-5xl md:text-6xl lg:text-7xl mb-6">
+            <span className="block animate-slide-up" style={{ animationDelay: "0.1s" }}>
+              GIVING
+            </span>
+            <span
+              className="block text-accent animate-slide-up"
+              style={{ animationDelay: "0.25s" }}
             >
-              Maybe it&apos;s a guilty pleasure. Maybe it&apos;s a company that
-              doesn&apos;t share your values. Either way — CounterCart lets you offset
-              your spending with donations to causes you choose.
-            </p>
-            <Link
-              href="/signup"
-              className="inline-flex items-center gap-4 bg-primary text-primary-foreground px-8 py-4 headline text-xl tracking-wider border-[3px] border-primary hover:bg-accent hover:border-accent hover:text-accent-foreground transition-all animate-fade-in opacity-0 group"
-              style={{ animationDelay: "0.7s" }}
-            >
-              START FOR FREE
-              <ArrowRight className="h-6 w-6 group-hover:translate-x-1 transition-transform" />
+              HABITS.
+            </span>
+          </h1>
+          <p
+            className="text-[var(--counter-ash)] text-lg mb-8 max-w-[45ch] leading-relaxed animate-fade-in opacity-0"
+            style={{ animationDelay: "0.4s" }}
+          >
+            Maybe it&apos;s a guilty pleasure. Maybe it&apos;s a company that
+            doesn&apos;t share your values. Either way — CounterCart lets you offset
+            your spending with donations to causes you choose.
+          </p>
+          <div
+            className="flex items-center gap-4 animate-fade-in opacity-0"
+            style={{ animationDelay: "0.6s" }}
+          >
+            <Link href="/signup">
+              <Button size="lg">
+                Plug in <ArrowRight className="h-5 w-5" />
+              </Button>
             </Link>
-            <p
-              className="mt-4 animate-fade-in opacity-0"
-              style={{ animationDelay: "0.9s" }}
+            <Link
+              href="#how-it-works"
+              className="text-[var(--counter-parchment)] border-b border-[var(--counter-parchment)] hover:text-accent hover:border-accent transition-colors"
             >
-              <Link
-                href="#how-it-works"
-                className="text-muted-foreground hover:text-accent border-b border-muted-foreground hover:border-accent transition-colors"
-              >
-                See how it works →
-              </Link>
-            </p>
-          </div>
-          <div className="hidden lg:flex justify-center items-center">
-            <div className="relative w-[400px] h-[400px]">
-              {/* Rotating circle text */}
-              <svg
-                className="absolute w-[300px] h-[300px] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-rotate"
-                viewBox="0 0 300 300"
-              >
-                <defs>
-                  <path
-                    id="circlePath"
-                    d="M 150, 150 m -120, 0 a 120,120 0 1,1 240,0 a 120,120 0 1,1 -240,0"
-                  />
-                </defs>
-                <text
-                  fill="currentColor"
-                  className="text-foreground"
-                  fontFamily="var(--font-mono)"
-                  fontSize="12"
-                  letterSpacing="4"
-                >
-                  <textPath href="#circlePath">
-                    SPEND • OFFSET • GIVE BACK • FEEL GOOD • SPEND • OFFSET • GIVE
-                    BACK •
-                  </textPath>
-                </text>
-              </svg>
-              {/* Center stamp */}
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 -rotate-12 bg-accent px-8 py-6 headline text-2xl tracking-wider border-4 border-primary shadow-brutal-lg">
-                BALANCED
-              </div>
-            </div>
+              See how it works →
+            </Link>
           </div>
         </div>
       </section>
 
-      {/* Marquee */}
-      <section className="bg-accent py-4 border-y-[3px] border-primary overflow-hidden">
+      {/* Marquee — ink background, paper text, yellow dots */}
+      <section className="bg-primary py-3 border-y-2 border-primary overflow-hidden relative">
+        <div className="absolute top-0 left-0 w-1 h-full bg-accent z-10"></div>
         <div className="flex animate-marquee">
           {[...Array(2)].map((_, i) => (
             <div key={i} className="flex shrink-0">
-              <span className="headline text-xl px-8 whitespace-nowrap flex items-center gap-4">
-                $47,293 DONATED THIS MONTH <span className="text-sm">◆</span>
+              <span className="headline text-sm tracking-[0.15em] text-primary-foreground px-8 whitespace-nowrap flex items-center gap-4">
+                SPEND. OFFSET. GIVE BACK. <span className="text-accent">●</span>
               </span>
-              <span className="headline text-xl px-8 whitespace-nowrap flex items-center gap-4">
-                YOUR SPENDING, YOUR CAUSES <span className="text-sm">◆</span>
+              <span className="headline text-sm tracking-[0.15em] text-primary-foreground px-8 whitespace-nowrap flex items-center gap-4">
+                $47,293 REDIRECTED THIS MONTH <span className="text-accent">●</span>
               </span>
-              <span className="headline text-xl px-8 whitespace-nowrap flex items-center gap-4">
-                BALANCE IS BEAUTIFUL <span className="text-sm">◆</span>
-              </span>
-              <span className="headline text-xl px-8 whitespace-nowrap flex items-center gap-4">
-                SET IT AND FORGET IT <span className="text-sm">◆</span>
+              <span className="headline text-sm tracking-[0.15em] text-primary-foreground px-8 whitespace-nowrap flex items-center gap-4">
+                YOUR SPENDING, YOUR CAUSES <span className="text-accent">●</span>
               </span>
             </div>
           ))}
@@ -198,11 +163,11 @@ export default function HomePage() {
       <section className="bg-primary text-primary-foreground py-20 px-4 md:px-8">
         <div className="container mx-auto">
           <div className="text-center mb-12">
-            <span className="text-accent text-sm tracking-widest">Real Examples</span>
+            <span className="text-[var(--counter-ash)] text-sm tracking-widest uppercase">Real Examples</span>
             <h2 className="headline text-4xl md:text-5xl mt-2">
               HOW PEOPLE USE COUNTERCART
             </h2>
-            <p className="text-muted-gray max-w-xl mx-auto mt-4">
+            <p className="text-[var(--counter-ash)] max-w-xl mx-auto mt-4">
               Whether it&apos;s a guilty habit or a company that doesn&apos;t share your
               values — you decide what to offset and where the money goes.
             </p>
@@ -214,13 +179,13 @@ export default function HomePage() {
               <h3 className="headline text-xl text-accent flex items-center gap-2 mb-2">
                 <span>⚖️</span> OFFSET BY VALUES
               </h3>
-              <p className="text-muted-gray text-sm mb-6 pb-4 border-b border-dashed border-white/20">
+              <p className="text-[var(--counter-ash)] text-sm mb-6 pb-4 border-b border-dashed border-white/20">
                 Shop somewhere that doesn&apos;t align with your beliefs? Offset it.
               </p>
 
               <div className="space-y-6">
                 <div className="py-4 border-b border-white/5">
-                  <p className="text-xs text-muted-gray tracking-wider mb-1">
+                  <p className="text-xs text-[var(--counter-ash)] tracking-wider mb-1">
                     YOU SHOP AT
                   </p>
                   <h4 className="headline text-2xl mb-2">A BIG BOX RETAILER</h4>
@@ -232,7 +197,7 @@ export default function HomePage() {
                 </div>
 
                 <div className="py-4 border-b border-white/5">
-                  <p className="text-xs text-muted-gray tracking-wider mb-1">
+                  <p className="text-xs text-[var(--counter-ash)] tracking-wider mb-1">
                     YOU SHOP AT
                   </p>
                   <h4 className="headline text-2xl mb-2">A FAST FOOD CHAIN</h4>
@@ -244,7 +209,7 @@ export default function HomePage() {
                 </div>
 
                 <div className="py-4">
-                  <p className="text-xs text-muted-gray tracking-wider mb-1">
+                  <p className="text-xs text-[var(--counter-ash)] tracking-wider mb-1">
                     YOU SHOP AT
                   </p>
                   <h4 className="headline text-2xl mb-2">A TECH GIANT</h4>
@@ -262,13 +227,13 @@ export default function HomePage() {
               <h3 className="headline text-xl text-accent flex items-center gap-2 mb-2">
                 <span>🔄</span> OFFSET BY HABIT
               </h3>
-              <p className="text-muted-gray text-sm mb-6 pb-4 border-b border-dashed border-white/20">
+              <p className="text-[var(--counter-ash)] text-sm mb-6 pb-4 border-b border-dashed border-white/20">
                 Spending a little too much on something? Balance it out.
               </p>
 
               <div className="space-y-6">
                 <div className="py-4 border-b border-white/5">
-                  <p className="text-xs text-muted-gray tracking-wider mb-1">
+                  <p className="text-xs text-[var(--counter-ash)] tracking-wider mb-1">
                     YOU SPEND ON
                   </p>
                   <h4 className="headline text-2xl mb-2">TOO MUCH DOORDASH</h4>
@@ -280,7 +245,7 @@ export default function HomePage() {
                 </div>
 
                 <div className="py-4 border-b border-white/5">
-                  <p className="text-xs text-muted-gray tracking-wider mb-1">
+                  <p className="text-xs text-[var(--counter-ash)] tracking-wider mb-1">
                     YOU SPEND ON
                   </p>
                   <h4 className="headline text-2xl mb-2">DAILY COFFEE RUNS</h4>
@@ -292,7 +257,7 @@ export default function HomePage() {
                 </div>
 
                 <div className="py-4">
-                  <p className="text-xs text-muted-gray tracking-wider mb-1">
+                  <p className="text-xs text-[var(--counter-ash)] tracking-wider mb-1">
                     YOU SPEND ON
                   </p>
                   <h4 className="headline text-2xl mb-2">GAS & TRAVEL</h4>
@@ -317,15 +282,15 @@ export default function HomePage() {
       <section id="how-it-works" className="py-20 px-4 md:px-8">
         <div className="container mx-auto">
           <div className="mb-16">
-            <span className="text-muted-foreground text-sm tracking-widest">
+            <span className="text-muted-foreground text-sm tracking-widest uppercase">
               The Process
             </span>
             <h2 className="headline text-4xl md:text-5xl mt-2">HOW IT WORKS</h2>
           </div>
 
           <div className="grid md:grid-cols-3 gap-6">
-            <div className="p-8 bg-card border-2 border-primary hover:shadow-brutal transition-all hover:-translate-y-2">
-              <div className="headline text-6xl text-accent mb-4">01</div>
+            <div className="p-8 bg-card border-2 border-primary border-l-[6px] border-l-accent hover:shadow-brutal-lg transition-all hover:-translate-y-2">
+              <div className="headline text-6xl text-[var(--counter-parchment)] mb-4">01</div>
               <h3 className="headline text-2xl mb-3">CONNECT</h3>
               <p className="text-muted-foreground">
                 Securely link your bank with Plaid. Read-only access — we just see
@@ -333,8 +298,8 @@ export default function HomePage() {
               </p>
             </div>
 
-            <div className="p-8 bg-card border-2 border-primary hover:shadow-brutal transition-all hover:-translate-y-2 md:mt-12">
-              <div className="headline text-6xl text-accent mb-4">02</div>
+            <div className="p-8 bg-card border-2 border-primary border-l-[6px] border-l-accent hover:shadow-brutal-lg transition-all hover:-translate-y-2 md:mt-12">
+              <div className="headline text-6xl text-[var(--counter-parchment)] mb-4">02</div>
               <h3 className="headline text-2xl mb-3">CHOOSE</h3>
               <p className="text-muted-foreground">
                 Pick your causes. Veterans? Food banks? Environment? Faith-based? Your
@@ -342,8 +307,8 @@ export default function HomePage() {
               </p>
             </div>
 
-            <div className="p-8 bg-card border-2 border-primary hover:shadow-brutal transition-all hover:-translate-y-2 md:mt-24">
-              <div className="headline text-6xl text-accent mb-4">03</div>
+            <div className="p-8 bg-card border-2 border-primary border-l-[6px] border-l-highlight hover:shadow-brutal-lg transition-all hover:-translate-y-2 md:mt-24">
+              <div className="headline text-6xl text-[var(--counter-parchment)] mb-4">03</div>
               <h3 className="headline text-2xl mb-3">OFFSET</h3>
               <p className="text-muted-foreground">
                 Set your percentage. Each week, review and approve your donations.
@@ -357,11 +322,11 @@ export default function HomePage() {
       {/* Causes */}
       <section
         id="causes"
-        className="py-20 px-4 md:px-8 bg-muted border-y-[3px] border-primary"
+        className="py-20 px-4 md:px-8 bg-muted border-y-2 border-primary"
       >
         <div className="container mx-auto">
           <div className="text-center mb-10">
-            <span className="text-muted-foreground text-sm tracking-widest">
+            <span className="text-muted-foreground text-sm tracking-widest uppercase">
               Support What Matters
             </span>
             <h2 className="headline text-4xl md:text-5xl mt-2">CHOOSE YOUR CAUSES</h2>
@@ -386,7 +351,7 @@ export default function HomePage() {
 
       {/* Quotes */}
       <section className="py-20 px-4 md:px-8 bg-primary text-primary-foreground relative overflow-hidden">
-        <div className="absolute top-0 left-12 headline text-[300px] text-warm-gray/10 leading-none">
+        <div className="absolute top-0 left-12 headline text-[300px] text-[var(--counter-charcoal)] leading-none">
           &ldquo;
         </div>
         <div className="container mx-auto relative z-10">
@@ -400,12 +365,12 @@ export default function HomePage() {
                 </span>{" "}
                 TOO.&rdquo;
               </p>
-              <p className="text-muted-gray">
+              <p className="text-[var(--counter-ash)]">
                 — Sarah, <span className="text-accent">Austin TX</span>
               </p>
             </div>
 
-            <div className="hidden md:block text-accent text-2xl opacity-50">◆</div>
+            <div className="hidden md:block text-accent text-2xl opacity-50">●</div>
 
             <div className="flex-1 text-center md:text-left max-w-md">
               <p className="headline text-2xl md:text-3xl leading-tight mb-4">
@@ -415,7 +380,7 @@ export default function HomePage() {
                 <br />
                 EVERY TIME I DO.&rdquo;
               </p>
-              <p className="text-muted-gray">
+              <p className="text-[var(--counter-ash)]">
                 — Marcus, <span className="text-accent">Brooklyn NY</span>
               </p>
             </div>
@@ -427,7 +392,7 @@ export default function HomePage() {
       <section className="py-20 px-4 md:px-8">
         <div className="container mx-auto">
           <div className="mb-12">
-            <span className="text-muted-foreground text-sm tracking-widest">
+            <span className="text-muted-foreground text-sm tracking-widest uppercase">
               What You Get
             </span>
             <h2 className="headline text-4xl md:text-5xl mt-2">FEATURES</h2>
@@ -452,11 +417,11 @@ export default function HomePage() {
       {/* Pricing */}
       <section
         id="pricing"
-        className="py-20 px-4 md:px-8 bg-muted border-t-[3px] border-primary"
+        className="py-20 px-4 md:px-8 bg-muted border-t-2 border-primary"
       >
         <div className="container mx-auto">
           <div className="text-center mb-12">
-            <span className="text-muted-foreground text-sm tracking-widest">
+            <span className="text-muted-foreground text-sm tracking-widest uppercase">
               Simple Pricing
             </span>
             <h2 className="headline text-4xl md:text-5xl mt-2">
@@ -500,8 +465,8 @@ export default function HomePage() {
             </div>
 
             {/* Premium tier */}
-            <div className="bg-card border-[3px] border-primary p-8 shadow-brutal relative">
-              <div className="absolute -top-3 right-5 bg-accent text-accent-foreground headline text-xs tracking-wider px-3 py-1 rotate-3">
+            <div className="bg-card border-2 border-primary p-8 shadow-brutal relative border-l-[6px] border-l-accent">
+              <div className="absolute -top-3 right-5 bg-accent text-accent-foreground headline text-xs tracking-wider px-3 py-1 border-2 border-primary rotate-3">
                 POPULAR
               </div>
               <h3 className="headline text-2xl mb-2">PREMIUM</h3>
@@ -539,13 +504,13 @@ export default function HomePage() {
       {/* Final CTA */}
       <section id="get-started" className="py-24 px-4 md:px-8 text-center">
         <div className="container mx-auto max-w-2xl">
-          <h2 className="headline text-5xl md:text-6xl mb-4">READY TO BALANCE?</h2>
+          <h2 className="headline text-5xl md:text-6xl mb-4">COUNTER YOUR CART.</h2>
           <p className="text-muted-foreground text-lg mb-10">
-            Turn your spending habits into giving habits. It takes 2 minutes.
+            Turn your spending habits into giving habits.
           </p>
           <Link
             href="/signup"
-            className="inline-flex items-center gap-4 bg-accent text-accent-foreground px-10 py-5 headline text-xl tracking-wider border-[3px] border-primary shadow-brutal hover:translate-x-1 hover:translate-y-1 hover:shadow-brutal-sm transition-all group"
+            className="inline-flex items-center gap-4 bg-accent text-accent-foreground px-10 py-5 headline text-xl tracking-wider border-2 border-primary shadow-brutal hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-brutal-lg transition-all group"
           >
             CREATE YOUR ACCOUNT
             <ArrowRight className="h-6 w-6 group-hover:translate-x-1 transition-transform" />
@@ -561,33 +526,33 @@ export default function HomePage() {
         <div className="container mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="text-center md:text-left">
             <div className="headline text-xl tracking-wider mb-1">COUNTERCART</div>
-            <p className="text-muted-gray text-sm">
+            <p className="text-[var(--counter-ash)] text-sm">
               Spend. <span className="text-accent">Offset. Give back.</span>
             </p>
           </div>
           <div className="flex flex-wrap justify-center gap-6">
             <Link
               href="#how-it-works"
-              className="text-sm hover:text-accent transition-colors"
+              className="text-sm text-[var(--counter-ash)] hover:text-accent transition-colors"
             >
               How It Works
             </Link>
-            <Link href="#causes" className="text-sm hover:text-accent transition-colors">
+            <Link href="#causes" className="text-sm text-[var(--counter-ash)] hover:text-accent transition-colors">
               Causes
             </Link>
             <Link
               href="#pricing"
-              className="text-sm hover:text-accent transition-colors"
+              className="text-sm text-[var(--counter-ash)] hover:text-accent transition-colors"
             >
               Pricing
             </Link>
-            <Link href="/faq" className="text-sm hover:text-accent transition-colors">
+            <Link href="/faq" className="text-sm text-[var(--counter-ash)] hover:text-accent transition-colors">
               FAQ
             </Link>
-            <Link href="/privacy" className="text-sm hover:text-accent transition-colors">
+            <Link href="/privacy" className="text-sm text-[var(--counter-ash)] hover:text-accent transition-colors">
               Privacy
             </Link>
-            <Link href="/terms" className="text-sm hover:text-accent transition-colors">
+            <Link href="/terms" className="text-sm text-[var(--counter-ash)] hover:text-accent transition-colors">
               Terms
             </Link>
           </div>
