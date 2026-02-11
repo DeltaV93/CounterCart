@@ -22,6 +22,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { DashboardCharts } from "@/components/DashboardCharts";
+import { ClubStatsWidget, ClubStatsWidgetSkeleton } from "@/components/ClubStatsWidget";
 
 async function DashboardStats() {
   const user = await requireUser();
@@ -323,9 +324,16 @@ export default async function DashboardPage() {
           <RecentActivity />
         </Suspense>
 
-        <Suspense fallback={null}>
-          <PendingBatch />
-        </Suspense>
+        <div className="space-y-4">
+          <Suspense fallback={null}>
+            <PendingBatch />
+          </Suspense>
+
+          {/* Club Stats Widget */}
+          <Suspense fallback={<ClubStatsWidgetSkeleton />}>
+            <ClubStatsWidget />
+          </Suspense>
+        </div>
       </div>
     </div>
   );

@@ -1,16 +1,27 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { requireUser } from "@/lib/auth";
-import { getDonationUrl } from "@/lib/everyorg";
 import prisma from "@/lib/prisma";
 import { logger } from "@/lib/logger";
+import Stripe from "stripe";
+import {
+  FISCAL_SPONSOR,
+  getDonationMemo,
+} from "@/config/fiscal-sponsor";
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+  apiVersion: "2025-11-17.clover",
+});
 
 const requestSchema = z.object({
   donationId: z.string(),
 });
 
 /**
- * Generate a donation URL with proper tracking metadata
+ * Generate a donation checkout URL
+ *
+ * Donations go directly to Tech by Choice via Stripe.
+ * TBC then grants funds to charities based on user's designated causes.
  */
 export async function POST(request: Request) {
   try {
@@ -24,6 +35,9 @@ export async function POST(request: Request) {
         id: donationId,
         userId: user.id,
         status: "PENDING",
+      },
+      include: {
+        designatedCause: true,
       },
     });
 
@@ -40,19 +54,48 @@ export async function POST(request: Request) {
       data: { status: "PROCESSING" },
     });
 
-    // Generate URL with tracking metadata
-    const donationUrl = getDonationUrl(donation.charitySlug, {
-      amount: donation.amount.toNumber(),
-      frequency: "ONCE",
-      successUrl: `${process.env.NEXT_PUBLIC_APP_URL}/donations?completed=${donationId}`,
+    // Get cause name for description
+    const causeName = donation.designatedCause?.name || "general";
+
+    // Create Stripe Checkout session for direct donation to TBC
+    const session = await stripe.checkout.sessions.create({
+      mode: "payment",
+      payment_method_types: ["card"],
+      line_items: [
+        {
+          price_data: {
+            currency: "usd",
+            product_data: {
+              name: `CounterCart Offset Donation`,
+              description: getDonationMemo(causeName),
+            },
+            unit_amount: Math.round(donation.amount.toNumber() * 100), // cents
+          },
+          quantity: 1,
+        },
+      ],
       metadata: {
+        type: "offset_donation",
         donationId: donation.id,
         userId: user.id,
-        batchId: donation.batchId || undefined,
+        batchId: donation.batchId || "",
+        designatedCause: causeName,
       },
+      success_url: `${process.env.NEXT_PUBLIC_APP_URL}/donations?completed=${donationId}`,
+      cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/donations?canceled=${donationId}`,
+      // Pre-fill customer email
+      customer_email: user.email,
     });
 
-    return NextResponse.json({ url: donationUrl });
+    logger.info("Created Stripe checkout for donation", {
+      donationId,
+      sessionId: session.id,
+      fiscalSponsor: FISCAL_SPONSOR.name,
+      designatedCause: causeName,
+      amount: donation.amount.toNumber(),
+    });
+
+    return NextResponse.json({ url: session.url });
   } catch (error) {
     logger.error("Error generating donation URL", undefined, error);
     if (error instanceof Error && error.message === "Unauthorized") {

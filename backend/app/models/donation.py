@@ -32,7 +32,17 @@ class Donation(Base):
     createdAt = Column(DateTime, nullable=False)
     completedAt = Column(DateTime, nullable=True)
 
+    # Fiscal sponsor tracking
+    designatedCauseId = Column(String, ForeignKey("Cause.id"), nullable=True)
+    fiscalSponsorName = Column(String, default="Tech by Choice", nullable=False)
+
+    # Grant tracking (Every.org Partner API disbursement)
+    grantStatus = Column(String, nullable=True)  # "pending" | "granted" | "failed"
+    everyOrgGrantId = Column(String, nullable=True)  # Every.org grant reference for this donation
+    grantedAt = Column(DateTime, nullable=True)  # When this donation was granted to charity
+
     user = relationship("User", back_populates="donations")
     batch = relationship("DonationBatch", back_populates="donations")
     transaction = relationship("Transaction", back_populates="donation")
     charity = relationship("Charity", back_populates="donations")
+    designatedCause = relationship("Cause", back_populates="donations")

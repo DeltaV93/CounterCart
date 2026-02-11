@@ -30,6 +30,12 @@ class DonationBatch(Base):
     stripePaymentStatus = Column(String, nullable=True)
     achDebitedAt = Column(DateTime, nullable=True)
 
+    # Grant distribution tracking (Every.org Partner API)
+    grantStatus = Column(String, nullable=True)  # "pending" | "processing" | "completed" | "failed"
+    everyOrgDisbursementId = Column(String, nullable=True)  # Every.org disbursement batch reference
+    grantedAt = Column(DateTime, nullable=True)  # When grants were disbursed to charities
+    grantError = Column(String, nullable=True)  # Error message if grant distribution failed
+
     user = relationship("User", back_populates="donation_batches")
     donations = relationship("Donation", back_populates="batch")
 

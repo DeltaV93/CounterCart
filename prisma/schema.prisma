@@ -34,6 +34,17 @@ model User {
   // Change API integration
   changeCustomerId    String?   @unique  // Change API customer ID
 
+  // Referral system
+  referralCode        String?   @unique  // e.g., "abc123" (6 chars)
+  referredBy          String?             // Code of referrer
+  referralCount       Int       @default(0)  // Track successful referrals
+
+  // Badge/Profile
+  badgeEnabled        Boolean   @default(false)
+  badgeStyle          String    @default("minimal") // "minimal" | "detailed" | "compact"
+  publicProfile       Boolean   @default(false)
+  badges              String[]  @default([])
+
   plaidItems      PlaidItem[]
   userCauses      UserCause[]
   userCharities   UserCharity[]
@@ -41,8 +52,16 @@ model User {
   donations       Donation[]
   donationBatches DonationBatch[]
 
+  // Growth features relations
+  clubMemberships            ClubMember[]
+  challengeParticipations    ChallengeParticipant[]
+  orgMemberships             OrgMember[]
+  giftsPurchased             GiftSubscription[] @relation("GiftsPurchased")
+  giftsRedeemed              GiftSubscription[] @relation("GiftsRedeemed")
+
   @@index([email])
   @@index([stripeCustomerId])
+  @@index([referralCode])
 }
 
 model PlaidItem {
@@ -109,6 +128,9 @@ model Cause {
   userCauses       UserCause[]
   businessMappings BusinessMapping[]
   charities        Charity[]
+  clubs            Club[]
+  challenges       Challenge[]
+  donations        Donation[]  // Donations designated for this cause
 
   @@index([slug])
 }
@@ -240,6 +262,12 @@ model DonationBatch {
   stripePaymentStatus   String?   // "requires_confirmation" | "processing" | "succeeded" | "failed"
   achDebitedAt          DateTime? // When ACH was successfully debited
 
+  // Grant distribution tracking (Every.org Partner API)
+  grantStatus              String?   // "pending" | "processing" | "completed" | "failed"
+  everyOrgDisbursementId   String?   // Every.org disbursement batch reference
+  grantedAt                DateTime? // When grants were disbursed to charities
+  grantError               String?   // Error message if grant distribution failed
+
   user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   donations Donation[]
 
@@ -247,6 +275,7 @@ model DonationBatch {
   @@index([userId, status])
   @@index([weekOf])
   @@index([stripePaymentIntentId])
+  @@index([everyOrgDisbursementId])
 }
 
 enum DonationBatchStatus {
@@ -262,9 +291,18 @@ model Donation {
   userId         String
   batchId        String?
   transactionId  String?        @unique
-  charityId      String
-  charitySlug    String
-  charityName    String
+
+  // Fiscal sponsor model: donations go to Tech by Choice
+  // charityId/charitySlug/charityName are kept for backward compatibility
+  // New donations use designatedCauseId to track where funds should go
+  charityId      String?        // Optional - for backward compatibility
+  charitySlug    String?        // Optional - for backward compatibility
+  charityName    String?        // Optional - for backward compatibility
+
+  // Fiscal sponsor tracking (new model)
+  designatedCauseId  String?    // The cause this donation is designated for
+  fiscalSponsorName  String     @default("Tech by Choice")  // Recipient org
+
   amount         Decimal        @db.Decimal(10, 2)
   status         DonationStatus @default(PENDING)
   everyOrgId     String?        @unique  // Every.org donation ID (for manual donations)
@@ -274,16 +312,24 @@ model Donation {
   createdAt      DateTime       @default(now())
   completedAt    DateTime?
 
-  user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  batch       DonationBatch? @relation(fields: [batchId], references: [id])
-  transaction Transaction?   @relation(fields: [transactionId], references: [id])
-  charity     Charity        @relation(fields: [charityId], references: [id])
+  // Grant tracking (Every.org Partner API disbursement)
+  grantStatus      String?   // "pending" | "granted" | "failed"
+  everyOrgGrantId  String?   // Every.org grant reference for this donation
+  grantedAt        DateTime? // When this donation was granted to charity
+
+  user             User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  batch            DonationBatch? @relation(fields: [batchId], references: [id])
+  transaction      Transaction?   @relation(fields: [transactionId], references: [id])
+  charity          Charity?       @relation(fields: [charityId], references: [id])
+  designatedCause  Cause?         @relation(fields: [designatedCauseId], references: [id])
 
   @@index([userId, createdAt])
   @@index([status])
   @@index([batchId])
   @@index([everyOrgId])
   @@index([changeId])
+  @@index([designatedCauseId])
+  @@index([everyOrgGrantId])
 }
 
 enum DonationStatus {
@@ -318,4 +364,154 @@ enum WebhookStatus {
   PROCESSING
   COMPLETED
   FAILED
+}
+
+// ============================================
+// GROWTH FEATURES MODELS
+// ============================================
+
+// Cause Clubs - Community groups around causes
+model Club {
+  id           String       @id @default(cuid())
+  causeId      String
+  name         String
+  slug         String       @unique
+  description  String?      @db.Text
+  iconUrl      String?
+  memberCount  Int          @default(0)
+  totalDonated Decimal      @default(0) @db.Decimal(10, 2)
+  rank         Int?
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  cause        Cause        @relation(fields: [causeId], references: [id])
+  members      ClubMember[]
+
+  @@index([causeId])
+  @@index([slug])
+}
+
+model ClubMember {
+  id           String       @id @default(cuid())
+  clubId       String
+  userId       String
+  role         String       @default("member") // "member" | "ambassador" | "founder"
+  inviteCode   String       @unique  // Personal invite code
+  contributed  Decimal      @default(0) @db.Decimal(10, 2)
+  inviteCount  Int          @default(0)
+  joinedAt     DateTime     @default(now())
+  invitedById  String?
+
+  club         Club         @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  invitedBy    ClubMember?  @relation("ClubInvites", fields: [invitedById], references: [id])
+  invites      ClubMember[] @relation("ClubInvites")
+
+  @@unique([clubId, userId])
+  @@index([inviteCode])
+}
+
+// Offset Challenges - Time-limited community goals
+model Challenge {
+  id               String                  @id @default(cuid())
+  slug             String                  @unique
+  title            String
+  description      String                  @db.Text
+  shortDesc        String
+  causeId          String?
+  goalAmount       Decimal                 @db.Decimal(10, 2)
+  currentAmount    Decimal                 @default(0) @db.Decimal(10, 2)
+  participantCount Int                     @default(0)
+  startDate        DateTime
+  endDate          DateTime
+  status           String                  @default("upcoming") // "upcoming" | "active" | "completed"
+  imageUrl         String?
+  badgeId          String?
+  featured         Boolean                 @default(false)
+  createdAt        DateTime                @default(now())
+  updatedAt        DateTime                @updatedAt
+
+  cause            Cause?                  @relation(fields: [causeId], references: [id])
+  participants     ChallengeParticipant[]
+
+  @@index([status])
+  @@index([startDate])
+  @@index([endDate])
+}
+
+model ChallengeParticipant {
+  id           String    @id @default(cuid())
+  challengeId  String
+  userId       String
+  contributed  Decimal   @default(0) @db.Decimal(10, 2)
+  joinedAt     DateTime  @default(now())
+  earnedBadge  Boolean   @default(false)
+
+  challenge    Challenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([challengeId, userId])
+}
+
+// B2B / Corporate Organizations
+model Organization {
+  id               String      @id @default(cuid())
+  name             String
+  slug             String      @unique
+  domain           String?     // For domain-based auto-join
+  inviteCode       String      @unique
+  stripeCustomerId String?     @unique
+  stripeSubId      String?
+  plan             String      @default("team") // "team" | "enterprise"
+  seatCount        Int         @default(0)
+  maxSeats         Int         @default(50)
+  totalDonated     Decimal     @default(0) @db.Decimal(10, 2)
+  adminEmail       String
+  logoUrl          String?
+  settings         Json?
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+
+  members          OrgMember[]
+
+  @@index([inviteCode])
+  @@index([domain])
+}
+
+model OrgMember {
+  id        String       @id @default(cuid())
+  orgId     String
+  userId    String
+  role      String       @default("member") // "member" | "admin" | "owner"
+  joinedAt  DateTime     @default(now())
+
+  org       Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([orgId, userId])
+}
+
+// Gift Subscriptions
+model GiftSubscription {
+  id              String    @id @default(cuid())
+  code            String    @unique  // Redemption code
+  purchaserId     String
+  recipientEmail  String
+  personalMessage String?   @db.Text
+  amount          Decimal   @db.Decimal(10, 2)
+  months          Int       @default(12)
+  stripePaymentId String?
+  status          String    @default("pending") // "pending" | "sent" | "redeemed" | "expired"
+  sentAt          DateTime?
+  redeemedBy      String?
+  redeemedAt      DateTime?
+  expiresAt       DateTime
+  createdAt       DateTime  @default(now())
+
+  purchaser       User      @relation("GiftsPurchased", fields: [purchaserId], references: [id])
+  redeemer        User?     @relation("GiftsRedeemed", fields: [redeemedBy], references: [id])
+
+  @@index([code])
+  @@index([recipientEmail])
+  @@index([purchaserId])
 }

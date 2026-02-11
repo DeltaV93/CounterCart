@@ -23,6 +23,10 @@ class RetryWebhooksRequest(BaseModel):
     max_retries: int = 3
 
 
+class DistributeGrantsRequest(BaseModel):
+    batch_id: str
+
+
 class JobResponse(BaseModel):
     status: str
     job: str

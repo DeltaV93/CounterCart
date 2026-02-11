@@ -450,3 +450,111 @@ View your dashboard: ${process.env.NEXT_PUBLIC_APP_URL}/dashboard
 Manage email preferences: ${process.env.NEXT_PUBLIC_APP_URL}/settings`,
   });
 }
+
+interface GiftEmailParams {
+  code: string;
+  months: number;
+  senderName?: string;
+  recipientName?: string;
+  personalMessage?: string;
+}
+
+export async function sendGiftReceivedEmail(
+  recipientEmail: string,
+  params: GiftEmailParams
+): Promise<boolean> {
+  const { code, months, senderName, recipientName, personalMessage } = params;
+  const greeting = recipientName ? recipientName.split(" ")[0] : "there";
+  const fromText = senderName ? `from ${senderName}` : "from a friend";
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://countercart.app";
+  const redeemUrl = `${appUrl}/gift/redeem/${code}`;
+
+  return sendEmail({
+    to: recipientEmail,
+    subject: `You've received a ${months}-month CounterCart Premium gift!`,
+    html: `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+  <div style="text-align: center; margin-bottom: 30px;">
+    <h1 style="color: #e11d48; margin: 0;">CounterCart</h1>
+  </div>
+
+  <h2 style="color: #1f2937;">Hey ${greeting}!</h2>
+
+  <p>Great news! You've received a gift ${fromText}.</p>
+
+  <div style="background: linear-gradient(135deg, #e11d48 0%, #be185d 100%); color: white; border-radius: 12px; padding: 30px; margin: 30px 0; text-align: center;">
+    <p style="margin: 0 0 10px 0; font-size: 14px; opacity: 0.9;">Your gift:</p>
+    <p style="margin: 0; font-size: 28px; font-weight: bold;">${months} Months of Premium</p>
+    <p style="margin: 15px 0 0 0; font-size: 14px; opacity: 0.9;">CounterCart Premium Membership</p>
+  </div>
+
+  ${personalMessage ? `
+  <div style="background-color: #f3f4f6; border-radius: 8px; padding: 20px; margin: 20px 0;">
+    <p style="margin: 0 0 10px 0; font-weight: 600; color: #374151;">Personal message:</p>
+    <p style="margin: 0; color: #4b5563; font-style: italic;">"${personalMessage}"</p>
+    ${senderName ? `<p style="margin: 10px 0 0 0; color: #6b7280; text-align: right;">- ${senderName}</p>` : ""}
+  </div>
+  ` : ""}
+
+  <p>With Premium, you'll get:</p>
+  <ul style="padding-left: 20px; color: #4b5563;">
+    <li>Automatic weekly donations</li>
+    <li>Custom charity selection per cause</li>
+    <li>Unlimited donation multiplier options</li>
+    <li>Priority support</li>
+    <li>Early access to new features</li>
+  </ul>
+
+  <div style="text-align: center; margin: 30px 0;">
+    <a href="${redeemUrl}" style="background-color: #e11d48; color: white; padding: 16px 32px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: 600; font-size: 16px;">Redeem Your Gift</a>
+  </div>
+
+  <div style="background-color: #fef3c7; border: 1px solid #f59e0b; border-radius: 8px; padding: 16px; margin: 20px 0;">
+    <p style="margin: 0; color: #92400e; font-size: 14px;">
+      <strong>Your gift code:</strong> ${code}<br>
+      <span style="font-size: 12px;">This code expires in 1 year. Redeem it at any time before then.</span>
+    </p>
+  </div>
+
+  <p style="color: #6b7280; font-size: 14px;">If you have questions, just reply to this email!</p>
+
+  <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 30px 0;">
+
+  <p style="color: #9ca3af; font-size: 12px; text-align: center;">
+    CounterCart - Offset your purchases with purpose<br>
+    <a href="${appUrl}" style="color: #9ca3af;">Learn more about CounterCart</a>
+  </p>
+</body>
+</html>
+    `,
+    text: `Hey ${greeting}!
+
+Great news! You've received a gift ${fromText}.
+
+Your gift: ${months} Months of CounterCart Premium
+
+${personalMessage ? `Personal message: "${personalMessage}"${senderName ? ` - ${senderName}` : ""}
+
+` : ""}With Premium, you'll get:
+- Automatic weekly donations
+- Custom charity selection per cause
+- Unlimited donation multiplier options
+- Priority support
+- Early access to new features
+
+Redeem your gift: ${redeemUrl}
+
+Your gift code: ${code}
+This code expires in 1 year. Redeem it at any time before then.
+
+Questions? Just reply to this email!
+
+- The CounterCart Team`,
+  });
+}

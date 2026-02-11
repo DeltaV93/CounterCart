@@ -45,11 +45,15 @@ import {
   Download,
   Zap,
   CheckCircle2,
+  Award,
+  Globe,
 } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
+import { Switch } from "@/components/ui/switch";
 import { BankAccountList } from "@/components/BankAccountList";
 import { NotificationPreferences } from "@/components/NotificationPreferences";
+import { BadgeEmbedCode } from "@/components/BadgeEmbedCode";
 
 interface UserSettings {
   id: string;
@@ -67,6 +71,10 @@ interface UserSettings {
   notifyNewMatch: boolean;
   notifyPaymentFailed: boolean;
   notifyBankDisconnected: boolean;
+  // Badge/Profile settings
+  badgeEnabled: boolean;
+  badgeStyle: "minimal" | "detailed" | "compact";
+  publicProfile: boolean;
 }
 
 export default function SettingsPage() {
@@ -101,6 +109,11 @@ export default function SettingsPage() {
     notifyPaymentFailed: true,
     notifyBankDisconnected: true,
   });
+
+  // Badge/Profile state
+  const [badgeEnabled, setBadgeEnabled] = useState(false);
+  const [badgeStyle, setBadgeStyle] = useState<"minimal" | "detailed" | "compact">("minimal");
+  const [publicProfile, setPublicProfile] = useState(false);
 
   // Handle upgrade result from URL params
   useEffect(() => {
@@ -138,6 +151,10 @@ export default function SettingsPage() {
             notifyPaymentFailed: data.notifyPaymentFailed ?? true,
             notifyBankDisconnected: data.notifyBankDisconnected ?? true,
           });
+          // Badge/Profile settings
+          setBadgeEnabled(data.badgeEnabled ?? false);
+          setBadgeStyle(data.badgeStyle ?? "minimal");
+          setPublicProfile(data.publicProfile ?? false);
         }
 
         if (achRes.ok) {
@@ -166,6 +183,9 @@ export default function SettingsPage() {
           monthlyLimit: parseFloat(monthlyLimit),
           autoDonateEnabled: autoDonate,
           ...notifications,
+          badgeEnabled,
+          badgeStyle,
+          publicProfile,
         }),
       });
 
@@ -548,6 +568,132 @@ export default function SettingsPage() {
               setNotifications((prev) => ({ ...prev, [key]: value }))
             }
           />
+        </CardContent>
+      </Card>
+
+      {/* Impact Badge */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <Award className="h-5 w-5" />
+                Impact Badge
+              </CardTitle>
+              <CardDescription>
+                Share your impact with an embeddable badge
+              </CardDescription>
+            </div>
+            {badgeEnabled && (
+              <Badge variant="default" className="bg-green-600">
+                <CheckCircle2 className="mr-1 h-3 w-3" />
+                Active
+              </Badge>
+            )}
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {/* Enable Badge Toggle */}
+          <div className="flex items-center justify-between">
+            <div className="space-y-0.5">
+              <Label htmlFor="badgeEnabled">Enable Impact Badge</Label>
+              <p className="text-sm text-muted-foreground">
+                Generate a badge showing your total donations
+              </p>
+            </div>
+            <Switch
+              id="badgeEnabled"
+              checked={badgeEnabled}
+              onCheckedChange={(checked) => {
+                setBadgeEnabled(checked);
+                if (checked) {
+                  track(AnalyticsEvents.BADGE_ENABLED);
+                } else {
+                  track(AnalyticsEvents.BADGE_DISABLED);
+                }
+              }}
+            />
+          </div>
+
+          <Separator />
+
+          {/* Public Profile Toggle */}
+          <div className="flex items-center justify-between">
+            <div className="space-y-0.5">
+              <Label htmlFor="publicProfile" className="flex items-center gap-2">
+                <Globe className="h-4 w-4" />
+                Public Profile
+              </Label>
+              <p className="text-sm text-muted-foreground">
+                Allow others to view your profile page with causes and badges
+              </p>
+            </div>
+            <Switch
+              id="publicProfile"
+              checked={publicProfile}
+              onCheckedChange={setPublicProfile}
+            />
+          </div>
+
+          {/* Badge Style Selector (only show if badge enabled) */}
+          {badgeEnabled && (
+            <>
+              <Separator />
+              <div className="space-y-2">
+                <Label>Badge Style</Label>
+                <Select
+                  value={badgeStyle}
+                  onValueChange={(v) => setBadgeStyle(v as typeof badgeStyle)}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="minimal">
+                      Minimal (120x30) - Small inline badge
+                    </SelectItem>
+                    <SelectItem value="detailed">
+                      Detailed (300x100) - Full stats display
+                    </SelectItem>
+                    <SelectItem value="compact">
+                      Compact (80x20) - Tiny inline badge
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">
+                  Choose the default style for your badge
+                </p>
+              </div>
+
+              <Separator />
+
+              {/* Embed Code */}
+              <div className="space-y-4">
+                <div className="font-display text-sm uppercase tracking-wider">
+                  Embed Code
+                </div>
+                {settings?.id && <BadgeEmbedCode userId={settings.id} />}
+              </div>
+
+              {/* Quick Links */}
+              <div className="flex flex-wrap gap-3">
+                <Link href={`/badge/${settings?.id}`} target="_blank">
+                  <Button variant="outline" size="sm">
+                    <ExternalLink className="mr-2 h-4 w-4" />
+                    View Badge Page
+                  </Button>
+                </Link>
+                {publicProfile && (
+                  <Link href={`/profile/${settings?.id}`} target="_blank">
+                    <Button variant="outline" size="sm">
+                      <Globe className="mr-2 h-4 w-4" />
+                      View Public Profile
+                    </Button>
+                  </Link>
+                )}
+              </div>
+            </>
+          )}
         </CardContent>
       </Card>
 

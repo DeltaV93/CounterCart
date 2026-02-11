@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import prisma from "@/lib/prisma";
 import { logger } from "@/lib/logger";
+import { createUniqueReferralCode } from "@/lib/referral";
 
 export async function getCurrentUser() {
   const supabase = await createClient();
@@ -20,11 +21,15 @@ export async function getCurrentUser() {
   // If authenticated but no DB record, create one
   if (!dbUser) {
     try {
+      // Generate a unique referral code for the new user
+      const referralCode = await createUniqueReferralCode();
+
       dbUser = await prisma.user.create({
         data: {
           id: user.id, // Use Supabase user ID for consistency
           email: user.email,
           name: user.user_metadata?.name || user.user_metadata?.full_name || null,
+          referralCode,
         },
       });
     } catch (error) {

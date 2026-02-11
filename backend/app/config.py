@@ -16,6 +16,8 @@ class Settings(BaseSettings):
 
     # Every.org
     EVERYORG_WEBHOOK_TOKEN: str = ""
+    EVERYORG_PARTNER_ID: str = ""
+    EVERYORG_PARTNER_SECRET: str = ""
 
     # Change API
     CHANGE_API_KEY: str = ""

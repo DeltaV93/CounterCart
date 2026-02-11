@@ -1,7 +1,14 @@
-"""Donation processing jobs."""
+"""Donation processing jobs.
+
+All donations flow through Tech by Choice (501c3) via Stripe.
+- Users donate directly to TBC
+- TBC receives funds and grants to charities based on user designations
+- No third-party donation APIs needed (Every.org, Change.io)
+"""
 
 import base64
 import json
+import os
 from datetime import datetime, timezone, timedelta
 from decimal import Decimal
 from typing import Any
@@ -26,7 +33,11 @@ from app.models.charity import Charity
 from app.config import settings
 from app.utils.logger import logger
 from app.services.stripe_service import stripe_service
-from app.services.change_service import change_service, ChangeApiError
+
+
+# Fiscal sponsor configuration - Tech by Choice
+FISCAL_SPONSOR_NAME = os.getenv("FISCAL_SPONSOR_NAME", "Tech by Choice")
+FISCAL_SPONSOR_EIN = os.getenv("FISCAL_SPONSOR_EIN", "")
 
 generate_cuid = cuid_wrapper()
 
@@ -44,7 +55,14 @@ def generate_donation_url(
     amount: float,
     metadata: dict[str, str],
 ) -> str:
-    """Generate Every.org donation URL with tracking metadata."""
+    """Generate Every.org donation URL with tracking metadata.
+
+    NEW: Routes to fiscal sponsor (Tech by Choice) if configured.
+    Falls back to charity_slug for backward compatibility.
+    """
+    # Use fiscal sponsor if configured, otherwise fall back to charity
+    target_slug = FISCAL_SPONSOR_EVERYORG_SLUG or charity_slug
+
     params = {
         "amount": f"{amount:.2f}",
         "frequency": "ONCE",
@@ -54,11 +72,16 @@ def generate_donation_url(
     if settings.EVERYORG_WEBHOOK_TOKEN:
         params["webhook_token"] = settings.EVERYORG_WEBHOOK_TOKEN
 
+    # Add memo for fiscal sponsor donations
+    if FISCAL_SPONSOR_EVERYORG_SLUG:
+        designated_cause = metadata.get("designatedCause", "general")
+        metadata["memo"] = f"CounterCart offset - designated for {designated_cause}"
+
     # Encode metadata as base64
     metadata_b64 = base64.b64encode(json.dumps(metadata).encode()).decode()
     params["partner_metadata"] = metadata_b64
 
-    return f"https://www.every.org/{charity_slug}#donate?{urlencode(params)}"
+    return f"https://www.every.org/{target_slug}#donate?{urlencode(params)}"
 
 
 async def create_weekly_batches(db: AsyncSession) -> dict[str, Any]:
@@ -463,18 +486,19 @@ async def process_auto_donation_batch(
         raise
 
 
-async def distribute_donations_to_charities(
+async def complete_batch_donations(
     db: AsyncSession, batch_id: str
 ) -> dict[str, Any]:
     """
-    Distribute donations to charities via Change API.
-    Called after ACH payment succeeds.
+    Mark batch donations as completed after ACH payment succeeds.
+
+    Since donations go directly to Tech by Choice via Stripe ACH,
+    no external donation API calls are needed. Funds are received by TBC
+    and grants are made to charities based on user designations.
     """
     result = await db.execute(
         select(DonationBatch)
-        .options(
-            selectinload(DonationBatch.donations).selectinload(Donation.charity),
-        )
+        .options(selectinload(DonationBatch.donations))
         .where(DonationBatch.id == batch_id)
     )
     batch = result.scalar_one_or_none()
@@ -482,74 +506,49 @@ async def distribute_donations_to_charities(
     if not batch:
         raise ValueError(f"Batch not found: {batch_id}")
 
-    distribution_results = []
+    now = datetime.now(timezone.utc)
+    total_amount = sum(float(d.amount) for d in batch.donations)
 
+    logger.info(
+        "Completing batch donations - funds received by fiscal sponsor",
+        {
+            "batch_id": batch_id,
+            "fiscal_sponsor": FISCAL_SPONSOR_NAME,
+            "total_amount": total_amount,
+            "donation_count": len(batch.donations),
+        },
+    )
+
+    # Mark all donations as completed
     for donation in batch.donations:
-        charity = donation.charity
+        donation.status = DonationStatus.COMPLETED
+        donation.completedAt = now
 
-        # Get Change nonprofit ID
-        change_nonprofit_id = getattr(charity, 'changeNonprofitId', None)
-        if not change_nonprofit_id and charity.ein:
-            # Try to find by EIN
-            nonprofit = await change_service.get_nonprofit_by_ein(charity.ein)
-            if nonprofit:
-                change_nonprofit_id = nonprofit.get("id")
-
-        if not change_nonprofit_id:
-            logger.warn(
-                "No Change nonprofit ID for charity",
-                {"charity_id": charity.id, "charity_name": charity.name},
-            )
-            donation.status = DonationStatus.FAILED
-            donation.errorMessage = "Charity not available for auto-donation"
-            distribution_results.append({
-                "donationId": donation.id,
-                "success": False,
-                "error": "No Change nonprofit ID",
-            })
-            continue
-
-        try:
-            amount_cents = int(float(donation.amount) * 100)
-            change_donation = await change_service.create_donation(
-                nonprofit_id=change_nonprofit_id,
-                amount=amount_cents,
-                metadata={
-                    "donation_id": donation.id,
-                    "batch_id": batch.id,
-                    "user_id": donation.userId,
-                },
-            )
-
-            donation.changeId = change_donation.get("id")
-            donation.status = DonationStatus.PROCESSING  # Will be COMPLETED via webhook
-
-            distribution_results.append({
-                "donationId": donation.id,
-                "changeId": change_donation.get("id"),
-                "success": True,
-            })
-
-        except ChangeApiError as e:
-            logger.error(
-                "Change API error",
-                {"donation_id": donation.id, "error": str(e)},
-            )
-            donation.status = DonationStatus.FAILED
-            donation.errorMessage = str(e)
-            distribution_results.append({
-                "donationId": donation.id,
-                "success": False,
-                "error": str(e),
-            })
+    # Mark batch as completed
+    batch.status = DonationBatchStatus.COMPLETED
+    batch.processedAt = now
+    batch.updatedAt = now
 
     await db.commit()
 
     return {
         "batchId": batch_id,
-        "donationsProcessed": len(distribution_results),
-        "results": distribution_results,
+        "fiscalSponsor": FISCAL_SPONSOR_NAME,
+        "totalAmount": total_amount,
+        "donationsCompleted": len(batch.donations),
+        "success": True,
     }
+
+
+# Keep old function name for backward compatibility
+async def distribute_donations_to_charities(
+    db: AsyncSession, batch_id: str
+) -> dict[str, Any]:
+    """
+    Legacy function name - now just marks donations as completed.
+    Funds go directly to Tech by Choice via Stripe ACH.
+    """
+    return await complete_batch_donations(db, batch_id)
 
 
 async def handle_ach_payment_succeeded(

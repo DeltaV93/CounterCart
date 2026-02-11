@@ -105,6 +105,28 @@ async function main() {
   }
   console.log(`Seeded ${BUSINESS_MAPPINGS.length} business mappings`);
 
+  // Seed Clubs (one default club per cause)
+  console.log("Seeding clubs...");
+  const causes = await prisma.cause.findMany();
+  for (const cause of causes) {
+    const clubSlug = `${cause.slug}-club`;
+    const existingClub = await prisma.club.findUnique({
+      where: { slug: clubSlug },
+    });
+
+    if (!existingClub) {
+      await prisma.club.create({
+        data: {
+          causeId: cause.id,
+          name: `${cause.name} Club`,
+          slug: clubSlug,
+          description: `Join fellow supporters making a difference for ${cause.name}. Together, we amplify our impact.`,
+        },
+      });
+    }
+  }
+  console.log(`Seeded ${causes.length} clubs`);
+
   console.log("Seeding complete!");
 }
 

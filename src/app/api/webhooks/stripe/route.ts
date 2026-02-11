@@ -3,7 +3,7 @@ import Stripe from "stripe";
 import { constructWebhookEvent } from "@/lib/stripe";
 import prisma from "@/lib/prisma";
 import { logger } from "@/lib/logger";
-import { sendPaymentFailedEmail } from "@/lib/email";
+import { sendPaymentFailedEmail, sendGiftReceivedEmail } from "@/lib/email";
 import {
   checkRateLimit,
   getClientIdentifier,
@@ -130,7 +130,19 @@ async function handleStripeEvent(event: Stripe.Event) {
 
 async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   const customerId = session.customer as string;
-  const userId = session.client_reference_id;
+  const userId = session.client_reference_id || session.metadata?.userId;
+
+  // Check if this is a gift subscription purchase
+  if (session.metadata?.type === "gift_subscription") {
+    await handleGiftCheckoutCompleted(session);
+    return;
+  }
+
+  // Check if this is an offset donation (direct to fiscal sponsor)
+  if (session.metadata?.type === "offset_donation") {
+    await handleOffsetDonationCompleted(session);
+    return;
+  }
 
   if (!userId) {
     logger.error("No client_reference_id in checkout session", { sessionId: session.id });
@@ -142,6 +154,113 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     where: { id: userId },
     data: { stripeCustomerId: customerId },
   });
+}
+
+/**
+ * Handle offset donation checkout completion
+ * Donation goes directly to Tech by Choice via Stripe
+ */
+async function handleOffsetDonationCompleted(session: Stripe.Checkout.Session) {
+  const donationId = session.metadata?.donationId;
+  const userId = session.metadata?.userId;
+  const designatedCause = session.metadata?.designatedCause;
+
+  if (!donationId) {
+    logger.error("No donationId in offset donation session metadata", { sessionId: session.id });
+    return;
+  }
+
+  // Mark donation as completed
+  const donation = await prisma.donation.update({
+    where: { id: donationId },
+    data: {
+      status: "COMPLETED",
+      completedAt: new Date(),
+      // Store Stripe payment ID for reference
+      everyOrgId: session.payment_intent as string, // Repurposing this field for Stripe payment ID
+    },
+  });
+
+  // Update linked transaction if exists
+  if (donation.transactionId) {
+    await prisma.transaction.update({
+      where: { id: donation.transactionId },
+      data: { status: "DONATED" },
+    });
+  }
+
+  // Check if this completes a batch
+  if (donation.batchId) {
+    const pendingInBatch = await prisma.donation.count({
+      where: {
+        batchId: donation.batchId,
+        status: { in: ["PENDING", "PROCESSING"] },
+      },
+    });
+
+    if (pendingInBatch === 0) {
+      await prisma.donationBatch.update({
+        where: { id: donation.batchId },
+        data: {
+          status: "COMPLETED",
+          processedAt: new Date(),
+        },
+      });
+    }
+  }
+
+  logger.info("Offset donation completed - funds received by fiscal sponsor", {
+    donationId,
+    userId,
+    designatedCause,
+    amount: session.amount_total ? session.amount_total / 100 : null,
+    paymentIntent: session.payment_intent,
+  });
+}
+
+async function handleGiftCheckoutCompleted(session: Stripe.Checkout.Session) {
+  const giftId = session.metadata?.giftId;
+  const recipientEmail = session.metadata?.recipientEmail;
+  const recipientName = session.metadata?.recipientName;
+  const senderName = session.metadata?.senderName;
+  const personalMessage = session.metadata?.personalMessage;
+  const months = parseInt(session.metadata?.months || "12", 10);
+
+  if (!giftId) {
+    logger.error("No giftId in gift checkout session metadata", { sessionId: session.id });
+    return;
+  }
+
+  // Update gift status to "sent" and record payment
+  const gift = await prisma.giftSubscription.update({
+    where: { id: giftId },
+    data: {
+      status: "sent",
+      stripePaymentId: session.payment_intent as string,
+      sentAt: new Date(),
+    },
+  });
+
+  logger.info("Gift subscription payment completed", {
+    giftId,
+    recipientEmail,
+    months,
+    paymentIntent: session.payment_intent,
+  });
+
+  // Send gift notification email to recipient
+  if (recipientEmail) {
+    await sendGiftReceivedEmail(
+      recipientEmail,
+      {
+        code: gift.code,
+        months,
+        senderName: senderName || undefined,
+        recipientName: recipientName || undefined,
+        personalMessage: personalMessage || undefined,
+      }
+    );
+  }
 }
 
 async function handleSubscriptionUpdate(subscription: Stripe.Subscription) {
@@ -258,16 +377,47 @@ async function handlePaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent)
     },
   });
 
-  logger.info("Batch updated for ACH success", { batchId });
-
   logger.info("ACH payment succeeded for batch", {
     batchId,
     paymentIntentId: paymentIntent.id,
     amount: paymentIntent.amount,
   });
 
-  // Note: Donation distribution to charities via Change API
-  // is handled by the backend job triggered separately
+  // Trigger grant distribution to charities via Every.org Partner API
+  try {
+    const backendUrl = process.env.BACKEND_SERVICE_URL;
+    const internalToken = process.env.INTERNAL_API_TOKEN;
+
+    if (backendUrl && internalToken) {
+      const response = await fetch(`${backendUrl}/jobs/distribute-grants`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Internal-Token": internalToken,
+        },
+        body: JSON.stringify({ batch_id: batchId }),
+      });
+
+      if (!response.ok) {
+        logger.error("Failed to trigger grant distribution", {
+          batchId,
+          status: response.status,
+          statusText: response.statusText,
+        });
+      } else {
+        logger.info("Grant distribution triggered", { batchId });
+      }
+    } else {
+      logger.warn("Backend service not configured, skipping grant distribution", {
+        batchId,
+        hasBackendUrl: !!backendUrl,
+        hasToken: !!internalToken,
+      });
+    }
+  } catch (error) {
+    logger.error("Error triggering grant distribution", { batchId }, error);
+    // Don't throw - ACH payment succeeded, grant distribution can be retried
+  }
 }
 
 async function handlePaymentIntentFailed(paymentIntent: Stripe.PaymentIntent) {

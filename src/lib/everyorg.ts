@@ -201,11 +201,15 @@ export interface DonationUrlOptions {
   amount?: number;
   frequency?: "ONCE" | "MONTHLY";
   successUrl?: string;
-  /** Metadata to pass through webhook (donationId, userId, batchId) */
+  /** Metadata to pass through webhook (donationId, userId, batchId, etc.) */
   metadata?: {
     donationId?: string;
     userId?: string;
     batchId?: string;
+    /** Designated cause for fiscal sponsor transparency */
+    designatedCause?: string;
+    /** Donation memo/note */
+    memo?: string;
   };
 }
 

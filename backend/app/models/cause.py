@@ -19,3 +19,4 @@ class Cause(Base):
     user_causes = relationship("UserCause", back_populates="cause")
     business_mappings = relationship("BusinessMapping", back_populates="cause")
     charities = relationship("Charity", back_populates="cause")
+    donations = relationship("Donation", back_populates="designatedCause")

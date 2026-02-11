@@ -31,6 +31,7 @@ export async function GET(request: Request) {
     const endDate = new Date(year, 11, 31, 23, 59, 59);
 
     // Fetch completed donations for the year
+    // Include both charity (legacy) and designatedCause (fiscal sponsor model)
     const donations = await prisma.donation.findMany({
       where: {
         userId: user.id,
@@ -48,18 +49,43 @@ export async function GET(request: Request) {
             everyOrgSlug: true,
           },
         },
+        designatedCause: {
+          select: {
+            name: true,
+            slug: true,
+          },
+        },
       },
       orderBy: { completedAt: "asc" },
     });
 
-    // Group donations by charity
+    // Group donations by charity/cause
+    // For fiscal sponsor model: group by designated cause
+    // For legacy model: group by charity
     const byCharity = donations.reduce((acc, donation) => {
-      const key = donation.charityId;
+      // Use charityId if available, otherwise use designatedCauseId, otherwise use fiscalSponsorName
+      const key = donation.charityId || donation.designatedCauseId || donation.fiscalSponsorName;
       if (!acc[key]) {
+        // Determine display name based on model
+        let displayName = donation.fiscalSponsorName;
+        let ein: string | null = null;
+        let slug: string | null = null;
+
+        if (donation.charity) {
+          // Legacy model: use charity info
+          displayName = donation.charity.name;
+          ein = donation.charity.ein;
+          slug = donation.charity.everyOrgSlug;
+        } else if (donation.designatedCause) {
+          // Fiscal sponsor model: show as "Cause via Tech by Choice"
+          displayName = `${donation.designatedCause.name} (via ${donation.fiscalSponsorName})`;
+          slug = donation.designatedCause.slug;
+        }
+
         acc[key] = {
-          charityName: donation.charity.name,
-          ein: donation.charity.ein,
-          everyOrgSlug: donation.charity.everyOrgSlug,
+          charityName: displayName,
+          ein: ein,
+          everyOrgSlug: slug,
           totalAmount: 0,
           donationCount: 0,
           donations: [],
@@ -75,7 +101,7 @@ export async function GET(request: Request) {
     }, {} as Record<string, {
       charityName: string;
       ein: string | null;
-      everyOrgSlug: string;
+      everyOrgSlug: string | null;
       totalAmount: number;
       donationCount: number;
       donations: { date: string | undefined; amount: number }[];

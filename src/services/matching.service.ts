@@ -2,6 +2,7 @@ import prisma from "@/lib/prisma";
 import { normalizeMerchantName } from "@/lib/plaid";
 import { logger } from "@/lib/logger";
 import { Prisma } from "@prisma/client";
+import { FISCAL_SPONSOR } from "@/config/fiscal-sponsor";
 
 type BusinessMappingWithCause = Prisma.BusinessMappingGetPayload<{
   include: { cause: true };
@@ -116,6 +117,7 @@ export class MatchingService {
 
   /**
    * Get the default charity for a cause
+   * @deprecated Use fiscal sponsor model instead - donations go to Tech by Choice
    */
   async getDefaultCharity(causeId: string) {
     return prisma.charity.findFirst({
@@ -124,6 +126,15 @@ export class MatchingService {
         isDefault: true,
         isActive: true,
       },
+    });
+  }
+
+  /**
+   * Get cause details for fiscal sponsor model
+   */
+  async getCause(causeId: string) {
+    return prisma.cause.findUnique({
+      where: { id: causeId },
     });
   }
 
@@ -203,15 +214,16 @@ export class MatchingService {
       }
     }
 
-    // Get charity
-    const charity = await this.getDefaultCharity(match.mapping.causeId);
+    // Get cause for fiscal sponsor model
+    const cause = await this.getCause(match.mapping.causeId);
 
-    if (!charity) {
-      logger.error("No default charity for cause", { causeId: match.mapping.causeId });
+    if (!cause) {
+      logger.error("Cause not found", { causeId: match.mapping.causeId });
       return { matched: false };
     }
 
     // Create donation and update transaction in a transaction
+    // NEW: Donations go to fiscal sponsor (Tech by Choice) with designated cause
     const result = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       // Update transaction
       await tx.transaction.update({
@@ -222,14 +234,18 @@ export class MatchingService {
         },
       });
 
-      // Create donation
+      // Create donation - routed through fiscal sponsor
       const donation = await tx.donation.create({
         data: {
           userId,
           transactionId,
-          charityId: charity.id,
-          charitySlug: charity.everyOrgSlug,
-          charityName: charity.name,
+          // Fiscal sponsor model: all donations go to Tech by Choice
+          fiscalSponsorName: FISCAL_SPONSOR.name,
+          designatedCauseId: cause.id,
+          // Keep charity fields null for new donations
+          charityId: null,
+          charitySlug: null,
+          charityName: null,
           amount: donationAmount,
           status: "PENDING",
         },
@@ -243,6 +259,14 @@ export class MatchingService {
             increment: donationAmount,
           },
         },
+      });
+
+      logger.info("Created fiscal sponsor donation", {
+        donationId: donation.id,
+        userId,
+        amount: donationAmount,
+        designatedCause: cause.name,
+        fiscalSponsor: FISCAL_SPONSOR.name,
       });
 
       return donation;

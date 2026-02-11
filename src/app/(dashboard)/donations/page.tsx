@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { trackDonation, AnalyticsEvents } from "@/lib/analytics";
+import { trackDonation, track, AnalyticsEvents } from "@/lib/analytics";
 import {
   Card,
   CardContent,
@@ -13,7 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Gift, ExternalLink, CheckCircle, X, Loader2, Heart } from "lucide-react";
+import { Gift, ExternalLink, CheckCircle, X, Loader2, Heart, Share2 } from "lucide-react";
 import { EmptyState } from "@/components/EmptyState";
 import {
   Dialog,
@@ -24,6 +24,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
+import { ShareReceiptModal } from "@/components/share/ShareReceiptModal";
 
 interface Donation {
   id: string;
@@ -121,12 +122,24 @@ function CharityLogo({
   );
 }
 
+interface ReceiptData {
+  businesses: Array<{ name: string; amount: number }>;
+  charities: Array<{ name: string }>;
+  totalSpent: number;
+  totalDonated: number;
+  referralCode: string;
+  weekOf?: string;
+}
+
 export default function DonationsPage() {
   const [donations, setDonations] = useState<Donation[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [cancellingId, setCancellingId] = useState<string | null>(null);
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
   const [donationToCancel, setDonationToCancel] = useState<Donation | null>(null);
+  const [shareModalOpen, setShareModalOpen] = useState(false);
+  const [receiptData, setReceiptData] = useState<ReceiptData | null>(null);
+  const [loadingReceipt, setLoadingReceipt] = useState(false);
 
   useEffect(() => {
     const fetchDonations = async () => {
@@ -204,6 +217,28 @@ export default function DonationsPage() {
     }
   };
 
+  const handleShareClick = async () => {
+    setShareModalOpen(true);
+    setLoadingReceipt(true);
+    track(AnalyticsEvents.RECEIPT_GENERATED);
+
+    try {
+      const response = await fetch("/api/share/receipt");
+      if (response.ok) {
+        const data = await response.json();
+        setReceiptData(data);
+      } else {
+        toast.error("No donation data to share yet");
+        setShareModalOpen(false);
+      }
+    } catch {
+      toast.error("Failed to load receipt data");
+      setShareModalOpen(false);
+    } finally {
+      setLoadingReceipt(false);
+    }
+  };
+
   const handleCancelDonation = async () => {
     if (!donationToCancel) return;
 
@@ -268,7 +303,7 @@ export default function DonationsPage() {
       </div>
 
       {/* Summary Cards */}
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium">Pending Donations</CardTitle>
@@ -291,7 +326,34 @@ export default function DonationsPage() {
             </p>
           </CardContent>
         </Card>
+        <Card variant="accent" className="md:col-span-2 lg:col-span-1">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium">Share Your Impact</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Button
+              variant="highlight"
+              className="w-full"
+              onClick={handleShareClick}
+              disabled={donations.length === 0}
+            >
+              <Share2 className="mr-2 h-4 w-4" />
+              Share Receipt
+            </Button>
+            <p className="text-xs text-muted-foreground mt-2">
+              Invite friends and track your impact
+            </p>
+          </CardContent>
+        </Card>
       </div>
+
+      {/* Share Receipt Modal */}
+      <ShareReceiptModal
+        open={shareModalOpen}
+        onOpenChange={setShareModalOpen}
+        data={receiptData}
+        isLoading={loadingReceipt}
+      />
 
       {/* Pending Donations */}
       {pendingDonations.length > 0 && (

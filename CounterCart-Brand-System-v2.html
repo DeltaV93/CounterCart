@@ -1,0 +1,2792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CounterCart — The Counter · Brand & Design System v2.0</title>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Special+Elite&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  /* ============================================
+     CSS CUSTOM PROPERTIES — THE COUNTER PALETTE
+     ============================================ */
+  :root {
+    /* --- Core Four --- */
+    --counter-yellow: #E2C230;
+    --counter-blue: #8BB8CC;
+    --counter-paper: #F0EBE0;
+    --counter-ink: #0A0A0A;
+
+    /* --- Extended Neutrals --- */
+    --counter-black: #050505;
+    --counter-charcoal: #1E1E1E;
+    --counter-graphite: #333333;
+    --counter-smoke: #5A5A52;
+    --counter-ash: #8A857C;
+    --counter-parchment: #E4DDD0;
+    --counter-cream: #F0EBE0;
+    --counter-white: #FAF8F2;
+
+    /* --- Yellow Tints --- */
+    --counter-yellow-dark: #C4A520;
+    --counter-yellow-light: #F0D860;
+    --counter-yellow-wash: rgba(226, 194, 48, 0.10);
+
+    /* --- Blue Tints --- */
+    --counter-blue-dark: #6A98AE;
+    --counter-blue-light: #B0D4E2;
+    --counter-blue-wash: rgba(139, 184, 204, 0.12);
+
+    /* --- Functional --- */
+    --counter-success: #568203;
+    --counter-error: #B83A2A;
+    --counter-warning: #C49A3C;
+
+    /* --- Typography Scale (1.333 ratio) --- */
+    --fs-xs: 0.75rem;
+    --fs-sm: 0.875rem;
+    --fs-base: 1rem;
+    --fs-md: 1.125rem;
+    --fs-lg: 1.333rem;
+    --fs-xl: 1.777rem;
+    --fs-2xl: 2.369rem;
+    --fs-3xl: 3.157rem;
+    --fs-4xl: 4.209rem;
+    --fs-5xl: 5.61rem;
+    --fs-hero: 7.478rem;
+
+    /* --- Spacing (8px base) --- */
+    --sp-1: 0.25rem;
+    --sp-2: 0.5rem;
+    --sp-3: 0.75rem;
+    --sp-4: 1rem;
+    --sp-6: 1.5rem;
+    --sp-8: 2rem;
+    --sp-12: 3rem;
+    --sp-16: 4rem;
+    --sp-24: 6rem;
+    --sp-32: 8rem;
+    --sp-48: 12rem;
+
+    /* --- Borders --- */
+    --border-thin: 1px solid var(--counter-parchment);
+    --border-rough: 2px solid var(--counter-ink);
+    --border-sketch: 1.5px dashed var(--counter-ash);
+
+    /* --- Shadows --- */
+    --shadow-ink: 3px 3px 0px var(--counter-ink);
+    --shadow-deep: 6px 6px 0px var(--counter-charcoal);
+
+    /* --- Transitions --- */
+    --ease-beat: cubic-bezier(0.23, 1, 0.32, 1);
+    --duration-fast: 150ms;
+    --duration-mid: 300ms;
+    --duration-slow: 600ms;
+  }
+
+  /* ============================================
+     RESET & BASE
+     ============================================ */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html {
+    font-size: 16px;
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    font-family: 'Courier Prime', 'Courier New', monospace;
+    background-color: var(--counter-paper);
+    color: var(--counter-ink);
+    line-height: 1.7;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  /* Subtle grain */
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  ::selection {
+    background: var(--counter-yellow);
+    color: var(--counter-ink);
+  }
+
+  /* ============================================
+     TYPOGRAPHY CLASSES
+     ============================================ */
+  .font-display {
+    font-family: 'Anton', 'Impact', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+  }
+  .font-typewriter { font-family: 'Special Elite', 'Courier New', monospace; }
+  .font-body { font-family: 'Courier Prime', 'Courier New', monospace; }
+  .font-editorial { font-family: 'Libre Baskerville', Georgia, serif; }
+
+  /* ============================================
+     DOCUMENT STRUCTURE
+     ============================================ */
+  .system-wrapper {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: var(--sp-8);
+  }
+
+  /* ============================================
+     COVER PAGE — Paper dominant, yellow earned
+     ============================================ */
+  .cover {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    padding: var(--sp-16) var(--sp-8);
+    position: relative;
+    border-bottom: var(--border-rough);
+    background: var(--counter-paper);
+  }
+
+  .cover-stripe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 8px;
+    height: 100%;
+    background: var(--counter-yellow);
+  }
+
+  .cover-dot {
+    position: absolute;
+    top: var(--sp-8);
+    right: var(--sp-8);
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--counter-yellow);
+    opacity: 0.8;
+  }
+
+  .cover-label {
+    font-family: 'Courier Prime', monospace;
+    font-size: var(--fs-sm);
+    text-transform: uppercase;
+    letter-spacing: 0.3em;
+    color: var(--counter-smoke);
+    margin-bottom: var(--sp-4);
+  }
+
+  .cover-title {
+    font-family: 'Anton', sans-serif;
+    font-size: clamp(3.5rem, 10vw, var(--fs-hero));
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    line-height: 0.92;
+    color: var(--counter-ink);
+    margin-bottom: var(--sp-6);
+    max-width: 14ch;
+  }
+
+  .cover-title em {
+    font-style: normal;
+    color: var(--counter-smoke);
+    display: block;
+    font-size: 0.5em;
+    letter-spacing: 0.08em;
+    margin-top: var(--sp-2);
+  }
+
+  .cover-subtitle {
+    font-family: 'Courier Prime', monospace;
+    font-size: var(--fs-md);
+    color: var(--counter-graphite);
+    max-width: 50ch;
+    margin-bottom: var(--sp-12);
+    line-height: 1.8;
+  }
+
+  .cover-meta {
+    font-family: 'Courier Prime', monospace;
+    font-size: var(--fs-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--counter-ash);
+    border-top: 2px solid var(--counter-ink);
+    padding-top: var(--sp-4);
+  }
+
+  /* ============================================
+     SECTION SYSTEM
+     ============================================ */
+  .section {
+    padding: var(--sp-24) 0;
+    border-bottom: var(--border-thin);
+  }
+
+  .section-number {
+    font-family: 'Anton', sans-serif;
+    font-size: var(--fs-5xl);
+    text-transform: uppercase;
+    color: var(--counter-parchment);
+    line-height: 1;
+    margin-bottom: var(--sp-2);
+  }
+
+  .section-label {
+    font-family: 'Courier Prime', monospace;
+    font-size: var(--fs-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.4em;
+    color: var(--counter-smoke);
+    margin-bottom: var(--sp-4);
+  }
+
+  .section-heading {
+    font-family: 'Anton', sans-serif;
+    font-size: var(--fs-3xl);
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    color: var(--counter-ink);
+    line-height: 1.05;
+    margin-bottom: var(--sp-8);
+    max-width: 20ch;
+  }
+
+  .section-body {
+    font-family: 'Courier Prime', monospace;
+    font-size: var(--fs-base);
+    color: var(--counter-graphite);
+    max-width: 65ch;
+    line-height: 1.8;
+  }
+
+  .section-body p + p { margin-top: var(--sp-6); }
+  .section-body strong { color: var(--counter-ink); }
+
+  /* Part Dividers */
+  .part-divider {
+    padding: var(--sp-16) 0;
+    border-bottom: var(--border-rough);
+    position: relative;
+  }
+
+  .part-divider-label {
+    font-family: 'Courier Prime', monospace;
+    font-size: var(--fs-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.4em;
+    color: var(--counter-ash);
+    margin-bottom: var(--sp-2);
+  }
+
+  .part-divider-title {
+    font-family: 'Anton', sans-serif;
+    font-size: var(--fs-4xl);
+    text-transform: uppercase;
+    color: var(--counter-ink);
+    line-height: 1;
+  }
+
+  .part-divider-accent {
+    width: 48px;
+    height: 4px;
+    background: var(--counter-yellow);
+    margin-top: var(--sp-4);
+  }
+
+  /* ============================================
+     CALLOUT BLOCKS
+     ============================================ */
+  .callout {
+    background: var(--counter-ink);
+    color: var(--counter-parchment);
+    padding: var(--sp-12) var(--sp-8);
+    margin: var(--sp-12) calc(-1 * var(--sp-8));
+    position: relative;
+  }
+
+  .callout-quote::before {
+    content: '"';
+    font-family: 'Anton', sans-serif;
+    font-size: 12rem;
+    position: absolute;
+    top: -1.5rem;
+    left: var(--sp-6);
+    color: var(--counter-charcoal);
+    line-height: 1;
+  }
+
+  .callout-text {
+    font-family: 'Libre Baskerville', serif;
+    font-size: var(--fs-xl);
+    font-style: italic;
+    line-height: 1.5;
+    max-width: 35ch;
+    position: relative;
+    z-index: 1;
+  }
+
+  .callout-attr {
+    font-family: 'Courier Prime', monospace;
+    font-size: var(--fs-sm);
+    color: var(--counter-smoke);
+    margin-top: var(--sp-4);
+    letter-spacing: 0.1em;
+  }
+
+  /* Yellow accent bar on callouts */
+  .callout-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: var(--counter-yellow);
+  }
+
+  /* Light callout variant */
+  .callout-light {
+    background: var(--counter-white);
+    color: var(--counter-ink);
+    border: var(--border-rough);
+    border-left: 4px solid var(--counter-yellow);
+    margin: var(--sp-8) 0;
+    padding: var(--sp-6) var(--sp-8);
+  }
+
+  .callout-light .callout-text {
+    font-family: 'Courier Prime', monospace;
+    font-style: normal;
+    font-size: var(--fs-base);
+    max-width: 65ch;
+  }
+
+  /* ============================================
+     TWO-COLUMN LAYOUT
+     ============================================ */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--sp-8);
+    margin: var(--sp-8) 0;
+  }
+
+  .two-col-wide {
+    display: grid;
+    grid-template-columns: 7fr 5fr;
+    gap: var(--sp-8);
+    margin: var(--sp-8) 0;
+  }
+
+  .two-col-narrow {
+    display: grid;
+    grid-template-columns: 5fr 7fr;
+    gap: var(--sp-8);
+    margin: var(--sp-8) 0;
+  }
+
+  /* ============================================
+     ATTRIBUTE PAIRS
+     ============================================ */
+  .attr-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: var(--sp-6);
+    margin: var(--sp-8) 0;
+  }
+
+  .attr-item {
+    padding: var(--sp-6);
+    border: var(--border-rough);
+    background: var(--counter-paper);
+  }
+
+  .attr-label {
+    font-family: 'Courier Prime', monospace;
+    font-size: var(--fs-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.3em;
+    color: var(--counter-ash);
+    margin-bottom: var(--sp-2);
+  }
+
+  .attr-value {
+    font-family: 'Anton', sans-serif;
+    font-size: var(--fs-lg);
+    text-transform: uppercase;
+    color: var(--counter-ink);
+    margin-bottom: var(--sp-2);
+  }
+
+  .attr-desc {
+    font-family: 'Courier Prime', monospace;
+    font-size: var(--fs-sm);
+    color: var(--counter-smoke);
+    line-height: 1.6;
+  }
+
+  /* ============================================
+     SPECTRUM BARS (for personality spectrums)
+     ============================================ */
+  .spectrum {
+    margin: var(--sp-6) 0;
+  }
+
+  .spectrum-row {
+    display: grid;
+    grid-template-columns: 100px 1fr 100px;
+    gap: var(--sp-4);
+    align-items: center;
+    margin-bottom: var(--sp-4);
+  }
+
+  .spectrum-label {
+    font-family: 'Courier Prime', monospace;
+    font-size: var(--fs-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--counter-smoke);
+  }
+
+  .spectrum-label-right { text-align: right; }
+
+  .spectrum-track {
+    height: 6px;
+    background: var(--counter-parchment);
+    position: relative;
+  }
+
+  .spectrum-fill {
+    height: 100%;
+    background: var(--counter-ink);
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+
+  .spectrum-marker {
+    width: 16px;
+    height: 16px;
+    background: var(--counter-yellow);
+    border: 2px solid var(--counter-ink);
+    position: absolute;
+    top: -5px;
+  }
+
+  /* ============================================
+     VOICE EXAMPLES
+     ============================================ */
+  .voice-example {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    margin: var(--sp-6) 0;
+    border: var(--border-rough);
+    overflow: hidden;
+  }
+
+  .voice-dont {
+    padding: var(--sp-6);
+    background: var(--counter-white);
+    position: relative;
+  }
+
+  .voice-do {
+    padding: var(--sp-6);
+    background: var(--counter-paper);
+    border-left: var(--border-rough);
+    position: relative;
+  }
+
+  .voice-dont::before {
+    content: '✗ NOT THIS';
+    font-family: 'Courier Prime', monospace;
+    font-size: var(--fs-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--counter-error);
+    display: block;
+    margin-bottom: var(--sp-3);
+  }
+
+  .voice-do::before {
+    content: '✓ THIS';
+    font-family: 'Courier Prime', monospace;
+    font-size: var(--fs-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--counter-success);
+    display: block;
+    margin-bottom: var(--sp-3);
+  }
+
+  .voice-text {
+    font-family: 'Courier Prime', monospace;
+    font-size: var(--fs-sm);
+    color: var(--counter-graphite);
+    line-height: 1.7;
+    font-style: italic;
+  }
+
+  /* ============================================
+     COLOR SWATCHES
+     ============================================ */
+  .swatch-featured {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--sp-6);
+    margin: var(--sp-8) 0;
+  }
+
+  .swatch-big {
+    border: var(--border-rough);
+    overflow: hidden;
+  }
+
+  .swatch-big-color {
+    height: 180px;
+    display: flex;
+    align-items: flex-end;
+    padding: var(--sp-6);
+  }
+
+  .swatch-big-label {
+    font-family: 'Anton', sans-serif;
+    font-size: var(--fs-2xl);
+    text-transform: uppercase;
+    line-height: 1;
+  }
+
+  .swatch-big-info {
+    padding: var(--sp-4) var(--sp-6);
+    background: var(--counter-paper);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .swatch-big-name {
+    font-family: 'Courier Prime', monospace;
+    font-size: var(--fs-sm);
+    font-weight: 700;
+  }
+
+  .swatch-big-hex {
+    font-family: 'Courier Prime', monospace;
+    font-size: var(--fs-xs);
+    color: var(--counter-ash);
+  }
+
+  .swatch-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: var(--sp-4);
+    margin: var(--sp-8) 0;
+  }
+
+  .swatch {
+    border: var(--border-rough);
+    overflow: hidden;
+    transition: transform var(--duration-mid) var(--ease-beat);
+  }
+
+  .swatch:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: var(--shadow-ink);
+  }
+
+  .swatch-color { height: 80px; width: 100%; }
+
+  .swatch-info {
+    padding: var(--sp-2) var(--sp-3);
+    background: var(--counter-paper);
+  }
+
+  .swatch-name {
+    font-family: 'Courier Prime', monospace;
+    font-size: var(--fs-xs);
+    font-weight: 700;
+    color: var(--counter-ink);
+  }
+
+  .swatch-hex {
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.65rem;
+    color: var(--counter-ash);
+  }
+
+  /* Color ratio bar */
+  .ratio-bar {
+    display: flex;
+    height: 48px;
+    margin: var(--sp-8) 0;
+    border: var(--border-rough);
+    overflow: hidden;
+  }
+
+  .ratio-bar-segment {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Courier Prime', monospace;
+    font-size: var(--fs-xs);
+    font-weight: 700;
+    letter-spacing: 0.05em;
+  }
+
+  /* ============================================
+     TYPE SPECIMENS
+     ============================================ */
+  .type-specimen {
+    margin: var(--sp-8) 0;
+    padding: var(--sp-8);
+    border: var(--border-rough);
+    position: relative;
+  }
+
+  .type-specimen-label {
+    font-family: 'Courier Prime', monospace;
+    font-size: var(--fs-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.3em;
+    color: var(--counter-ash);
+    position: absolute;
+    top: var(--sp-3);
+    right: var(--sp-4);
+  }
+
+  .type-specimen-display {
+    margin-bottom: var(--sp-4);
+    line-height: 1.1;
+  }
+
+  .type-specimen-meta {
+    font-family: 'Courier Prime', monospace;
+    font-size: var(--fs-xs);
+    color: var(--counter-smoke);
+    border-top: var(--border-sketch);
+    padding-top: var(--sp-3);
+  }
+
+  .scale-row {
+    display: flex;
+    align-items: baseline;
+    gap: var(--sp-6);
+    padding: var(--sp-4) 0;
+    border-bottom: 1px dotted var(--counter-parchment);
+  }
+
+  .scale-label {
+    font-family: 'Courier Prime', monospace;
+    font-size: var(--fs-xs);
+    color: var(--counter-ash);
+    min-width: 80px;
+    flex-shrink: 0;
+  }
+
+  .scale-sample { color: var(--counter-ink); white-space: nowrap; }
+
+  .scale-size {
+    font-family: 'Courier Prime', monospace;
+    font-size: var(--fs-xs);
+    color: var(--counter-smoke);
+    margin-left: auto;
+    flex-shrink: 0;
+  }
+
+  /* ============================================
+     LOGO / WORDMARK
+     ============================================ */
+  .logo-demo {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+    margin: var(--sp-6) 0;
+  }
+
+  .logo-icon {
+    width: 40px;
+    height: 40px;
+    background: var(--counter-yellow);
+    border: 2px solid var(--counter-ink);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Courier Prime', monospace;
+    font-weight: 700;
+    font-size: var(--fs-base);
+    color: var(--counter-ink);
+  }
+
+  .logo-text {
+    font-family: 'Anton', sans-serif;
+    font-size: var(--fs-2xl);
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    color: var(--counter-ink);
+  }
+
+  .logo-lockup-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--sp-6);
+    margin: var(--sp-8) 0;
+  }
+
+  .logo-lockup {
+    border: var(--border-rough);
+    padding: var(--sp-8) var(--sp-6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 160px;
+    position: relative;
+  }
+
+  .logo-lockup-label {
+    position: absolute;
+    bottom: var(--sp-2);
+    left: var(--sp-3);
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--counter-ash);
+  }
+
+  /* ============================================
+     PHOTOGRAPHY DIRECTION
+     ============================================ */
+  .photo-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--sp-4);
+    margin: var(--sp-8) 0;
+  }
+
+  .photo-placeholder {
+    aspect-ratio: 4/3;
+    border: var(--border-rough);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: var(--sp-2);
+    padding: var(--sp-4);
+    text-align: center;
+    position: relative;
+  }
+
+  .photo-placeholder-icon {
+    font-size: var(--fs-3xl);
+    opacity: 0.15;
+    line-height: 1;
+  }
+
+  .photo-placeholder-text {
+    font-family: 'Courier Prime', monospace;
+    font-size: var(--fs-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--counter-smoke);
+  }
+
+  .photo-placeholder-desc {
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.65rem;
+    color: var(--counter-ash);
+    line-height: 1.4;
+  }
+
+  /* ============================================
+     ICON STYLE
+     ============================================ */
+  .icon-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: var(--sp-4);
+    margin: var(--sp-8) 0;
+  }
+
+  .icon-item {
+    border: var(--border-rough);
+    aspect-ratio: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--sp-2);
+    padding: var(--sp-2);
+  }
+
+  .icon-glyph {
+    font-size: var(--fs-xl);
+    color: var(--counter-ink);
+    line-height: 1;
+  }
+
+  .icon-name {
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.6rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--counter-ash);
+  }
+
+  /* ============================================
+     TEXTURE SAMPLES
+     ============================================ */
+  .texture-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: var(--sp-4);
+    margin: var(--sp-8) 0;
+  }
+
+  .texture-sample {
+    height: 140px;
+    border: var(--border-rough);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .texture-label {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: var(--sp-2) var(--sp-3);
+    background: rgba(10, 10, 10, 0.85);
+    font-family: 'Courier Prime', monospace;
+    font-size: var(--fs-xs);
+    color: var(--counter-parchment);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  .texture-paper { background-color: var(--counter-cream); }
+  .texture-yellow-accent {
+    background-color: var(--counter-paper);
+    background-image: linear-gradient(to right, var(--counter-yellow) 0, var(--counter-yellow) 4px, transparent 4px);
+  }
+  .texture-blue-accent {
+    background-color: var(--counter-paper);
+    background-image: linear-gradient(to bottom, var(--counter-blue) 0, var(--counter-blue) 4px, transparent 4px);
+  }
+  .texture-ink-solid { background: var(--counter-ink); }
+  .texture-grain {
+    background-color: var(--counter-cream);
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.06'/%3E%3C/svg%3E");
+  }
+  .texture-newsprint {
+    background-color: var(--counter-cream);
+    background-image: radial-gradient(circle, var(--counter-ink) 0.5px, transparent 0.5px);
+    background-size: 3px 3px;
+  }
+
+  /* ============================================
+     SPACING VIS
+     ============================================ */
+  .spacing-demo { margin: var(--sp-8) 0; }
+
+  .spacing-bar-row {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-4);
+    margin-bottom: var(--sp-3);
+  }
+
+  .spacing-bar-label {
+    font-family: 'Courier Prime', monospace;
+    font-size: var(--fs-xs);
+    color: var(--counter-ash);
+    min-width: 60px;
+  }
+
+  .spacing-bar {
+    height: 20px;
+    background: var(--counter-blue);
+    opacity: 0.35;
+    border-right: 2px solid var(--counter-blue-dark);
+  }
+
+  .spacing-bar-value {
+    font-family: 'Courier Prime', monospace;
+    font-size: var(--fs-xs);
+    color: var(--counter-smoke);
+  }
+
+  /* ============================================
+     COMPONENTS — Nav, Buttons, Cards, etc.
+     ============================================ */
+  .showcase {
+    margin: var(--sp-8) 0;
+  }
+
+  .showcase-label {
+    font-family: 'Courier Prime', monospace;
+    font-size: var(--fs-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.3em;
+    color: var(--counter-smoke);
+    margin-bottom: var(--sp-4);
+  }
+
+  .showcase-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-4);
+    align-items: flex-start;
+    margin-bottom: var(--sp-8);
+  }
+
+  /* Buttons */
+  .btn {
+    font-family: 'Courier Prime', monospace;
+    font-size: var(--fs-sm);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: var(--sp-3) var(--sp-6);
+    border: 2px solid var(--counter-ink);
+    cursor: pointer;
+    transition: all var(--duration-mid) var(--ease-beat);
+    text-decoration: none;
+    display: inline-block;
+  }
+
+  .btn-primary {
+    background: var(--counter-yellow);
+    color: var(--counter-ink);
+  }
+
+  .btn-primary:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: var(--shadow-ink);
+  }
+
+  .btn-secondary {
+    background: transparent;
+    color: var(--counter-ink);
+  }
+
+  .btn-secondary:hover {
+    background: var(--counter-ink);
+    color: var(--counter-paper);
+  }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--counter-ink);
+    border: none;
+    border-bottom: 2px solid var(--counter-ink);
+    padding: var(--sp-2) 0;
+  }
+
+  .btn-ghost:hover {
+    color: var(--counter-yellow-dark);
+    border-color: var(--counter-yellow-dark);
+  }
+
+  .btn-accent {
+    background: var(--counter-blue);
+    color: var(--counter-ink);
+  }
+
+  .btn-accent:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: var(--shadow-ink);
+  }
+
+  /* Nav */
+  .nav-demo {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--sp-4) var(--sp-6);
+    border: var(--border-rough);
+    background: var(--counter-cream);
+    margin: var(--sp-6) 0;
+  }
+
+  .nav-logo {
+    font-family: 'Anton', sans-serif;
+    font-size: var(--fs-lg);
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    color: var(--counter-ink);
+    display: flex;
+    align-items: center;
+    gap: var(--sp-2);
+    text-decoration: none;
+  }
+
+  .nav-logo-icon {
+    width: 28px;
+    height: 28px;
+    background: var(--counter-yellow);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--counter-ink);
+    font-size: var(--fs-xs);
+    font-weight: 700;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: var(--sp-6);
+    list-style: none;
+  }
+
+  .nav-link {
+    font-family: 'Courier Prime', monospace;
+    font-size: var(--fs-sm);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--counter-smoke);
+    text-decoration: none;
+    position: relative;
+  }
+
+  .nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: var(--counter-yellow);
+    transition: width var(--duration-mid) var(--ease-beat);
+  }
+
+  .nav-link:hover::after { width: 100%; }
+
+  .nav-cta {
+    font-family: 'Courier Prime', monospace;
+    font-size: var(--fs-sm);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: var(--sp-2) var(--sp-4);
+    background: var(--counter-yellow);
+    color: var(--counter-ink);
+    border: 2px solid var(--counter-ink);
+    text-decoration: none;
+    transition: all var(--duration-mid) var(--ease-beat);
+  }
+
+  .nav-cta:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: var(--shadow-ink);
+  }
+
+  .nav-demo-dark {
+    background: var(--counter-ink);
+    border-color: var(--counter-charcoal);
+  }
+
+  .nav-demo-dark .nav-logo { color: var(--counter-paper); }
+  .nav-demo-dark .nav-link { color: var(--counter-ash); }
+  .nav-demo-dark .nav-link::after { background: var(--counter-yellow); }
+
+  /* Marquee */
+  .marquee-demo {
+    overflow: hidden;
+    background: var(--counter-ink);
+    padding: var(--sp-3) 0;
+    margin: var(--sp-6) 0;
+    border: var(--border-rough);
+    position: relative;
+  }
+
+  .marquee-demo::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: var(--counter-yellow);
+    z-index: 1;
+  }
+
+  .marquee-track {
+    display: flex;
+    animation: marquee-scroll 20s linear infinite;
+    white-space: nowrap;
+  }
+
+  .marquee-item {
+    font-family: 'Anton', sans-serif;
+    font-size: var(--fs-sm);
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--counter-parchment);
+    padding: 0 var(--sp-8);
+    flex-shrink: 0;
+  }
+
+  .marquee-dot {
+    color: var(--counter-yellow);
+    padding: 0 var(--sp-4);
+  }
+
+  @keyframes marquee-scroll {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+
+  /* Cards */
+  .card {
+    border: var(--border-rough);
+    padding: var(--sp-8);
+    position: relative;
+    background: var(--counter-paper);
+    transition: all var(--duration-mid) var(--ease-beat);
+  }
+
+  .card:hover {
+    transform: translate(-3px, -3px);
+    box-shadow: var(--shadow-deep);
+  }
+
+  .card-dark {
+    background: var(--counter-ink);
+    color: var(--counter-parchment);
+    border-color: var(--counter-charcoal);
+  }
+
+  .card-number {
+    font-family: 'Anton', sans-serif;
+    font-size: var(--fs-4xl);
+    text-transform: uppercase;
+    color: var(--counter-parchment);
+    line-height: 1;
+    margin-bottom: var(--sp-2);
+  }
+
+  .card-dark .card-number { color: var(--counter-charcoal); }
+
+  .card-heading {
+    font-family: 'Anton', sans-serif;
+    font-size: var(--fs-lg);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: var(--sp-4);
+  }
+
+  .card-body {
+    font-family: 'Courier Prime', monospace;
+    font-size: var(--fs-sm);
+    color: var(--counter-smoke);
+    line-height: 1.7;
+  }
+
+  .card-dark .card-body { color: var(--counter-ash); }
+
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: var(--sp-6);
+    margin: var(--sp-8) 0;
+  }
+
+  /* Card with yellow accent stripe (preferred over full yellow bg) */
+  .card-accent {
+    border-left: 6px solid var(--counter-yellow);
+  }
+
+  .card-accent-blue {
+    border-left: 6px solid var(--counter-blue);
+  }
+
+  /* Badges */
+  .badge {
+    font-family: 'Courier Prime', monospace;
+    font-size: var(--fs-xs);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    padding: var(--sp-1) var(--sp-3);
+    border: 2px solid currentColor;
+    display: inline-block;
+  }
+
+  .badge-dark { background: var(--counter-ink); color: var(--counter-paper); border-color: var(--counter-ink); }
+  .badge-outline { background: transparent; color: var(--counter-ink); }
+  .badge-yellow { background: var(--counter-yellow); color: var(--counter-ink); border-color: var(--counter-ink); }
+  .badge-blue { background: var(--counter-blue); color: var(--counter-ink); border-color: var(--counter-ink); }
+
+  /* Inputs */
+  .input-demo { margin: var(--sp-4) 0; }
+
+  .beat-input {
+    font-family: 'Courier Prime', monospace;
+    font-size: var(--fs-base);
+    padding: var(--sp-3) var(--sp-4);
+    border: none;
+    border-bottom: 2px solid var(--counter-ink);
+    background: transparent;
+    color: var(--counter-ink);
+    width: 100%;
+    max-width: 400px;
+    outline: none;
+    transition: border-color var(--duration-mid) var(--ease-beat);
+  }
+
+  .beat-input:focus { border-color: var(--counter-yellow); }
+  .beat-input::placeholder { color: var(--counter-ash); font-style: italic; }
+
+  .beat-label {
+    font-family: 'Courier Prime', monospace;
+    font-size: var(--fs-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--counter-smoke);
+    display: block;
+    margin-bottom: var(--sp-2);
+  }
+
+  /* ============================================
+     HERO DEMO
+     ============================================ */
+  .hero-demo {
+    background: var(--counter-ink);
+    padding: var(--sp-24) var(--sp-12);
+    margin: var(--sp-8) calc(-1 * var(--sp-8));
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-demo::before {
+    content: 'OFFSET';
+    font-family: 'Anton', sans-serif;
+    font-size: 18rem;
+    text-transform: uppercase;
+    color: var(--counter-charcoal);
+    position: absolute;
+    top: -3rem;
+    right: -2rem;
+    line-height: 1;
+    opacity: 0.25;
+    pointer-events: none;
+  }
+
+  .hero-demo::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: var(--counter-yellow);
+  }
+
+  .hero-eyebrow {
+    font-family: 'Courier Prime', monospace;
+    font-size: var(--fs-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.4em;
+    color: var(--counter-ash);
+    margin-bottom: var(--sp-4);
+    display: block;
+  }
+
+  .hero-headline {
+    font-family: 'Anton', sans-serif;
+    font-size: clamp(2.5rem, 6vw, var(--fs-5xl));
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    color: var(--counter-paper);
+    line-height: 0.95;
+    margin-bottom: var(--sp-8);
+    max-width: 16ch;
+    position: relative;
+    z-index: 1;
+  }
+
+  .hero-headline em {
+    font-style: normal;
+    display: block;
+    color: var(--counter-yellow);
+  }
+
+  .hero-body {
+    font-family: 'Courier Prime', monospace;
+    font-size: var(--fs-base);
+    color: var(--counter-ash);
+    max-width: 45ch;
+    line-height: 1.8;
+    margin-bottom: var(--sp-8);
+    position: relative;
+    z-index: 1;
+  }
+
+  .hero-actions {
+    display: flex;
+    gap: var(--sp-4);
+    align-items: center;
+    position: relative;
+    z-index: 1;
+  }
+
+  .hero-actions .btn-primary {
+    background: var(--counter-yellow);
+    color: var(--counter-ink);
+    border-color: var(--counter-yellow);
+  }
+
+  .hero-actions .btn-ghost {
+    color: var(--counter-parchment);
+    border-color: var(--counter-parchment);
+  }
+
+  /* ============================================
+     MOTION DEMO
+     ============================================ */
+  .motion-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--sp-6);
+    margin: var(--sp-8) 0;
+  }
+
+  .motion-demo {
+    border: var(--border-rough);
+    padding: var(--sp-6);
+    text-align: center;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .motion-box {
+    width: 40px;
+    height: 40px;
+    background: var(--counter-yellow);
+    border: 2px solid var(--counter-ink);
+    margin: var(--sp-4) auto;
+    transition: all 0.6s var(--ease-beat);
+  }
+
+  .motion-demo:hover .motion-box-slide { transform: translateX(40px); }
+  .motion-demo:hover .motion-box-lift { transform: translate(-2px, -4px); box-shadow: var(--shadow-deep); }
+  .motion-demo:hover .motion-box-fade { opacity: 0.2; }
+
+  .motion-name {
+    font-family: 'Courier Prime', monospace;
+    font-size: var(--fs-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--counter-smoke);
+    margin-top: var(--sp-3);
+  }
+
+  /* ============================================
+     ACCESSIBILITY
+     ============================================ */
+  .a11y-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: var(--sp-4);
+    margin: var(--sp-8) 0;
+  }
+
+  .a11y-pair {
+    border: var(--border-rough);
+    overflow: hidden;
+  }
+
+  .a11y-sample {
+    padding: var(--sp-6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 80px;
+    font-family: 'Courier Prime', monospace;
+    font-size: var(--fs-sm);
+    font-weight: 700;
+  }
+
+  .a11y-info {
+    padding: var(--sp-3) var(--sp-4);
+    background: var(--counter-paper);
+    font-family: 'Courier Prime', monospace;
+    font-size: var(--fs-xs);
+    color: var(--counter-smoke);
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .a11y-pass { color: var(--counter-success); font-weight: 700; }
+  .a11y-fail { color: var(--counter-error); font-weight: 700; }
+
+  /* ============================================
+     SOCIAL MEDIA MOCKS
+     ============================================ */
+  .social-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--sp-6);
+    margin: var(--sp-8) 0;
+  }
+
+  .social-mock {
+    border: var(--border-rough);
+    overflow: hidden;
+    background: var(--counter-paper);
+  }
+
+  .social-mock-header {
+    padding: var(--sp-3) var(--sp-4);
+    border-bottom: var(--border-thin);
+    font-family: 'Courier Prime', monospace;
+    font-size: var(--fs-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--counter-ash);
+  }
+
+  .social-mock-body {
+    padding: var(--sp-8) var(--sp-6);
+    min-height: 260px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .social-mock-body-dark {
+    background: var(--counter-ink);
+    color: var(--counter-parchment);
+  }
+
+  /* ============================================
+     PRINCIPLES & GUIDELINES
+     ============================================ */
+  .principles { margin: var(--sp-8) 0; counter-reset: principle; }
+
+  .principle {
+    display: grid;
+    grid-template-columns: 80px 1fr;
+    gap: var(--sp-6);
+    padding: var(--sp-6) 0;
+    border-bottom: 1px dotted var(--counter-parchment);
+    counter-increment: principle;
+  }
+
+  .principle-number::before {
+    content: counter(principle, decimal-leading-zero);
+    font-family: 'Anton', sans-serif;
+    font-size: var(--fs-2xl);
+    color: var(--counter-parchment);
+  }
+
+  .principle-title {
+    font-family: 'Anton', sans-serif;
+    font-size: var(--fs-md);
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    color: var(--counter-ink);
+    margin-bottom: var(--sp-2);
+  }
+
+  .principle-desc {
+    font-family: 'Courier Prime', monospace;
+    font-size: var(--fs-sm);
+    color: var(--counter-smoke);
+    line-height: 1.7;
+  }
+
+  /* Do/Don't */
+  .comparison {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--sp-6);
+    margin: var(--sp-8) 0;
+  }
+
+  .comparison-do, .comparison-dont {
+    padding: var(--sp-6);
+    border: var(--border-rough);
+  }
+
+  .comparison-do { border-left: 6px solid var(--counter-yellow); }
+  .comparison-dont { border-left: 6px solid var(--counter-error); }
+
+  .comparison-header {
+    font-family: 'Anton', sans-serif;
+    font-size: var(--fs-sm);
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    margin-bottom: var(--sp-4);
+  }
+
+  .comparison-do .comparison-header { color: var(--counter-yellow-dark); }
+  .comparison-dont .comparison-header { color: var(--counter-error); }
+
+  .comparison-item {
+    font-family: 'Courier Prime', monospace;
+    font-size: var(--fs-sm);
+    color: var(--counter-smoke);
+    padding: var(--sp-2) 0;
+    border-bottom: 1px dotted var(--counter-parchment);
+    line-height: 1.6;
+  }
+
+  /* ============================================
+     CSS TOKENS
+     ============================================ */
+  .token-block {
+    background: var(--counter-ink);
+    color: var(--counter-parchment);
+    padding: var(--sp-6);
+    margin: var(--sp-6) 0;
+    font-family: 'Courier Prime', monospace;
+    font-size: var(--fs-sm);
+    line-height: 1.8;
+    overflow-x: auto;
+    border-left: 4px solid var(--counter-yellow);
+  }
+
+  .token-comment { color: var(--counter-smoke); }
+  .token-prop { color: var(--counter-yellow); }
+  .token-value { color: var(--counter-blue-light); }
+
+  /* ============================================
+     TABLE OF CONTENTS
+     ============================================ */
+  .toc {
+    margin: var(--sp-12) 0;
+    border: var(--border-rough);
+    padding: var(--sp-8);
+  }
+
+  .toc-title {
+    font-family: 'Courier Prime', monospace;
+    font-size: var(--fs-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.4em;
+    color: var(--counter-smoke);
+    margin-bottom: var(--sp-6);
+  }
+
+  .toc-part {
+    font-family: 'Anton', sans-serif;
+    font-size: var(--fs-sm);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--counter-ash);
+    margin-top: var(--sp-6);
+    margin-bottom: var(--sp-2);
+    padding-top: var(--sp-4);
+    border-top: 1px dotted var(--counter-parchment);
+  }
+
+  .toc-part:first-of-type { border-top: none; margin-top: 0; padding-top: 0; }
+
+  .toc-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: var(--sp-2) 0;
+    text-decoration: none;
+    transition: color var(--duration-fast);
+  }
+
+  .toc-item:hover .toc-item-title { color: var(--counter-yellow-dark); }
+
+  .toc-item-title {
+    font-family: 'Libre Baskerville', serif;
+    font-size: var(--fs-base);
+    color: var(--counter-ink);
+  }
+
+  .toc-item-num {
+    font-family: 'Courier Prime', monospace;
+    font-size: var(--fs-xs);
+    color: var(--counter-ash);
+  }
+
+  /* ============================================
+     FOOTER
+     ============================================ */
+  .system-footer {
+    padding: var(--sp-16) 0;
+    text-align: center;
+    border-top: var(--border-rough);
+    margin-top: var(--sp-16);
+  }
+
+  .footer-mark {
+    font-family: 'Anton', sans-serif;
+    font-size: var(--fs-3xl);
+    color: var(--counter-parchment);
+    margin-bottom: var(--sp-4);
+  }
+
+  .footer-accent {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--counter-yellow);
+    margin: 0 auto var(--sp-4);
+    opacity: 0.5;
+  }
+
+  .footer-text {
+    font-family: 'Courier Prime', monospace;
+    font-size: var(--fs-xs);
+    color: var(--counter-ash);
+    letter-spacing: 0.1em;
+  }
+
+  /* ============================================
+     DIVIDERS
+     ============================================ */
+  .divider { border: none; border-top: var(--border-sketch); margin: var(--sp-12) 0; }
+
+  /* ============================================
+     RESPONSIVE
+     ============================================ */
+  @media (max-width: 768px) {
+    .two-col, .two-col-wide, .two-col-narrow,
+    .comparison, .swatch-featured, .voice-example { grid-template-columns: 1fr; }
+    .photo-grid { grid-template-columns: 1fr 1fr; }
+    .spectrum-row { grid-template-columns: 80px 1fr 80px; }
+    .principle { grid-template-columns: 60px 1fr; }
+    .cover-title { font-size: clamp(2.5rem, 8vw, 5rem); }
+  }
+
+</style>
+</head>
+<body>
+
+<div class="system-wrapper">
+
+  <!-- ========== COVER ========== -->
+  <div class="cover">
+    <div class="cover-stripe"></div>
+    <div class="cover-dot"></div>
+    <div class="cover-label">Brand & Design System · v2.0</div>
+    <h1 class="cover-title">COUNTERCART<em>The Counter</em></h1>
+    <p class="cover-subtitle">The complete brand system. Strategy, voice, visual identity, and implementation — everything needed to show up consistently everywhere the brand appears.</p>
+    <div class="cover-meta">February 2026 · Phoenixing LLC · Confidential</div>
+  </div>
+
+  <!-- ========== TABLE OF CONTENTS ========== -->
+  <nav class="toc">
+    <div class="toc-title">Contents</div>
+
+    <div class="toc-part">Part I — Brand Strategy</div>
+    <a class="toc-item" href="#story"><span class="toc-item-title">Brand Story</span><span class="toc-item-num">01</span></a>
+    <a class="toc-item" href="#personality"><span class="toc-item-title">Personality & Archetype</span><span class="toc-item-num">02</span></a>
+    <a class="toc-item" href="#audience"><span class="toc-item-title">Audience</span><span class="toc-item-num">03</span></a>
+    <a class="toc-item" href="#voice"><span class="toc-item-title">Voice & Tone</span><span class="toc-item-num">04</span></a>
+    <a class="toc-item" href="#messaging"><span class="toc-item-title">Messaging Framework</span><span class="toc-item-num">05</span></a>
+
+    <div class="toc-part">Part II — Visual Identity</div>
+    <a class="toc-item" href="#color"><span class="toc-item-title">Color System</span><span class="toc-item-num">06</span></a>
+    <a class="toc-item" href="#typography"><span class="toc-item-title">Typography</span><span class="toc-item-num">07</span></a>
+    <a class="toc-item" href="#logo"><span class="toc-item-title">Logo & Wordmark</span><span class="toc-item-num">08</span></a>
+    <a class="toc-item" href="#photography"><span class="toc-item-title">Photography & Imagery</span><span class="toc-item-num">09</span></a>
+    <a class="toc-item" href="#iconography"><span class="toc-item-title">Iconography</span><span class="toc-item-num">10</span></a>
+    <a class="toc-item" href="#textures"><span class="toc-item-title">Textures & Surfaces</span><span class="toc-item-num">11</span></a>
+
+    <div class="toc-part">Part III — Design System</div>
+    <a class="toc-item" href="#spacing"><span class="toc-item-title">Layout & Spacing</span><span class="toc-item-num">12</span></a>
+    <a class="toc-item" href="#components"><span class="toc-item-title">Components</span><span class="toc-item-num">13</span></a>
+    <a class="toc-item" href="#patterns"><span class="toc-item-title">Page Patterns</span><span class="toc-item-num">14</span></a>
+    <a class="toc-item" href="#motion"><span class="toc-item-title">Motion & Animation</span><span class="toc-item-num">15</span></a>
+    <a class="toc-item" href="#accessibility"><span class="toc-item-title">Accessibility</span><span class="toc-item-num">16</span></a>
+
+    <div class="toc-part">Part IV — Application</div>
+    <a class="toc-item" href="#social"><span class="toc-item-title">Social Media</span><span class="toc-item-num">17</span></a>
+    <a class="toc-item" href="#principles"><span class="toc-item-title">Design Principles</span><span class="toc-item-num">18</span></a>
+    <a class="toc-item" href="#guidelines"><span class="toc-item-title">Do's & Don'ts</span><span class="toc-item-num">19</span></a>
+    <a class="toc-item" href="#tokens"><span class="toc-item-title">CSS Token Reference</span><span class="toc-item-num">20</span></a>
+  </nav>
+
+  <!-- ================================================================
+       PART I — BRAND STRATEGY
+       ================================================================ -->
+  <div class="part-divider">
+    <div class="part-divider-label">Part I</div>
+    <div class="part-divider-title">BRAND STRATEGY</div>
+    <div class="part-divider-accent"></div>
+  </div>
+
+  <!-- ========== 01: BRAND STORY ========== -->
+  <section class="section" id="story">
+    <div class="section-number">01</div>
+    <div class="section-label">Origin</div>
+    <h2 class="section-heading">Brand Story</h2>
+    <div class="section-body">
+      <p>CounterCart exists because spending and values are usually in conflict. People buy coffee from companies they disagree with. They fill their carts at stores that don't reflect who they are. They feel it — the low hum of cognitive dissonance at checkout. CounterCart doesn't ask people to stop spending. It asks them to offset it.</p>
+
+      <p>The name says it: counter your cart. Every purchase can trigger a micro-donation to causes that matter. Not guilt — agency. Not punishment — participation. The round-up model is simple by design. Complexity is the enemy of follow-through.</p>
+
+      <p>CounterCart was born from the idea that consumer behavior is the largest untapped channel for social impact. Not because people don't care, but because caring is too hard. We make it automatic.</p>
+    </div>
+
+    <div class="callout callout-quote">
+      <div class="callout-bar"></div>
+      <div class="callout-text">You don't have to change how you shop. Just change what it means.</div>
+      <div class="callout-attr">— CounterCart positioning statement</div>
+    </div>
+
+    <div class="attr-grid">
+      <div class="attr-item">
+        <div class="attr-label">Mission</div>
+        <div class="attr-value">AUTOMATE GIVING</div>
+        <div class="attr-desc">Turn passive spending into active generosity through frictionless micro-donations.</div>
+      </div>
+      <div class="attr-item">
+        <div class="attr-label">Vision</div>
+        <div class="attr-value">EVERY PURCHASE COUNTS</div>
+        <div class="attr-desc">A world where every transaction carries a thread of intentional giving — where spending and values are never in conflict.</div>
+      </div>
+      <div class="attr-item">
+        <div class="attr-label">Promise</div>
+        <div class="attr-value">NO FRICTION. NO GUILT.</div>
+        <div class="attr-desc">We never shame, lecture, or moralize. We make participation effortless and transparent.</div>
+      </div>
+      <div class="attr-item">
+        <div class="attr-label">Position</div>
+        <div class="attr-value">THE OFFSET ENGINE</div>
+        <div class="attr-desc">Not a charity app. Not a spending tracker. The invisible layer between your wallet and your conscience.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 02: PERSONALITY ========== -->
+  <section class="section" id="personality">
+    <div class="section-number">02</div>
+    <div class="section-label">Character</div>
+    <h2 class="section-heading">Personality & Archetype</h2>
+    <div class="section-body">
+      <p>CounterCart sits at the intersection of two archetypes. The <strong>Outlaw</strong> — the one who sees the system clearly and refuses to accept it as-is. And the <strong>Everyperson</strong> — the one who believes change should be accessible to everyone, not just the privileged few. Together they form a brand personality that's sharp but not aggressive, opinionated but not preachy, and accessible without being bland.</p>
+    </div>
+
+    <div class="spectrum">
+      <div class="spectrum-row">
+        <span class="spectrum-label">Serious</span>
+        <div class="spectrum-track">
+          <div class="spectrum-fill" style="width: 60%;"></div>
+          <div class="spectrum-marker" style="left: calc(60% - 8px);"></div>
+        </div>
+        <span class="spectrum-label spectrum-label-right">Playful</span>
+      </div>
+      <div class="spectrum-row">
+        <span class="spectrum-label">Rebel</span>
+        <div class="spectrum-track">
+          <div class="spectrum-fill" style="width: 35%;"></div>
+          <div class="spectrum-marker" style="left: calc(35% - 8px);"></div>
+        </div>
+        <span class="spectrum-label spectrum-label-right">Conformist</span>
+      </div>
+      <div class="spectrum-row">
+        <span class="spectrum-label">Direct</span>
+        <div class="spectrum-track">
+          <div class="spectrum-fill" style="width: 25%;"></div>
+          <div class="spectrum-marker" style="left: calc(25% - 8px);"></div>
+        </div>
+        <span class="spectrum-label spectrum-label-right">Subtle</span>
+      </div>
+      <div class="spectrum-row">
+        <span class="spectrum-label">Warm</span>
+        <div class="spectrum-track">
+          <div class="spectrum-fill" style="width: 40%;"></div>
+          <div class="spectrum-marker" style="left: calc(40% - 8px);"></div>
+        </div>
+        <span class="spectrum-label spectrum-label-right">Cool</span>
+      </div>
+      <div class="spectrum-row">
+        <span class="spectrum-label">Minimal</span>
+        <div class="spectrum-track">
+          <div class="spectrum-fill" style="width: 30%;"></div>
+          <div class="spectrum-marker" style="left: calc(30% - 8px);"></div>
+        </div>
+        <span class="spectrum-label spectrum-label-right">Expressive</span>
+      </div>
+    </div>
+
+    <div class="attr-grid">
+      <div class="attr-item">
+        <div class="attr-label">We Are</div>
+        <div class="attr-value">CLEAR-EYED</div>
+        <div class="attr-desc">We acknowledge the tension between values and behavior without being preachy about it. We're honest about what spending means — and what it could mean.</div>
+      </div>
+      <div class="attr-item">
+        <div class="attr-label">We Are</div>
+        <div class="attr-value">UNFUSSY</div>
+        <div class="attr-desc">No jargon. No over-designed onboarding. No 12-step process. We're allergic to complexity. If the user has to think, we failed.</div>
+      </div>
+      <div class="attr-item">
+        <div class="attr-label">We Are</div>
+        <div class="attr-value">QUIETLY DEFIANT</div>
+        <div class="attr-desc">We're not screaming revolution — we're redirecting the plumbing. The system keeps running. The money just goes somewhere better now.</div>
+      </div>
+      <div class="attr-item">
+        <div class="attr-label">We Are Not</div>
+        <div class="attr-value">PIOUS</div>
+        <div class="attr-desc">We never lecture. We never guilt. We never imply that you're a bad person for buying things. We're here to make it easy, not to make it heavy.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 03: AUDIENCE ========== -->
+  <section class="section" id="audience">
+    <div class="section-number">03</div>
+    <div class="section-label">Who We Serve</div>
+    <h2 class="section-heading">Audience</h2>
+    <div class="section-body">
+      <p>Our primary audience is the <strong>conscious pragmatist</strong> — ages 25 to 45, digitally native, values-driven but busy. They donate when they remember. They feel a twinge when they see their Amazon order history. They want to do more but won't add another to-do list item. CounterCart is for the person who says "I care" but needs the path of least resistance to prove it.</p>
+    </div>
+
+    <div class="attr-grid">
+      <div class="attr-item">
+        <div class="attr-label">Primary</div>
+        <div class="attr-value">THE CONSCIOUS PRAGMATIST</div>
+        <div class="attr-desc">25–45. Urban or suburban. Makes $50K–$150K. Shops online heavily. Wants to align spending with values but has zero extra time. Responds to clarity and confidence, not guilt.</div>
+      </div>
+      <div class="attr-item">
+        <div class="attr-label">Secondary</div>
+        <div class="attr-value">THE QUIET GIVER</div>
+        <div class="attr-desc">35–60. Already donates to causes annually. Likes the idea of automating it so the giving happens without thinking. Values transparency in where the money goes.</div>
+      </div>
+      <div class="attr-item">
+        <div class="attr-label">Aspirational</div>
+        <div class="attr-value">THE NEXT-GEN ACTIVIST</div>
+        <div class="attr-desc">18–28. Views consumption as political. Shares causes on social. Drawn to brands with a clear point of view. Needs to see CounterCart as a tool for agency, not charity.</div>
+      </div>
+    </div>
+
+    <div class="callout-light">
+      <div class="callout-text"><strong>Key insight:</strong> Our audience doesn't think of themselves as "charitable donors." They're spenders who want their spending to mean something. Don't talk to them like philanthropists. Talk to them like people who buy coffee every day and wish it did more.</div>
+    </div>
+  </section>
+
+  <!-- ========== 04: VOICE & TONE ========== -->
+  <section class="section" id="voice">
+    <div class="section-number">04</div>
+    <div class="section-label">How We Speak</div>
+    <h2 class="section-heading">Voice & Tone</h2>
+    <div class="section-body">
+      <p>CounterCart's voice is <strong>direct, warm, and wry</strong>. We sound like a sharp friend who happens to know a lot about impact — not a nonprofit's annual report, and not a tech startup's landing page. We use short sentences. We prefer active voice. We never use jargon. We trust that our audience is smart enough to not need everything explained twice.</p>
+
+      <p>Tone shifts by context — onboarding is warmer and more encouraging, transactional moments are crisp and functional, and impact reports can be more narrative and reflective. But the voice stays the same: clear-eyed, confident, human.</p>
+    </div>
+
+    <div class="attr-grid">
+      <div class="attr-item">
+        <div class="attr-label">Vocabulary</div>
+        <div class="attr-value">SAY THIS</div>
+        <div class="attr-desc">Offset, redirect, plug in, round up, your causes, your change, counter your cart, give back, spend with purpose</div>
+      </div>
+      <div class="attr-item">
+        <div class="attr-label">Vocabulary</div>
+        <div class="attr-value">NEVER SAY</div>
+        <div class="attr-desc">Charitable giving, philanthropy, impact investment, optimize your giving, make a difference (™), empower, leverage, synergy, disruption</div>
+      </div>
+      <div class="attr-item">
+        <div class="attr-label">Sentence Style</div>
+        <div class="attr-value">SHORT. PUNCHY. DIRECT.</div>
+        <div class="attr-desc">Lead with the verb. Front-load the value. Max 15 words for headlines, max 25 for body sentences. If it needs a comma, it might need two sentences.</div>
+      </div>
+      <div class="attr-item">
+        <div class="attr-label">Point of View</div>
+        <div class="attr-value">SECOND PERSON</div>
+        <div class="attr-desc">Always "you" and "your." The user is the protagonist. We're the tool, not the hero. "Your spending. Your causes. Your terms."</div>
+      </div>
+    </div>
+
+    <div class="section-body" style="margin-top: var(--sp-8);">
+      <p><strong>Voice examples by context:</strong></p>
+    </div>
+
+    <div class="voice-example">
+      <div class="voice-dont">
+        <div class="voice-text">"Welcome to CounterCart! We're so excited you've joined our community of changemakers on a journey to make the world a better place through the power of micro-donations!"</div>
+      </div>
+      <div class="voice-do">
+        <div class="voice-text">"You're in. Link your bank, pick your causes, and your spending starts giving back. Takes about 90 seconds."</div>
+      </div>
+    </div>
+
+    <div class="voice-example">
+      <div class="voice-dont">
+        <div class="voice-text">"This month, our incredible community of generous donors has collectively contributed $12,847 to 43 amazing nonprofit organizations!"</div>
+      </div>
+      <div class="voice-do">
+        <div class="voice-text">"$12,847 redirected this month. 43 causes. All from rounding up your coffee orders and online carts."</div>
+      </div>
+    </div>
+
+    <div class="voice-example">
+      <div class="voice-dont">
+        <div class="voice-text">"Oops! It looks like something went wrong. Don't worry though — our team is on it and we'll have things back to normal in a jiffy! 😊"</div>
+      </div>
+      <div class="voice-do">
+        <div class="voice-text">"Something broke. We're fixing it. Your round-ups are paused until it's resolved — nothing gets charged in the meantime."</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 05: MESSAGING ========== -->
+  <section class="section" id="messaging">
+    <div class="section-number">05</div>
+    <div class="section-label">What We Say</div>
+    <h2 class="section-heading">Messaging Framework</h2>
+    <div class="section-body">
+      <p>Every piece of communication should be traceable to one of these core messages. If a headline, email, or social post doesn't map back to a pillar, cut it.</p>
+    </div>
+
+    <div class="attr-grid">
+      <div class="attr-item">
+        <div class="attr-label">Tagline</div>
+        <div class="attr-value">SPEND. OFFSET. GIVE BACK.</div>
+        <div class="attr-desc">Three verbs. Three steps. The entire brand in six words. Use on marketing, headers, marquees, and bios.</div>
+      </div>
+      <div class="attr-item">
+        <div class="attr-label">Elevator Pitch</div>
+        <div class="attr-value">30-SECOND VERSION</div>
+        <div class="attr-desc">CounterCart rounds up your everyday purchases and redirects the change to causes you choose. Link your bank, pick your causes, and your spending starts giving back — automatically.</div>
+      </div>
+    </div>
+
+    <div class="section-body" style="margin-top: var(--sp-8);">
+      <p><strong>Messaging pillars:</strong></p>
+    </div>
+
+    <div class="card-grid">
+      <div class="card card-accent">
+        <div class="card-heading">Effortless by Design</div>
+        <div class="card-body">Giving shouldn't require willpower. CounterCart makes it automatic so you don't have to remember, budget, or think about it. Your spending does the work.</div>
+      </div>
+      <div class="card card-accent">
+        <div class="card-heading">Your Values, Your Rules</div>
+        <div class="card-body">You pick the causes. You set the percentage. You review the ledger. CounterCart is the pipe — you decide where the water flows.</div>
+      </div>
+      <div class="card card-accent">
+        <div class="card-heading">Transparency, Always</div>
+        <div class="card-body">Every round-up is logged. Every donation is tracked. You can see exactly where every cent went, any time. No black boxes.</div>
+      </div>
+      <div class="card card-accent-blue">
+        <div class="card-heading">Not Guilt — Agency</div>
+        <div class="card-body">We don't shame you for shopping. We give you a tool to make shopping count for something. Buy what you buy. The offset handles the rest.</div>
+      </div>
+    </div>
+
+    <div class="section-body" style="margin-top: var(--sp-8);">
+      <p><strong>Headline bank</strong> — approved headlines for use across marketing, ads, and product:</p>
+    </div>
+
+    <div class="callout-light">
+      <div class="callout-text">
+        "Your spending, redirected." · "Round up. Give back." · "The offset engine for everyday spending." · "Buy coffee. Fund change." · "Counter your cart." · "What if every purchase gave back?" · "Set it. Forget it. Fund it." · "No guilt. No signup forms. Just round-ups." · "Your change, literally." · "Spending is inevitable. Wasting it isn't."
+      </div>
+    </div>
+  </section>
+
+  <!-- ================================================================
+       PART II — VISUAL IDENTITY
+       ================================================================ -->
+  <div class="part-divider">
+    <div class="part-divider-label">Part II</div>
+    <div class="part-divider-title">VISUAL IDENTITY</div>
+    <div class="part-divider-accent"></div>
+  </div>
+
+  <!-- ========== 06: COLOR SYSTEM ========== -->
+  <section class="section" id="color">
+    <div class="section-number">06</div>
+    <div class="section-label">Palette</div>
+    <h2 class="section-heading">Color System</h2>
+    <div class="section-body">
+      <p>The Counter palette is four colors. Yellow and powder blue do the accent work. Ink and paper do everything else. This is a two-color poster system — Reid Miles proved at Blue Note Records that constraint produces icons. Color is <strong>earned, not scattered</strong>. Paper and ink carry 80% of the visual weight. Yellow and blue appear at decisive moments: a CTA, a stripe, a header accent, a badge.</p>
+    </div>
+
+    <!-- Featured Core Four -->
+    <div class="swatch-featured">
+      <div class="swatch-big">
+        <div class="swatch-big-color" style="background: var(--counter-yellow);">
+          <span class="swatch-big-label" style="color: var(--counter-ink);">YELLOW</span>
+        </div>
+        <div class="swatch-big-info">
+          <span class="swatch-big-name">Counter Yellow</span>
+          <span class="swatch-big-hex">#E2C230</span>
+        </div>
+      </div>
+      <div class="swatch-big">
+        <div class="swatch-big-color" style="background: var(--counter-blue);">
+          <span class="swatch-big-label" style="color: var(--counter-ink);">BLUE</span>
+        </div>
+        <div class="swatch-big-info">
+          <span class="swatch-big-name">Counter Blue</span>
+          <span class="swatch-big-hex">#8BB8CC</span>
+        </div>
+      </div>
+      <div class="swatch-big">
+        <div class="swatch-big-color" style="background: var(--counter-paper);">
+          <span class="swatch-big-label" style="color: var(--counter-ink);">PAPER</span>
+        </div>
+        <div class="swatch-big-info">
+          <span class="swatch-big-name">Counter Paper</span>
+          <span class="swatch-big-hex">#F0EBE0</span>
+        </div>
+      </div>
+      <div class="swatch-big">
+        <div class="swatch-big-color" style="background: var(--counter-ink);">
+          <span class="swatch-big-label" style="color: var(--counter-paper);">INK</span>
+        </div>
+        <div class="swatch-big-info">
+          <span class="swatch-big-name">Counter Ink</span>
+          <span class="swatch-big-hex">#0A0A0A</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Usage ratio -->
+    <div class="section-body" style="margin-top: var(--sp-6);">
+      <p><strong>Usage ratio:</strong> This bar shows the intended proportion of color across any given screen or composition.</p>
+    </div>
+
+    <div class="ratio-bar">
+      <div class="ratio-bar-segment" style="flex: 45; background: var(--counter-paper); color: var(--counter-ink);">Paper 45%</div>
+      <div class="ratio-bar-segment" style="flex: 35; background: var(--counter-ink); color: var(--counter-paper);">Ink 35%</div>
+      <div class="ratio-bar-segment" style="flex: 12; background: var(--counter-yellow); color: var(--counter-ink);">Yellow 12%</div>
+      <div class="ratio-bar-segment" style="flex: 8; background: var(--counter-blue); color: var(--counter-ink);">Blue 8%</div>
+    </div>
+
+    <!-- Extended Neutrals -->
+    <div class="section-body" style="margin-top: var(--sp-8);">
+      <p><strong>Extended neutrals:</strong> Derived from ink and paper for UI depth — borders, disabled states, metadata text, and backgrounds.</p>
+    </div>
+
+    <div class="swatch-grid">
+      <div class="swatch"><div class="swatch-color" style="background: var(--counter-black);"></div><div class="swatch-info"><span class="swatch-name">Black</span><span class="swatch-hex">#050505</span></div></div>
+      <div class="swatch"><div class="swatch-color" style="background: var(--counter-charcoal);"></div><div class="swatch-info"><span class="swatch-name">Charcoal</span><span class="swatch-hex">#1E1E1E</span></div></div>
+      <div class="swatch"><div class="swatch-color" style="background: var(--counter-graphite);"></div><div class="swatch-info"><span class="swatch-name">Graphite</span><span class="swatch-hex">#333333</span></div></div>
+      <div class="swatch"><div class="swatch-color" style="background: var(--counter-smoke);"></div><div class="swatch-info"><span class="swatch-name">Smoke</span><span class="swatch-hex">#5A5A52</span></div></div>
+      <div class="swatch"><div class="swatch-color" style="background: var(--counter-ash);"></div><div class="swatch-info"><span class="swatch-name">Ash</span><span class="swatch-hex">#8A857C</span></div></div>
+      <div class="swatch"><div class="swatch-color" style="background: var(--counter-parchment);"></div><div class="swatch-info"><span class="swatch-name">Parchment</span><span class="swatch-hex">#E4DDD0</span></div></div>
+      <div class="swatch"><div class="swatch-color" style="background: var(--counter-cream);"></div><div class="swatch-info"><span class="swatch-name">Cream</span><span class="swatch-hex">#F0EBE0</span></div></div>
+      <div class="swatch"><div class="swatch-color" style="background: var(--counter-white);"></div><div class="swatch-info"><span class="swatch-name">White</span><span class="swatch-hex">#FAF8F2</span></div></div>
+    </div>
+
+    <div class="callout-light">
+      <div class="callout-text"><strong>The sign-painter rule:</strong> If a sign painter with only two ink colors (yellow and blue) plus their paper and a marker wouldn't use it — neither do we. Color is applied in confident fields, not sprinkled. A yellow CTA button. A blue accent stripe on a card. A 4px yellow bar at the bottom of a hero. Never confetti.</div>
+    </div>
+  </section>
+
+  <!-- ========== 07: TYPOGRAPHY ========== -->
+  <section class="section" id="typography">
+    <div class="section-number">07</div>
+    <div class="section-label">Type</div>
+    <h2 class="section-heading">Typography</h2>
+    <div class="section-body">
+      <p>Four typefaces, each with a clear role. Anton is the poster voice — always uppercase, always bold, always big. Courier Prime is the workhorse — all body text, UI labels, captions. Special Elite is the character moment — sparingly used for atmospheric flavor. Libre Baskerville is for long-form editorial only.</p>
+    </div>
+
+    <!-- Anton -->
+    <div class="type-specimen">
+      <span class="type-specimen-label">Display</span>
+      <div class="type-specimen-display font-display" style="font-size: var(--fs-4xl); color: var(--counter-ink);">
+        SPEND. OFFSET.<br>GIVE BACK.
+      </div>
+      <div class="type-specimen-meta">Anton · Always uppercase · Headlines, hero text, section headings, poster moments · Weight: 400 only</div>
+    </div>
+
+    <!-- Courier Prime -->
+    <div class="type-specimen">
+      <span class="type-specimen-label">Body</span>
+      <div class="type-specimen-display font-body" style="font-size: var(--fs-lg); color: var(--counter-ink);">
+        Your spending, redirected. Every round-up<br>goes to causes you choose.
+      </div>
+      <div class="type-specimen-meta">Courier Prime · All body copy, UI text, buttons, labels, navigation · Weights: 400, 700 · Italic available</div>
+    </div>
+
+    <!-- Special Elite -->
+    <div class="type-specimen">
+      <span class="type-specimen-label">Accent</span>
+      <div class="type-specimen-display font-typewriter" style="font-size: var(--fs-lg); color: var(--counter-ink);">
+        est. 2026 — from the people who buy too much coffee
+      </div>
+      <div class="type-specimen-meta">Special Elite · Atmospheric labels, datelines, legal footnotes, nostalgic moments · Use sparingly — flavor, not foundation</div>
+    </div>
+
+    <!-- Libre Baskerville -->
+    <div class="type-specimen">
+      <span class="type-specimen-label">Editorial</span>
+      <div class="type-specimen-display font-editorial" style="font-size: var(--fs-lg); color: var(--counter-ink); font-style: italic;">
+        "The best kind of giving is the kind you don't have to remember to do."
+      </div>
+      <div class="type-specimen-meta">Libre Baskerville · Long-form blog posts, impact stories, pull quotes · Never in UI · Weights: 400, 700, Italic</div>
+    </div>
+
+    <!-- Type Scale -->
+    <div class="section-body" style="margin-top: var(--sp-8);">
+      <p><strong>Type scale</strong> — 1.333 ratio (perfect fourth). Anton for display sizes, Courier Prime for body sizes.</p>
+    </div>
+
+    <div>
+      <div class="scale-row"><span class="scale-label">hero</span><span class="scale-sample font-display" style="font-size: clamp(2rem, 4vw, var(--fs-hero));">HERO</span><span class="scale-size">7.478rem</span></div>
+      <div class="scale-row"><span class="scale-label">5xl</span><span class="scale-sample font-display" style="font-size: var(--fs-5xl);">DISPLAY</span><span class="scale-size">5.61rem</span></div>
+      <div class="scale-row"><span class="scale-label">4xl</span><span class="scale-sample font-display" style="font-size: var(--fs-4xl);">TITLE</span><span class="scale-size">4.209rem</span></div>
+      <div class="scale-row"><span class="scale-label">3xl</span><span class="scale-sample font-display" style="font-size: var(--fs-3xl);">HEADING</span><span class="scale-size">3.157rem</span></div>
+      <div class="scale-row"><span class="scale-label">2xl</span><span class="scale-sample font-display" style="font-size: var(--fs-2xl);">SUBHEAD</span><span class="scale-size">2.369rem</span></div>
+      <div class="scale-row"><span class="scale-label">xl</span><span class="scale-sample font-display" style="font-size: var(--fs-xl);">SECTION</span><span class="scale-size">1.777rem</span></div>
+      <div class="scale-row"><span class="scale-label">lg</span><span class="scale-sample font-body" style="font-size: var(--fs-lg); font-weight: 700;">Card heading</span><span class="scale-size">1.333rem</span></div>
+      <div class="scale-row"><span class="scale-label">base</span><span class="scale-sample font-body" style="font-size: var(--fs-base);">Standard body copy</span><span class="scale-size">1rem</span></div>
+      <div class="scale-row"><span class="scale-label">sm</span><span class="scale-sample font-body" style="font-size: var(--fs-sm);">Supporting text and captions</span><span class="scale-size">0.875rem</span></div>
+      <div class="scale-row"><span class="scale-label">xs</span><span class="scale-sample font-body" style="font-size: var(--fs-xs); text-transform: uppercase; letter-spacing: 0.3em;">LABELS AND METADATA</span><span class="scale-size">0.75rem</span></div>
+    </div>
+  </section>
+
+  <!-- ========== 08: LOGO ========== -->
+  <section class="section" id="logo">
+    <div class="section-number">08</div>
+    <div class="section-label">Mark</div>
+    <h2 class="section-heading">Logo & Wordmark</h2>
+    <div class="section-body">
+      <p>The CounterCart logo is a wordmark — Anton uppercase, with a small yellow icon square (the "counter" mark). The icon contains a recirculation symbol (↻) representing the round-up loop: spend, offset, return. The wordmark must always be set in Anton. No alterations, no substitutions, no lowercase.</p>
+    </div>
+
+    <!-- Logo Lockups -->
+    <div class="logo-lockup-grid">
+      <div class="logo-lockup" style="background: var(--counter-paper);">
+        <div class="logo-demo">
+          <div class="logo-icon">↻</div>
+          <div class="logo-text">COUNTERCART</div>
+        </div>
+        <div class="logo-lockup-label">Primary — on paper</div>
+      </div>
+      <div class="logo-lockup" style="background: var(--counter-ink);">
+        <div class="logo-demo">
+          <div class="logo-icon">↻</div>
+          <div class="logo-text" style="color: var(--counter-paper);">COUNTERCART</div>
+        </div>
+        <div class="logo-lockup-label" style="color: var(--counter-smoke);">Primary — on ink</div>
+      </div>
+      <div class="logo-lockup" style="background: var(--counter-paper);">
+        <div class="logo-demo">
+          <div class="logo-icon" style="background: var(--counter-ink); color: var(--counter-paper);">↻</div>
+          <div class="logo-text">COUNTERCART</div>
+        </div>
+        <div class="logo-lockup-label">Monochrome — on paper</div>
+      </div>
+      <div class="logo-lockup" style="background: var(--counter-yellow);">
+        <div class="logo-demo">
+          <div class="logo-icon" style="background: var(--counter-ink); color: var(--counter-yellow);">↻</div>
+          <div class="logo-text">COUNTERCART</div>
+        </div>
+        <div class="logo-lockup-label">On yellow field</div>
+      </div>
+    </div>
+
+    <div class="callout-light">
+      <div class="callout-text"><strong>Clear space:</strong> Minimum clear space around the logo is equal to the height of the icon mark. Never crowd the logo against edges, other logos, or body text. The logo should breathe — like everything else in this system.</div>
+    </div>
+
+    <div class="section-body" style="margin-top: var(--sp-6);">
+      <p><strong>Do not:</strong> Set the wordmark in any font other than Anton. Place the logo on busy backgrounds. Stretch, rotate, or add effects. Use the icon without the wordmark in external-facing contexts (icon-only is acceptable in-app after brand recognition is established).</p>
+    </div>
+  </section>
+
+  <!-- ========== 09: PHOTOGRAPHY ========== -->
+  <section class="section" id="photography">
+    <div class="section-number">09</div>
+    <div class="section-label">Imagery</div>
+    <h2 class="section-heading">Photography & Imagery</h2>
+    <div class="section-body">
+      <p>Photography is the exception, not the rule. The CounterCart visual system is typographic and flat-color first. When photography is used, it follows strict guidelines: high contrast, candid over posed, and always treated with a warm desaturation that matches the paper palette. We don't use stock-photo smiles. We don't show hands holding phones. We show the world as it is — everyday commerce, urban texture, real people in real contexts.</p>
+    </div>
+
+    <div class="photo-grid">
+      <div class="photo-placeholder" style="background: var(--counter-parchment);">
+        <div class="photo-placeholder-icon">☕</div>
+        <div class="photo-placeholder-text">Everyday Commerce</div>
+        <div class="photo-placeholder-desc">Coffee shops, grocery runs, street vendors. The mundane moments where spending happens.</div>
+      </div>
+      <div class="photo-placeholder" style="background: var(--counter-ink); color: var(--counter-parchment);">
+        <div class="photo-placeholder-icon">◐</div>
+        <div class="photo-placeholder-text">High Contrast B&W</div>
+        <div class="photo-placeholder-desc">When used, black and white is preferred. High contrast, deep blacks, bright whites. Blue Note energy.</div>
+      </div>
+      <div class="photo-placeholder" style="background: var(--counter-parchment);">
+        <div class="photo-placeholder-icon">⬡</div>
+        <div class="photo-placeholder-text">Urban Texture</div>
+        <div class="photo-placeholder-desc">Brick walls, transit signs, crosswalks. The built environment as backdrop — never nature stock photos.</div>
+      </div>
+    </div>
+
+    <div class="attr-grid">
+      <div class="attr-item">
+        <div class="attr-label">Treatment</div>
+        <div class="attr-value">WARM DESATURATED</div>
+        <div class="attr-desc">Reduce saturation 40%. Warm the shadows. Lift the blacks slightly to match the cream paper. Add 2% grain overlay. The photo should feel printed, not digital.</div>
+      </div>
+      <div class="attr-item">
+        <div class="attr-label">Composition</div>
+        <div class="attr-value">CANDID OVER POSED</div>
+        <div class="attr-desc">Hands in motion. Cropped tight. Off-center subjects. No one looking at the camera. No staged diversity circles. Real moments, imperfectly captured.</div>
+      </div>
+      <div class="attr-item">
+        <div class="attr-label">Avoid</div>
+        <div class="attr-value">STOCK ENERGY</div>
+        <div class="attr-desc">No smiling-at-laptop. No high-fives. No tech-company-in-a-glass-office. No hands forming a circle. No aerial drone shots of nature. If it feels like a LinkedIn banner, reject it.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 10: ICONOGRAPHY ========== -->
+  <section class="section" id="iconography">
+    <div class="section-number">10</div>
+    <div class="section-label">Icons</div>
+    <h2 class="section-heading">Iconography</h2>
+    <div class="section-body">
+      <p>CounterCart uses a minimal icon set. Icons are monoline, 2px stroke, square-cornered, and always set in ink color. No filled icons. No colorful icons. No emoji substitutions. Icons are functional — they clarify UI actions, not decorate. When in doubt, use a word instead. Typography always wins over iconography in this system.</p>
+    </div>
+
+    <div class="icon-grid">
+      <div class="icon-item"><span class="icon-glyph">↻</span><span class="icon-name">Round-up</span></div>
+      <div class="icon-item"><span class="icon-glyph">→</span><span class="icon-name">Navigate</span></div>
+      <div class="icon-item"><span class="icon-glyph">↗</span><span class="icon-name">External</span></div>
+      <div class="icon-item"><span class="icon-glyph">☰</span><span class="icon-name">Menu</span></div>
+      <div class="icon-item"><span class="icon-glyph">✕</span><span class="icon-name">Close</span></div>
+      <div class="icon-item"><span class="icon-glyph">⊕</span><span class="icon-name">Add</span></div>
+      <div class="icon-item"><span class="icon-glyph">◉</span><span class="icon-name">Active</span></div>
+      <div class="icon-item"><span class="icon-glyph">◇</span><span class="icon-name">Cause</span></div>
+      <div class="icon-item"><span class="icon-glyph">▤</span><span class="icon-name">Ledger</span></div>
+      <div class="icon-item"><span class="icon-glyph">⚙</span><span class="icon-name">Settings</span></div>
+    </div>
+
+    <div class="callout-light">
+      <div class="callout-text"><strong>Icon rule:</strong> If a text label can do the job, skip the icon. Icons supplement copy — they never replace it. The only exception is the recirculation glyph (↻) which can stand alone in the app header as the CounterCart mark.</div>
+    </div>
+  </section>
+
+  <!-- ========== 11: TEXTURES ========== -->
+  <section class="section" id="textures">
+    <div class="section-number">11</div>
+    <div class="section-label">Materiality</div>
+    <h2 class="section-heading">Textures & Surfaces</h2>
+    <div class="section-body">
+      <p>Flat color is the default. Texture is applied at low opacity to add warmth — the tooth of paper, not a pattern. Color appears as accent stripes and bars, not full backgrounds. The dominant surface is always paper or ink.</p>
+    </div>
+
+    <div class="texture-grid">
+      <div class="texture-sample texture-paper"><span class="texture-label">Paper (default bg)</span></div>
+      <div class="texture-sample texture-yellow-accent"><span class="texture-label">Yellow Stripe</span></div>
+      <div class="texture-sample texture-blue-accent"><span class="texture-label">Blue Bar</span></div>
+      <div class="texture-sample texture-ink-solid"><span class="texture-label">Ink Solid</span></div>
+      <div class="texture-sample texture-grain"><span class="texture-label">Paper Grain</span></div>
+      <div class="texture-sample texture-newsprint"><span class="texture-label">Newsprint Dot</span></div>
+    </div>
+
+    <div class="callout-light">
+      <div class="callout-text"><strong>Surface hierarchy:</strong> Paper → Ink → Yellow accent (stripe/bar/badge) → Blue accent (stripe/bar/badge). Yellow and blue never fill entire sections. They appear as 4px–8px stripes, card borders, small badges, or CTA buttons. Paper does 80% of the background work.</div>
+    </div>
+  </section>
+
+  <!-- ================================================================
+       PART III — DESIGN SYSTEM
+       ================================================================ -->
+  <div class="part-divider">
+    <div class="part-divider-label">Part III</div>
+    <div class="part-divider-title">DESIGN SYSTEM</div>
+    <div class="part-divider-accent"></div>
+  </div>
+
+  <!-- ========== 12: SPACING ========== -->
+  <section class="section" id="spacing">
+    <div class="section-number">12</div>
+    <div class="section-label">Rhythm</div>
+    <h2 class="section-heading">Layout & Spacing</h2>
+    <div class="section-body">
+      <p>Generous whitespace between sections. Tight spacing within components. Content stays narrow (65ch max) while accent elements can go full-bleed. Asymmetric splits (7/5, 8/4) are preferred over equal columns. The 8px base unit scales through the system.</p>
+    </div>
+
+    <div class="spacing-demo">
+      <div class="spacing-bar-row"><span class="spacing-bar-label">sp-1</span><div class="spacing-bar" style="width: 4px;"></div><span class="spacing-bar-value">4px</span></div>
+      <div class="spacing-bar-row"><span class="spacing-bar-label">sp-2</span><div class="spacing-bar" style="width: 8px;"></div><span class="spacing-bar-value">8px</span></div>
+      <div class="spacing-bar-row"><span class="spacing-bar-label">sp-4</span><div class="spacing-bar" style="width: 16px;"></div><span class="spacing-bar-value">16px</span></div>
+      <div class="spacing-bar-row"><span class="spacing-bar-label">sp-8</span><div class="spacing-bar" style="width: 32px;"></div><span class="spacing-bar-value">32px</span></div>
+      <div class="spacing-bar-row"><span class="spacing-bar-label">sp-12</span><div class="spacing-bar" style="width: 48px;"></div><span class="spacing-bar-value">48px</span></div>
+      <div class="spacing-bar-row"><span class="spacing-bar-label">sp-16</span><div class="spacing-bar" style="width: 64px;"></div><span class="spacing-bar-value">64px</span></div>
+      <div class="spacing-bar-row"><span class="spacing-bar-label">sp-24</span><div class="spacing-bar" style="width: 96px;"></div><span class="spacing-bar-value">96px</span></div>
+      <div class="spacing-bar-row"><span class="spacing-bar-label">sp-32</span><div class="spacing-bar" style="width: 128px;"></div><span class="spacing-bar-value">128px</span></div>
+      <div class="spacing-bar-row"><span class="spacing-bar-label">sp-48</span><div class="spacing-bar" style="width: 192px;"></div><span class="spacing-bar-value">192px</span></div>
+    </div>
+
+    <div class="section-body" style="margin-top: var(--sp-6);">
+      <p><strong>Layout rules:</strong> Max content width 1200px. Body text max 65ch. 12-column fluid grid with asymmetric splits preferred. Section padding sp-24 minimum. Accent stripes and bars break the grid and go edge-to-edge. Inner component spacing uses sp-4 through sp-8.</p>
+    </div>
+  </section>
+
+  <!-- ========== 13: COMPONENTS ========== -->
+  <section class="section" id="components">
+    <div class="section-number">13</div>
+    <div class="section-label">Building Blocks</div>
+    <h2 class="section-heading">Components</h2>
+
+    <!-- Nav Light -->
+    <div class="showcase">
+      <div class="showcase-label">Navigation — Light</div>
+      <nav class="nav-demo">
+        <a class="nav-logo" href="#"><span class="nav-logo-icon">↻</span>CounterCart</a>
+        <ul class="nav-links">
+          <li><a class="nav-link" href="#">How It Works</a></li>
+          <li><a class="nav-link" href="#">Causes</a></li>
+          <li><a class="nav-link" href="#">Pricing</a></li>
+        </ul>
+        <a class="nav-cta" href="#">Get Started</a>
+      </nav>
+    </div>
+
+    <!-- Nav Dark -->
+    <div class="showcase">
+      <div class="showcase-label">Navigation — Dark</div>
+      <nav class="nav-demo nav-demo-dark">
+        <a class="nav-logo" href="#"><span class="nav-logo-icon">↻</span>CounterCart</a>
+        <ul class="nav-links">
+          <li><a class="nav-link" href="#">How It Works</a></li>
+          <li><a class="nav-link" href="#">Causes</a></li>
+          <li><a class="nav-link" href="#">Pricing</a></li>
+        </ul>
+        <a class="nav-cta" href="#">Get Started</a>
+      </nav>
+    </div>
+
+    <!-- Marquee — ink bg, not yellow -->
+    <div class="showcase">
+      <div class="showcase-label">Marquee Banner</div>
+      <div class="marquee-demo">
+        <div class="marquee-track">
+          <span class="marquee-item">SPEND. OFFSET. GIVE BACK.</span><span class="marquee-dot">●</span>
+          <span class="marquee-item">$47,293 REDIRECTED THIS MONTH</span><span class="marquee-dot">●</span>
+          <span class="marquee-item">YOUR SPENDING, YOUR CAUSES</span><span class="marquee-dot">●</span>
+          <span class="marquee-item">SPEND. OFFSET. GIVE BACK.</span><span class="marquee-dot">●</span>
+          <span class="marquee-item">$47,293 REDIRECTED THIS MONTH</span><span class="marquee-dot">●</span>
+          <span class="marquee-item">YOUR SPENDING, YOUR CAUSES</span><span class="marquee-dot">●</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Buttons -->
+    <div class="showcase">
+      <div class="showcase-label">Buttons</div>
+      <div class="showcase-row">
+        <button class="btn btn-primary">Plug In</button>
+        <button class="btn btn-secondary">Learn More</button>
+        <button class="btn btn-accent">Check Ledger</button>
+        <button class="btn btn-ghost">See how it works →</button>
+      </div>
+    </div>
+
+    <!-- Badges -->
+    <div class="showcase">
+      <div class="showcase-label">Badges & Tags</div>
+      <div class="showcase-row">
+        <span class="badge badge-dark">Premium</span>
+        <span class="badge badge-outline">Environment</span>
+        <span class="badge badge-yellow">New</span>
+        <span class="badge badge-blue">Active</span>
+        <span class="badge badge-outline" style="color: var(--counter-error); border-color: var(--counter-error);">Pending</span>
+      </div>
+    </div>
+
+    <!-- Inputs -->
+    <div class="showcase">
+      <div class="showcase-label">Form Inputs</div>
+      <div class="input-demo">
+        <label class="beat-label">Email address</label>
+        <input class="beat-input" type="email" placeholder="you@countercart.com">
+      </div>
+      <div class="input-demo">
+        <label class="beat-label">Round-up amount</label>
+        <input class="beat-input" type="text" placeholder="$0.50">
+      </div>
+    </div>
+
+    <!-- Cards — accent stripe preferred over full color bg -->
+    <div class="showcase">
+      <div class="showcase-label">Cards — Paper with Accent Stripes (preferred)</div>
+      <div class="card-grid">
+        <div class="card card-accent">
+          <div class="card-number">01</div>
+          <div class="card-heading">Connect</div>
+          <div class="card-body">Link your bank with Plaid. Read-only access — we see transactions, never touch your money.</div>
+        </div>
+        <div class="card card-accent">
+          <div class="card-number">02</div>
+          <div class="card-heading">Choose</div>
+          <div class="card-body">Pick your causes. Veterans? Food banks? Climate? Your values, your choice.</div>
+        </div>
+        <div class="card card-accent-blue">
+          <div class="card-number">03</div>
+          <div class="card-heading">Offset</div>
+          <div class="card-body">Every purchase rounds up. The change goes where you decide. Review weekly or automate it.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="showcase">
+      <div class="showcase-label">Cards — Dark</div>
+      <div class="card-grid">
+        <div class="card card-dark">
+          <div class="card-number">01</div>
+          <div class="card-heading">Connect</div>
+          <div class="card-body">Link your bank with Plaid. Read-only access — we see transactions, never touch your money.</div>
+        </div>
+        <div class="card card-dark" style="border-left: 4px solid var(--counter-yellow);">
+          <div class="card-number">02</div>
+          <div class="card-heading">Choose</div>
+          <div class="card-body">Pick your causes. Veterans? Food banks? Climate? Your values, your choice.</div>
+        </div>
+        <div class="card card-dark" style="border-left: 4px solid var(--counter-blue);">
+          <div class="card-number">03</div>
+          <div class="card-heading">Offset</div>
+          <div class="card-body">Every purchase rounds up. The change goes where you decide. Review weekly or automate it.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 14: PAGE PATTERNS ========== -->
+  <section class="section" id="patterns">
+    <div class="section-number">14</div>
+    <div class="section-label">Compositions</div>
+    <h2 class="section-heading">Page Patterns</h2>
+    <div class="section-body">
+      <p>The hero section demonstrates full system execution. Ink background, oversized ghost typography, yellow accent bar at the bottom — not a full yellow section. Paper/ink dominates. Color is earned at decisive moments: the yellow CTA, the 4px bottom stripe.</p>
+    </div>
+  </section>
+
+  <!-- Hero Demo -->
+  <div class="hero-demo">
+    <span class="hero-eyebrow">Turn spending habits into</span>
+    <h2 class="hero-headline">GIVING<br><em>HABITS.</em></h2>
+    <p class="hero-body">Maybe it's a guilty pleasure. Maybe it's a company that doesn't share your values. Either way — CounterCart lets you offset your spending with donations to causes you choose.</p>
+    <div class="hero-actions">
+      <a class="btn btn-primary" href="#">Plug in →</a>
+      <a class="btn btn-ghost" href="#" style="color: var(--counter-parchment); border-color: var(--counter-parchment);">See how it works →</a>
+    </div>
+  </div>
+
+  <!-- ========== 15: MOTION ========== -->
+  <section class="section" id="motion">
+    <div class="section-number">15</div>
+    <div class="section-label">Movement</div>
+    <h2 class="section-heading">Motion & Animation</h2>
+    <div class="section-body">
+      <p>Motion should feel physical — like paper sliding or ink pressing. The easing curve is <code>cubic-bezier(0.23, 1, 0.32, 1)</code>: a fast start that decelerates smoothly, like setting a book down on a table. No bouncing. No elastic. No particle effects. Three approved motion patterns:</p>
+    </div>
+
+    <div class="motion-grid">
+      <div class="motion-demo">
+        <div class="motion-box motion-box-slide"></div>
+        <div class="motion-name">Slide (hover me)</div>
+      </div>
+      <div class="motion-demo">
+        <div class="motion-box motion-box-lift"></div>
+        <div class="motion-name">Lift + Shadow</div>
+      </div>
+      <div class="motion-demo">
+        <div class="motion-box motion-box-fade"></div>
+        <div class="motion-name">Fade</div>
+      </div>
+    </div>
+
+    <div class="attr-grid">
+      <div class="attr-item">
+        <div class="attr-label">Duration</div>
+        <div class="attr-value">FAST: 150MS</div>
+        <div class="attr-desc">Hover states, focus rings, input changes. Immediate feedback for micro-interactions.</div>
+      </div>
+      <div class="attr-item">
+        <div class="attr-label">Duration</div>
+        <div class="attr-value">MID: 300MS</div>
+        <div class="attr-desc">Card lifts, button presses, nav hovers. The standard interaction speed.</div>
+      </div>
+      <div class="attr-item">
+        <div class="attr-label">Duration</div>
+        <div class="attr-value">SLOW: 600MS</div>
+        <div class="attr-desc">Page transitions, hero reveals, section fades. Reserved for significant state changes.</div>
+      </div>
+    </div>
+
+    <div class="callout-light">
+      <div class="callout-text"><strong>Motion rule:</strong> If the animation draws attention to itself, it's too much. Motion should serve comprehension, not decoration. The marquee scrolls because the content is dynamic. The card lifts because the user needs affordance. Nothing moves for fun.</div>
+    </div>
+  </section>
+
+  <!-- ========== 16: ACCESSIBILITY ========== -->
+  <section class="section" id="accessibility">
+    <div class="section-number">16</div>
+    <div class="section-label">Inclusion</div>
+    <h2 class="section-heading">Accessibility</h2>
+    <div class="section-body">
+      <p>Every color pairing in the system must meet WCAG AA minimum contrast ratios. The warm neutrals were selected specifically to maintain legibility while preserving the vintage aesthetic. Focus states use the yellow accent as an outline. All interactive elements must be keyboard-navigable.</p>
+    </div>
+
+    <div class="a11y-grid">
+      <div class="a11y-pair">
+        <div class="a11y-sample" style="background: var(--counter-paper); color: var(--counter-ink);">Ink on Paper</div>
+        <div class="a11y-info"><span>15.2:1</span><span class="a11y-pass">AAA ✓</span></div>
+      </div>
+      <div class="a11y-pair">
+        <div class="a11y-sample" style="background: var(--counter-ink); color: var(--counter-paper);">Paper on Ink</div>
+        <div class="a11y-info"><span>15.2:1</span><span class="a11y-pass">AAA ✓</span></div>
+      </div>
+      <div class="a11y-pair">
+        <div class="a11y-sample" style="background: var(--counter-yellow); color: var(--counter-ink);">Ink on Yellow</div>
+        <div class="a11y-info"><span>9.8:1</span><span class="a11y-pass">AAA ✓</span></div>
+      </div>
+      <div class="a11y-pair">
+        <div class="a11y-sample" style="background: var(--counter-paper); color: var(--counter-smoke);">Smoke on Paper</div>
+        <div class="a11y-info"><span>4.8:1</span><span class="a11y-pass">AA ✓</span></div>
+      </div>
+      <div class="a11y-pair">
+        <div class="a11y-sample" style="background: var(--counter-ink); color: var(--counter-ash);">Ash on Ink</div>
+        <div class="a11y-info"><span>5.1:1</span><span class="a11y-pass">AA ✓</span></div>
+      </div>
+      <div class="a11y-pair">
+        <div class="a11y-sample" style="background: var(--counter-blue); color: var(--counter-ink);">Ink on Blue</div>
+        <div class="a11y-info"><span>7.4:1</span><span class="a11y-pass">AAA ✓</span></div>
+      </div>
+    </div>
+
+    <div class="section-body" style="margin-top: var(--sp-6);">
+      <p><strong>Focus states:</strong> All focusable elements receive a 3px yellow outline offset by 2px. Buttons show the shadow-ink lift on focus. Inputs shift their border to yellow. The grain overlay uses <code>pointer-events: none</code> so it never intercepts clicks or focus.</p>
+
+      <p><strong>Motion sensitivity:</strong> Respect <code>prefers-reduced-motion</code>. The marquee should stop. Card lifts should be instant. Page transitions should be immediate. Only the grain overlay (static, non-moving) persists.</p>
+    </div>
+  </section>
+
+  <!-- ================================================================
+       PART IV — APPLICATION
+       ================================================================ -->
+  <div class="part-divider">
+    <div class="part-divider-label">Part IV</div>
+    <div class="part-divider-title">APPLICATION</div>
+    <div class="part-divider-accent"></div>
+  </div>
+
+  <!-- ========== 17: SOCIAL MEDIA ========== -->
+  <section class="section" id="social">
+    <div class="section-number">17</div>
+    <div class="section-label">Channels</div>
+    <h2 class="section-heading">Social Media</h2>
+    <div class="section-body">
+      <p>Social posts follow the same poster discipline. Ink backgrounds dominate. Yellow appears as a single accent — a stripe, a highlight bar, or the CTA. Type does the visual work. No stock photography. No cluttered graphics. One message per post, big and clear.</p>
+    </div>
+
+    <div class="social-grid">
+      <!-- Post 1: Stat post — ink bg -->
+      <div class="social-mock">
+        <div class="social-mock-header">Instagram / Story</div>
+        <div class="social-mock-body social-mock-body-dark" style="text-align: center; position: relative;">
+          <div style="font-family: 'Courier Prime', monospace; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.3em; color: var(--counter-ash); margin-bottom: var(--sp-4);">This month</div>
+          <div style="font-family: 'Anton', sans-serif; font-size: var(--fs-4xl); text-transform: uppercase; color: var(--counter-paper); line-height: 1;">$47,293</div>
+          <div style="font-family: 'Courier Prime', monospace; font-size: var(--fs-sm); color: var(--counter-ash); margin-top: var(--sp-2);">redirected to 43 causes</div>
+          <div style="width: 40px; height: 3px; background: var(--counter-yellow); margin: var(--sp-4) auto 0;"></div>
+        </div>
+      </div>
+
+      <!-- Post 2: Quote post — paper bg -->
+      <div class="social-mock">
+        <div class="social-mock-header">Instagram / Feed</div>
+        <div class="social-mock-body" style="position: relative; border-left: 4px solid var(--counter-yellow); padding-left: var(--sp-6);">
+          <div style="font-family: 'Libre Baskerville', serif; font-size: var(--fs-lg); font-style: italic; color: var(--counter-ink); line-height: 1.5; margin-bottom: var(--sp-4);">"You don't have to change how you shop. Just change what it means."</div>
+          <div style="font-family: 'Courier Prime', monospace; font-size: var(--fs-xs); text-transform: uppercase; letter-spacing: 0.2em; color: var(--counter-ash);">CounterCart</div>
+        </div>
+      </div>
+
+      <!-- Post 3: CTA post — paper with ink type -->
+      <div class="social-mock">
+        <div class="social-mock-header">Twitter / X</div>
+        <div class="social-mock-body" style="text-align: left;">
+          <div style="font-family: 'Anton', sans-serif; font-size: var(--fs-3xl); text-transform: uppercase; color: var(--counter-ink); line-height: 1; margin-bottom: var(--sp-4);">COUNTER<br>YOUR<br>CART.</div>
+          <div style="font-family: 'Courier Prime', monospace; font-size: var(--fs-sm); color: var(--counter-smoke);">Link your bank. Pick your causes.<br>Your spending starts giving back.</div>
+          <div style="width: 100%; height: 3px; background: var(--counter-yellow); margin-top: var(--sp-6);"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-body" style="margin-top: var(--sp-6);">
+      <p><strong>Bio format:</strong> "Spend. Offset. Give back. — Round up your everyday purchases into donations for causes you choose. Link your bank → countercart.com"</p>
+
+      <p><strong>Hashtag:</strong> #CounterYourCart is the primary. Avoid hashtag stacking — max 3 per post. Never use #charity, #philanthropy, or #blessed.</p>
+    </div>
+  </section>
+
+  <!-- ========== 18: PRINCIPLES ========== -->
+  <section class="section" id="principles">
+    <div class="section-number">18</div>
+    <div class="section-label">Ethos</div>
+    <h2 class="section-heading">Design Principles</h2>
+
+    <div class="principles">
+      <div class="principle">
+        <div class="principle-number"></div>
+        <div>
+          <div class="principle-title">Paper First, Color Earned</div>
+          <div class="principle-desc">Paper and ink carry the design. Yellow and blue appear at decisive moments — a CTA, an accent stripe, a badge. If you removed all color, the design should still work. Color is the punctuation, not the sentence.</div>
+        </div>
+      </div>
+      <div class="principle">
+        <div class="principle-number"></div>
+        <div>
+          <div class="principle-title">Two Colors. That's It.</div>
+          <div class="principle-desc">Yellow and powder blue do all the accent work. Everything else is ink and paper. Reid Miles proved that constraint produces distinctiveness — honor that discipline.</div>
+        </div>
+      </div>
+      <div class="principle">
+        <div class="principle-number"></div>
+        <div>
+          <div class="principle-title">Poster, Not App</div>
+          <div class="principle-desc">Every screen should feel like it could be ripped off and stapled to a telephone pole. Big type, clear hierarchy, minimal elements. If you can't read it from across the room, the type isn't big enough.</div>
+        </div>
+      </div>
+      <div class="principle">
+        <div class="principle-number"></div>
+        <div>
+          <div class="principle-title">Flat Is the Point</div>
+          <div class="principle-desc">No gradients, no depth effects. Hard offset shadows only. The aesthetic is flat because ink on paper is flat. Screen-print energy — one color layered on another, nothing blended.</div>
+        </div>
+      </div>
+      <div class="principle">
+        <div class="principle-number"></div>
+        <div>
+          <div class="principle-title">Type Does the Heavy Lifting</div>
+          <div class="principle-desc">Anton at 64px is the illustration. You don't need icons, images, or decorative elements when the letterforms are this bold. Typography is the visual identity.</div>
+        </div>
+      </div>
+      <div class="principle">
+        <div class="principle-number"></div>
+        <div>
+          <div class="principle-title">Warm the Neutrals</div>
+          <div class="principle-desc">Paper is cream, not white. Ink is warm black, not pure #000. This warmth shift separates "vintage confidence" from "tech startup." It's the yellowed page, the aged poster.</div>
+        </div>
+      </div>
+      <div class="principle">
+        <div class="principle-number"></div>
+        <div>
+          <div class="principle-title">Confidence, Not Aggression</div>
+          <div class="principle-desc">The yellow is warm and inviting, not warning-sign urgent. The blue is calming, not corporate. CounterCart states, it doesn't yell. Quiet confidence, always.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 19: DO'S AND DON'TS ========== -->
+  <section class="section" id="guidelines">
+    <div class="section-number">19</div>
+    <div class="section-label">Guardrails</div>
+    <h2 class="section-heading">Do's & Don'ts</h2>
+
+    <div class="comparison">
+      <div class="comparison-do">
+        <div class="comparison-header">✓ Do</div>
+        <div class="comparison-item">Let paper and ink carry 80% of any composition</div>
+        <div class="comparison-item">Use yellow/blue as accent stripes, bars, and badges — not full backgrounds</div>
+        <div class="comparison-item">Keep Anton always uppercase — it's designed for it</div>
+        <div class="comparison-item">Use hard offset shadows only (3px 3px, no blur)</div>
+        <div class="comparison-item">Let typography be the visual — big, bold, structural</div>
+        <div class="comparison-item">Write copy that's punchy and direct — short sentences, active voice</div>
+        <div class="comparison-item">Use Courier Prime for all body and UI text</div>
+        <div class="comparison-item">Apply texture sparingly — 3% opacity max for grain</div>
+        <div class="comparison-item">Think "poster on a telephone pole" for every composition</div>
+        <div class="comparison-item">Use cream paper backgrounds, never pure white</div>
+      </div>
+      <div class="comparison-dont">
+        <div class="comparison-header">✗ Don't</div>
+        <div class="comparison-item">Fill entire sections with yellow or blue backgrounds</div>
+        <div class="comparison-item">Use gradients, glass-morphism, or blurred shadows</div>
+        <div class="comparison-item">Scatter small color accents — yellow as tiny dots everywhere</div>
+        <div class="comparison-item">Add illustrations, custom icons, or decorative imagery</div>
+        <div class="comparison-item">Use Inter, Roboto, SF Pro, or any clean sans-serif</div>
+        <div class="comparison-item">Center-align body text — left-align like a manuscript</div>
+        <div class="comparison-item">Use emoji or playful animations</div>
+        <div class="comparison-item">Make anything feel "tech startup" or "charity nonprofit"</div>
+        <div class="comparison-item">Use jargon: "philanthropy," "empower," "leverage," "synergy"</div>
+        <div class="comparison-item">Over-design — if a sign painter wouldn't do it, skip it</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 20: CSS TOKENS ========== -->
+  <section class="section" id="tokens">
+    <div class="section-number">20</div>
+    <div class="section-label">Implementation</div>
+    <h2 class="section-heading">CSS Token Reference</h2>
+    <div class="section-body">
+      <p>All design tokens are defined as CSS custom properties on <code>:root</code>. Import this system and every color, font, spacing value, and shadow is available throughout the codebase.</p>
+    </div>
+
+    <div class="token-block">
+      <span class="token-comment">/* ============================</span><br>
+      <span class="token-comment">   THE COUNTER — CORE FOUR</span><br>
+      <span class="token-comment">   ============================ */</span><br>
+      <span class="token-prop">--counter-yellow</span>: <span class="token-value">#E2C230</span>; <span class="token-comment">/* primary accent */</span><br>
+      <span class="token-prop">--counter-blue</span>: <span class="token-value">#8BB8CC</span>; <span class="token-comment">/* secondary accent */</span><br>
+      <span class="token-prop">--counter-paper</span>: <span class="token-value">#F0EBE0</span>; <span class="token-comment">/* background */</span><br>
+      <span class="token-prop">--counter-ink</span>: <span class="token-value">#0A0A0A</span>; <span class="token-comment">/* text, borders */</span><br><br>
+
+      <span class="token-comment">/* Extended Neutrals */</span><br>
+      <span class="token-prop">--counter-charcoal</span>: <span class="token-value">#1E1E1E</span>;<br>
+      <span class="token-prop">--counter-graphite</span>: <span class="token-value">#333333</span>;<br>
+      <span class="token-prop">--counter-smoke</span>: <span class="token-value">#5A5A52</span>;<br>
+      <span class="token-prop">--counter-ash</span>: <span class="token-value">#8A857C</span>;<br>
+      <span class="token-prop">--counter-parchment</span>: <span class="token-value">#E4DDD0</span>;<br>
+      <span class="token-prop">--counter-white</span>: <span class="token-value">#FAF8F2</span>;<br><br>
+
+      <span class="token-comment">/* Yellow Tints */</span><br>
+      <span class="token-prop">--counter-yellow-dark</span>: <span class="token-value">#C4A520</span>;<br>
+      <span class="token-prop">--counter-yellow-light</span>: <span class="token-value">#F0D860</span>;<br>
+      <span class="token-prop">--counter-yellow-wash</span>: <span class="token-value">rgba(226, 194, 48, 0.10)</span>;<br><br>
+
+      <span class="token-comment">/* Blue Tints */</span><br>
+      <span class="token-prop">--counter-blue-dark</span>: <span class="token-value">#6A98AE</span>;<br>
+      <span class="token-prop">--counter-blue-light</span>: <span class="token-value">#B0D4E2</span>;<br>
+      <span class="token-prop">--counter-blue-wash</span>: <span class="token-value">rgba(139, 184, 204, 0.12)</span>;<br><br>
+
+      <span class="token-comment">/* Functional */</span><br>
+      <span class="token-prop">--counter-success</span>: <span class="token-value">#568203</span>;<br>
+      <span class="token-prop">--counter-error</span>: <span class="token-value">#B83A2A</span>;<br><br>
+
+      <span class="token-comment">/* Typography */</span><br>
+      <span class="token-prop">font-display</span>: <span class="token-value">'Anton', 'Impact', sans-serif</span>;<br>
+      <span class="token-prop">font-body</span>: <span class="token-value">'Courier Prime', 'Courier New', monospace</span>;<br>
+      <span class="token-prop">font-accent</span>: <span class="token-value">'Special Elite', 'Courier New', monospace</span>;<br>
+      <span class="token-prop">font-editorial</span>: <span class="token-value">'Libre Baskerville', Georgia, serif</span>;<br><br>
+
+      <span class="token-comment">/* Shadows */</span><br>
+      <span class="token-prop">--shadow-ink</span>: <span class="token-value">3px 3px 0px var(--counter-ink)</span>;<br>
+      <span class="token-prop">--shadow-deep</span>: <span class="token-value">6px 6px 0px var(--counter-charcoal)</span>;<br><br>
+
+      <span class="token-comment">/* Easing */</span><br>
+      <span class="token-prop">--ease-beat</span>: <span class="token-value">cubic-bezier(0.23, 1, 0.32, 1)</span>;<br>
+    </div>
+  </section>
+
+  <!-- ========== FOOTER ========== -->
+  <footer class="system-footer">
+    <div class="footer-accent"></div>
+    <div class="footer-mark">COUNTERCART</div>
+    <div class="footer-text">"The Counter" Brand & Design System · v2.0 · February 2026</div>
+  </footer>
+
+</div>
+
+</body>
+</html>

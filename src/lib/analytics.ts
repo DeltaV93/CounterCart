@@ -56,6 +56,53 @@ export const AnalyticsEvents = {
   SUBSCRIPTION_STARTED: "subscription_started",
   SUBSCRIPTION_UPGRADED: "subscription_upgraded",
   SUBSCRIPTION_CANCELED: "subscription_canceled",
+
+  // === GROWTH FEATURES ===
+
+  // Offset Receipt / Sharing
+  RECEIPT_GENERATED: "receipt_generated",
+  RECEIPT_SHARED_TWITTER: "receipt_shared_twitter",
+  RECEIPT_SHARED_FACEBOOK: "receipt_shared_facebook",
+  RECEIPT_SHARED_LINKEDIN: "receipt_shared_linkedin",
+  RECEIPT_SHARED_COPY: "receipt_shared_copy",
+  REFERRAL_LINK_CLICKED: "referral_link_clicked",
+  REFERRAL_SIGNUP: "referral_signup",
+
+  // Cause Clubs
+  CLUB_VIEWED: "club_viewed",
+  CLUB_JOINED: "club_joined",
+  CLUB_INVITE_SENT: "club_invite_sent",
+  CLUB_INVITE_CLICKED: "club_invite_clicked",
+  CLUB_INVITE_CONVERTED: "club_invite_converted",
+
+  // Challenges
+  CHALLENGE_VIEWED: "challenge_viewed",
+  CHALLENGE_JOINED: "challenge_joined",
+  CHALLENGE_SHARED: "challenge_shared",
+  CHALLENGE_COMPLETED: "challenge_completed",
+
+  // Organizations / B2B
+  ORG_CREATED: "org_created",
+  ORG_MEMBER_JOINED: "org_member_joined",
+  ORG_INVITE_SENT: "org_invite_sent",
+  ORG_REPORT_EXPORTED: "org_report_exported",
+
+  // Leaderboards
+  LEADERBOARD_VIEWED: "leaderboard_viewed",
+  EMBED_WIDGET_LOADED: "embed_widget_loaded",
+  EMBED_WIDGET_CLICKED: "embed_widget_clicked",
+
+  // Gifts
+  GIFT_PAGE_VIEWED: "gift_page_viewed",
+  GIFT_PURCHASED: "gift_purchased",
+  GIFT_SENT: "gift_sent",
+  GIFT_REDEEMED: "gift_redeemed",
+
+  // Badges/Profile
+  BADGE_ENABLED: "badge_enabled",
+  BADGE_DISABLED: "badge_disabled",
+  BADGE_VIEWED: "badge_viewed",
+  PROFILE_VIEWED: "profile_viewed",
 } as const;
 
 export type AnalyticsEventName = (typeof AnalyticsEvents)[keyof typeof AnalyticsEvents];
@@ -103,4 +150,19 @@ export function trackDonation(
   track(`${eventName}_${bucket}` as AnalyticsEventName);
   // Also track the base event for totals
   track(eventName);
+}
+
+/**
+ * Track a share event with platform
+ */
+export function trackShare(
+  platform: "twitter" | "facebook" | "linkedin" | "copy"
+): void {
+  const eventMap = {
+    twitter: AnalyticsEvents.RECEIPT_SHARED_TWITTER,
+    facebook: AnalyticsEvents.RECEIPT_SHARED_FACEBOOK,
+    linkedin: AnalyticsEvents.RECEIPT_SHARED_LINKEDIN,
+    copy: AnalyticsEvents.RECEIPT_SHARED_COPY,
+  };
+  track(eventMap[platform]);
 }

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { track, AnalyticsEvents } from "@/lib/analytics";
 import { Button } from "@/components/ui/button";
@@ -18,6 +19,9 @@ import {
 import { Heart, Mail, User, Loader2, CheckCircle } from "lucide-react";
 
 export default function SignupPage() {
+  const searchParams = useSearchParams();
+  const referralCode = searchParams.get("ref");
+
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -27,7 +31,10 @@ export default function SignupPage() {
   // Track signup started on page load
   useEffect(() => {
     track(AnalyticsEvents.SIGNUP_STARTED);
-  }, []);
+    if (referralCode) {
+      track(AnalyticsEvents.REFERRAL_LINK_CLICKED);
+    }
+  }, [referralCode]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,9 +46,10 @@ export default function SignupPage() {
     const { error } = await supabase.auth.signInWithOtp({
       email,
       options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback?redirect=/onboarding/causes`,
+        emailRedirectTo: `${window.location.origin}/auth/callback?redirect=/onboarding/causes${referralCode ? `&ref=${referralCode}` : ""}`,
         data: {
           name,
+          referredBy: referralCode || undefined,
         },
       },
     });

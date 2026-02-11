@@ -11,13 +11,14 @@ from app.schemas.jobs import (
     HandlePlaidWebhookRequest,
     CompleteDonationRequest,
     RetryWebhooksRequest,
+    DistributeGrantsRequest,
     JobResponse,
     ScheduledJobsResponse,
     ScheduledJobInfo,
     WebhookEventsResponse,
     WebhookEventInfo,
 )
-from app.jobs import sync_transactions, process_donations, webhooks
+from app.jobs import sync_transactions, process_donations, webhooks, distribute_grants
 from app.models import WebhookEvent
 from app.utils.logger import logger
 
@@ -135,6 +136,45 @@ async def trigger_retry_failed_webhooks(
         status="queued",
         job="retry_failed_webhooks",
         details={"max_retries": request.max_retries},
+    )
+
+
+@router.post("/distribute-grants", response_model=JobResponse)
+async def trigger_distribute_grants(
+    request: DistributeGrantsRequest,
+    background_tasks: BackgroundTasks,
+    _: str = Depends(verify_internal_token),
+):
+    """
+    Distribute grants to charities via Every.org Partner API.
+
+    Called after ACH payment succeeds. Groups donations by charity
+    and creates a disbursement batch with Every.org.
+    """
+
+    async def run_job():
+        async with AsyncSessionLocal() as session:
+            try:
+                result = await distribute_grants.distribute_batch_grants(
+                    session, request.batch_id
+                )
+                logger.info(
+                    "Distribute grants job completed",
+                    {"batch_id": request.batch_id, "result": result},
+                )
+            except Exception as e:
+                logger.error(
+                    "Distribute grants job failed",
+                    {"batch_id": request.batch_id},
+                    e,
+                )
+
+    background_tasks.add_task(run_job)
+
+    return JobResponse(
+        status="queued",
+        job="distribute_batch_grants",
+        details={"batch_id": request.batch_id},
     )
 
 

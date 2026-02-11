@@ -16,6 +16,10 @@ const updateSettingsSchema = z.object({
   notifyNewMatch: z.boolean().optional(),
   notifyPaymentFailed: z.boolean().optional(),
   notifyBankDisconnected: z.boolean().optional(),
+  // Badge/Profile settings
+  badgeEnabled: z.boolean().optional(),
+  badgeStyle: z.enum(["minimal", "detailed", "compact"]).optional(),
+  publicProfile: z.boolean().optional(),
 });
 
 export async function GET() {
@@ -37,6 +41,10 @@ export async function GET() {
       notifyNewMatch: user.notifyNewMatch,
       notifyPaymentFailed: user.notifyPaymentFailed,
       notifyBankDisconnected: user.notifyBankDisconnected,
+      // Badge/Profile settings
+      badgeEnabled: user.badgeEnabled,
+      badgeStyle: user.badgeStyle,
+      publicProfile: user.publicProfile,
     });
   } catch (error) {
     logger.error("Error fetching user settings", undefined, error);
@@ -88,6 +96,16 @@ export async function PATCH(request: Request) {
         ...(data.notifyBankDisconnected !== undefined && {
           notifyBankDisconnected: data.notifyBankDisconnected,
         }),
+        // Badge/Profile settings
+        ...(data.badgeEnabled !== undefined && {
+          badgeEnabled: data.badgeEnabled,
+        }),
+        ...(data.badgeStyle !== undefined && {
+          badgeStyle: data.badgeStyle,
+        }),
+        ...(data.publicProfile !== undefined && {
+          publicProfile: data.publicProfile,
+        }),
       },
     });
 
@@ -107,6 +125,9 @@ export async function PATCH(request: Request) {
         notifyNewMatch: updatedUser.notifyNewMatch,
         notifyPaymentFailed: updatedUser.notifyPaymentFailed,
         notifyBankDisconnected: updatedUser.notifyBankDisconnected,
+        badgeEnabled: updatedUser.badgeEnabled,
+        badgeStyle: updatedUser.badgeStyle,
+        publicProfile: updatedUser.publicProfile,
       },
     });
   } catch (error) {
