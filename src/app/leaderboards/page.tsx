@@ -11,6 +11,8 @@ import { CauseRankings } from "@/components/leaderboard/CauseRankings";
 import { EmbedCodeGenerator } from "@/components/leaderboard/EmbedCodeGenerator";
 import { ArrowRight, Heart, TrendingUp, Users } from "lucide-react";
 
+export const dynamic = "force-dynamic";
+
 const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://countercart.app";
 
 export const metadata: Metadata = {
